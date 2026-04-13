@@ -5,8 +5,6 @@ Here is the content of your project document formatted as a professional **READM
 
 ---
 
-# Church Central
-
 **Date:** April 2, 2026
 
 ## Purpose and Vision
