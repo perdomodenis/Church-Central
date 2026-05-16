@@ -1,0 +1,75 @@
+# GitLab CI/CD Pipeline für Church-Central
+# React Frontend mit Firebase Hosting Deploy
+
+stages:
+  - install
+  - build
+  - deploy
+
+variables:
+  NODE_VERSION: "20"
+
+# Stage 1: Install Dependencies
+install:dependencies:
+  stage: install
+  image: node:20
+  script:
+    - npm ci
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 hour
+  cache:
+    paths:
+      - node_modules/
+
+# Stage 2: Build React Application
+build:app:
+  stage: build
+  image: node:20
+  dependencies:
+    - install:dependencies
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 hour
+  cache:
+    paths:
+      - node_modules/
+
+# Stage 3: Deploy to Firebase Hosting
+# WICHTIG: Diese Job läuft nur auf dem main-Branch
+# Falls die Hauptbranch "master" heißt, bitte "main" durch "master" ersetzen
+deploy:firebase:
+  stage: deploy
+  image: node:20
+  dependencies:
+    - build:app
+  before_script:
+    - npm install -g firebase-tools
+  script:
+    - firebase deploy --token=$FIREBASE_TOKEN --project=church-central-992a7
+  only:
+    - main
+  environment:
+    name: production
+    url: https://church-central-992a7.web.app
+
+# Falls erforderlich: Build und Deploy für Staging
+deploy:firebase:staging:
+  stage: deploy
+  image: node:20
+  dependencies:
+    - build:app
+  before_script:
+    - npm install -g firebase-tools
+  script:
+    - firebase deploy --token=$FIREBASE_TOKEN --project=church-central-992a7
+  only:
+    - develop
+  when: manual
+  environment:
+    name: staging
+    url: https://church-central-992a7.web.app
