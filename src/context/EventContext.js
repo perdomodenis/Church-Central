@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getAllEvents } from '../services/eventsService';
+import { getAllEvents } from '../services/eventService';
 
 const EventsContext = createContext();
 

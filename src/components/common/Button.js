@@ -1,5 +1,5 @@
 import React from 'react';
-import './Button.css';
+import './Buttons.css';
 
 function Button({
     children,
@@ -8,6 +8,8 @@ function Button({
     variant = 'primary',
     disabled = false,
 }) {
+    const buttonClass = `button ${variant}`;
+
     return (
         <button
         type={type}

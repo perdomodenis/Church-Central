@@ -2,10 +2,10 @@ import React from 'react';
 import Layout from '../common/Layout';
 import Card from '../common/Card';
 import Button from '../common/Button';
-import { useEvents } from '../../context/EventsContext';
-import './EventsList.css';
+import { useEvents } from '../../context/EventContext';
+import './EventList.css';
 
-function EventList() {
+function EventsList() {
     const { events, loading, error } = useEvents();
 
     if (loading) return <Layout><div>Loading events...</div></Layout>
