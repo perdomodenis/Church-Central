@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import EventsList from './components/pages/EventsList';
 
+// Inside routes:
+<Route path="/events" element={<EventsList />} />
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: "church-central-992a7.firebaseapp.com",

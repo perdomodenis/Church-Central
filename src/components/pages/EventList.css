@@ -1,0 +1,19 @@
+.events-list {
+  padding: var(--space-6) 0;
+}
+
+.events-list h1 {
+  margin-bottom: var(--space-6);
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-6);
+}
+
+@media (max-width: 640px) {
+  .events-grid {
+    grid-template-columns: 1fr;
+  }
+}
