@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import EventsList from './components/pages/EventsList';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import EventsList from './components/pages/EventList';
+import Header from './components/common/Header';
 
-// Inside routes:
-<Route path="/events" element={<EventsList />} />
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: "church-central-992a7.firebaseapp.com",
@@ -36,24 +36,37 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>🙏 Church-Central</h1>
-        <p>Event Planning & Information Sharing</p>
-      </header>
+    <Router>
+      <div className="App">
+        <Header />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <header className="App-header">
+                  <h1>🙏 Church-Central</h1>
+                  <p>Event Planning & Information Sharing</p>
+                </header>
 
-      {user ? (
-        <div className="dashboard">
-          <p>Willkommen, {user.email}!</p>
-          <button onClick={() => auth.signOut()}>Abmelden</button>
-        </div>
-      ) : (
-        <div className="login">
-          <p>Bitte melden Sie sich an, um fortzufahren.</p>
-          <a href="/login">Zur Anmeldung</a>
-        </div>
-      )}
-    </div>
+                {user ? (
+                  <div className="dashboard">
+                    <p>Willkommen, {user.email}!</p>
+                    <button onClick={() => auth.signOut()}>Abmelden</button>
+                  </div>
+                ) : (
+                  <div className="login">
+                    <p>Bitte melden Sie sich an, um fortzufahren.</p>
+                    <a href="/login">Zur Anmeldung</a>
+                  </div>
+                )}
+              </>
+            }
+          />
+          <Route path="/events" element={<EventsList />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
