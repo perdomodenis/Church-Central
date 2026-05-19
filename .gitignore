@@ -67,3 +67,26 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# React build output
+build/
+dist/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cypress
+cypress/downloads/
+cypress/videos/
