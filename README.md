@@ -1,8 +1,6 @@
 # Church-Central
 The app simplifies and centralizes event planning and information sharing. Users upload documents or announcements, notifying specific target groups. Users are organized by Location (Court), Group (Department), and Role (Position). It is entirely web-based, allowing anyone to use it without direct installation.
 
-Here is the content of your project document formatted as a professional **README.md** file.
-
 ---
 
 **Date:** April 2, 2026
@@ -30,15 +28,15 @@ The application is **entirely web-based**, allowing for use without direct insta
 ## Milestone Plan
 
 ### Phase 1: Planning & Design
-* **[x] Milestone 1 (Day 3): Project Plan & Scope Definition**
+* **Milestone 1: Project Plan & Scope Definition**
     * *Result:* Final target catalog and coordinated requirements.
-* **[x] Milestone 2 (Day 5): Software Design Document (SDD) & Wireframes**
+* **Milestone 2: Software Design Document (SDD) & Wireframes**
     * *Result:* Determination of the 3-Tier architecture and Low-Fidelity UI sketches.
 
 ### Phase 2: Backend & Core Logic (Implementation – Logic Layer)
-* **[ ] Milestone 3 (Day 7): Development Environment & Repository**
+* **Milestone 3: Development Environment & Repository**
     * *Result:* Git repository initialized; cloud infrastructure for the Database (Data Access Layer) provided.
-* **[ ] Milestone 4 (Day 10): Database Schema & Access Layer**
+* **Milestone 4: Database Schema & Access Layer**
     * *Result:* Database is operational; basic functions for saving and retrieving documents work.
 * **[ ] Milestone 5 (Day 14): Core Logic & User Categorization**
     * *Result:* Logic for locations, groups, and roles is stably implemented in the backend.
