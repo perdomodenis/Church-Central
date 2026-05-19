@@ -81,3 +81,4 @@ jobs:
       - run: firebase deploy --token=${{ secrets.FIREBASE_TOKEN }} --project=church-central-992a7
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+//
