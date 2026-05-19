@@ -1,22 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { auth, onAuthStateChanged } from './services/firebase';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import EventsList from './components/pages/EventList';
 import Header from './components/common/Header';
-
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: "church-central-992a7.firebaseapp.com",
-  projectId: "church-central-992a7",
-  storageBucket: "church-central-992a7.appspot.com",
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
 function App() {
   const [user, setUser] = useState(null);
