@@ -22,10 +22,10 @@ function Header() {
         </nav>
 
         {/* User info */}
-        {user&& (
+        {user && (
           <div className="user-info">
-            <span>Welcome, {user.name}</span>
-            </div>
+            <span>Welcome, {user.email}</span>
+          </div>
         )}
       </div>
     </header>

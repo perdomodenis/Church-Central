@@ -1,22 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './App.css';
-import { auth, onAuthStateChanged } from './services/firebase';
+import { auth, signOut } from './services/firebase';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import EventsList from './components/pages/EventList';
 import Header from './components/common/Header';
+import AuthPage from './components/pages/AuthPage';
+import { useAuth } from './context/AuthContext';
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <div className="loading">Lädt...</div>;
@@ -39,7 +31,7 @@ function App() {
                 {user ? (
                   <div className="dashboard">
                     <p>Willkommen, {user.email}!</p>
-                    <button onClick={() => auth.signOut()}>Abmelden</button>
+                    <button onClick={() => signOut(auth)}>Abmelden</button>
                   </div>
                 ) : (
                   <div className="login">
@@ -51,6 +43,8 @@ function App() {
             }
           />
           <Route path="/events" element={<EventsList />} />
+          <Route path="/login" element={<AuthPage mode="login" />} />
+          <Route path="/register" element={<AuthPage mode="register" />} />
         </Routes>
       </div>
     </Router>
