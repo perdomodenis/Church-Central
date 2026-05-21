@@ -21,7 +21,7 @@ The application is **entirely web-based**, allowing for use without direct insta
 ## Feasibility & Resources
 * **Feasibility:** Highly feasible from a technical standpoint, as all necessary resources are available for free.
 * **Budget:** Completely free of charge.
-* **Resources:** 1 Developer, 1 Laptop with necessary tools.
+* **Resources:** 3 Developers
 
 ---
 
