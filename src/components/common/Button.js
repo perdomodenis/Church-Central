@@ -7,16 +7,18 @@ function Button({
     type = 'button',
     variant = 'primary',
     disabled = false,
+    loading = false,
+    className = '',
 }) {
     return (
         <button
         type={type}
         onClick={onClick}
         disabled={disabled}
-        className={buttonClass}
+        className={`btn btn-${variant} ${className}`}
         >
-        {children}
-        </button>
+    {loading ? '⏳ Lädt...' : children}
+</button>
     );
 }
 

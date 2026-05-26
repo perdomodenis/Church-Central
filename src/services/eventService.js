@@ -85,3 +85,21 @@ export async function deleteEvent(eventId) {
     throw error;
   }
 }
+
+// Register user for event
+export async function registerForEvent(eventId, userId) {
+  try {
+    const eventDoc = doc(db, 'events', eventId);
+    const event = await getEventById(eventId);
+    
+    const registrations = event.registrations || [];
+    if (!registrations.includes(userId)) {
+      registrations.push(userId);
+    }
+
+    await updateDoc(eventDoc, { registrations });
+  } catch (error) {
+    console.error('Error registering:', error);
+    throw error;
+  }
+}
