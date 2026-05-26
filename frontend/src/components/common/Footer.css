@@ -1,0 +1,32 @@
+.footer {
+  background: var(--gray-100);
+  border-top: 1px solid #e5e7eb;
+  padding: var(--space-6) var(--space-4);
+  margin-top: auto;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-container p {
+  color: var(--gray-500);
+  margin-bottom: var(--space-4);
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
+.footer-links a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
