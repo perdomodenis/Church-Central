@@ -1,11 +1,24 @@
 {
   "name": "church-central-monorepo",
+  "version": "1.0.0",
   "private": true,
+  "description": "Church Central - Event Planning & Information Sharing for CCI Switzerland",
   "scripts": {
     "start": "cd frontend && npm start",
     "build": "cd frontend && npm run build",
     "test": "cd frontend && npm test",
     "install:frontend": "cd frontend && npm install",
-    "backend:start": "cd backend && npm start"
-  }
+    "install:all": "npm install && cd frontend && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "church",
+    "event",
+    "planning",
+    "react"
+  ],
+  "author": "Church Central Team",
+  "license": "MIT"
 }

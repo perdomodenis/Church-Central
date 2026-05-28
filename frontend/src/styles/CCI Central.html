@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CCI Central — Prototype</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #F4EFE6;
+            --surface: #FFFFFF;
+            --ink: #1E1830;
+            --ink-2: #54506B;
+            --ink-3: #8C879F;
+            --line: #E7E2D8;
+            --line-2: #EFEAE0;
+            --accent: #5B3FBB;
+            --accent-ink: #FFFFFF;
+            --accent-soft: #EFE9FF;
+            --gold: #C9974A;
+            --gold-soft: #F6ECD8;
+            --rose: #C75B7A;
+            --green: #4F8C6E;
+            --shadow-1: 0 1px 2px rgba(20,16,40,0.05);
+            --shadow-2: 0 8px 24px rgba(20,16,40,0.08);
+        }
+        [data-theme="dark"] {
+            --bg: #15101F;
+            --surface: #1F1A2C;
+            --ink: #F2EFE8;
+            --ink-2: #BCB6CC;
+            --ink-3: #7A7591;
+            --line: #2C2640;
+            --line-2: #261F38;
+            --accent-soft: #2A1F4D;
+            --gold-soft: #3A2D14;
+        }
+        html, body { margin: 0; padding: 0; background: #E8E2D4; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: var(--ink); }
+        body {
+            background:
+                    radial-gradient(1200px 600px at 15% -10%, #F1E5C6 0%, transparent 60%),
+                    radial-gradient(900px 600px at 100% 100%, #DCD0EE 0%, transparent 60%),
+                    #EAE3D2;
+        }
+        * { box-sizing: border-box; }
+        button { font-family: inherit; }
+
+        /* utility */
+        .app-root { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(--bg); color: var(--ink); height: 100%; display: flex; flex-direction: column; }
+        .serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; letter-spacing: -0.01em; }
+
+        /* scrollbar */
+        .nice-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+        /* shimmer */
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        .shimmer { background: linear-gradient(90deg, var(--line-2) 0%, var(--line) 50%, var(--line-2) 100%); background-size: 200% 100%; animation: shimmer 1.6s linear infinite; }
+
+        @keyframes slideUp { 0% { transform: translateY(12px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        .animate-up { /* animation: slideUp 0.32s cubic-bezier(0.2, 0.7, 0.2, 1) 0s 1 normal forwards; */ }
+        .animate-fade { /* no-op — animations stall in some webviews */ }
+
+        /* keyboard hint for inputs */
+        .field-wrap input, .field-wrap select, .field-wrap textarea {
+            width: 100%; font-family: inherit; font-size: 15px; color: var(--ink);
+            background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+            padding: 14px 14px; outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .field-wrap input:focus, .field-wrap select:focus, .field-wrap textarea:focus {
+            border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+        .field-wrap label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; letter-spacing: 0.02em; text-transform: uppercase; }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 15px; border-radius: 14px; padding: 14px 18px; border: none; cursor: pointer; transition: transform 0.08s ease, opacity 0.12s; }
+        .btn:active { transform: scale(0.985); }
+        .btn-primary { background: var(--accent); color: var(--accent-ink); }
+        .btn-ghost { background: transparent; color: var(--ink-2); }
+        .btn-outline { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+        .btn-gold { background: var(--gold); color: #fff; }
+
+        .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--accent-soft); color: var(--accent); }
+
+        .card { background: var(--surface); border-radius: 20px; border: 1px solid var(--line); }
+
+        /* mini avatar gradient bg */
+        .av-grad { background: linear-gradient(135deg, var(--accent) 0%, var(--gold) 100%); }
+    </style>
+
+    <!-- speaker notes (none for prototype) -->
+</head>
+<body>
+
+<template id="__bundler_thumbnail" data-bg-color="#EAE3D2">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+        <rect width="1200" height="800" fill="#EAE3D2"/>
+        <rect x="430" y="120" width="340" height="600" rx="60" fill="#FFFFFF" stroke="#1E1830" stroke-width="6"/>
+        <rect x="450" y="140" width="300" height="560" rx="40" fill="#F4EFE6"/>
+        <circle cx="600" cy="360" r="80" fill="#5B3FBB"/>
+        <path d="M583 320 h34 v40 h40 v34 h-40 v66 h-34 v-66 h-40 v-34 h40 z" fill="#FFFFFF"/>
+        <text x="600" y="500" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="34" fill="#1E1830">CCI Central</text>
+        <text x="600" y="540" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#8C879F">Loading…</text>
+    </svg>
+</template>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="ui.jsx"></script>
+<script type="text/babel" src="auth.jsx"></script>
+<script type="text/babel" src="screens.jsx"></script>
+<script type="text/babel" src="upload.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+
+</body>
+</html>
+B

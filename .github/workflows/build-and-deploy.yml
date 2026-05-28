@@ -13,20 +13,8 @@ env:
   NODE_VERSION: "20"
 
 jobs:
-  install:
-    name: Install Dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-
   build:
     name: Build React App
-    needs: install
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,12 +22,17 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
-      - run: npm run build
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: build
-          path: build/
+          path: frontend/build/
           retention-days: 1
 
   deploy-production:
@@ -57,7 +50,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build
-          path: build/
+          path: frontend/build/
       - run: firebase deploy --token=${{ secrets.FIREBASE_TOKEN }} --project=church-central-992a7
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
@@ -77,7 +70,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build
-          path: build/
+          path: frontend/build/
       - run: firebase deploy --token=${{ secrets.FIREBASE_TOKEN }} --project=church-central-992a7
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
