@@ -6,7 +6,7 @@ The app simplifies and centralizes event planning and information sharing. Users
 **Date:** April 2, 2026
 
 ## Purpose and Vision
-To improve the flow of information within CCI Switzerland and ultimately on a global level.
+To improve the flow of information within churches.
 
 ## Scope
 The app aims to simplify and centralize event planning and information distribution. Users can upload documents or announcements, which then reach and notify predetermined users. 
@@ -21,7 +21,7 @@ The application is **entirely web-based**, allowing for use without direct insta
 ## Feasibility & Resources
 * **Feasibility:** Highly feasible from a technical standpoint, as all necessary resources are available for free.
 * **Budget:** Completely free of charge.
-* **Resources:** 1 Developer, 1 Laptop with necessary tools.
+* **Resources:** 3 Developers
 
 ---
 

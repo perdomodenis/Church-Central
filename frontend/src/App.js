@@ -1,53 +1,236 @@
 import React from 'react';
 import './App.css';
-import { auth, signOut } from './services/firebase';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import EventsList from './components/pages/EventList';
-import Header from './components/common/Header';
-import AuthPage from './components/pages/AuthPage';
 import { useAuth } from './context/AuthContext';
+import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from './services/firebase';
+
+// Auth Screens
+import LoginScreen from './components/auth/LoginScreen';
+import SignupScreen from './components/auth/SignupScreen';
+import WelcomeScreen from './components/auth/WelcomeScreen';
+import ForgotScreen from './components/auth/ForgotScreen';
+import ForgotSent from './components/auth/ForgotSent';
+
+// Main Screens
+import FeedScreen from './components/screens/FeedScreen';
+import InboxScreen from './components/screens/InboxScreen';
+import ScheduleScreen from './components/screens/ScheduleScreen';
+import AppointmentScreen from './components/screens/AppointmentScreen';
+import ManagementScreen from './components/screens/ManagementScreen';
+import UploadScreen from './components/screens/UploadScreen';
+import ProfileScreen from './components/screens/ProfileScreen';
+import SettingsScreen from './components/screens/SettingsScreen';
+import FeedbackScreen from './components/screens/FeedbackScreen';
+import SimpleScreen from './components/screens/SimpleScreen';
+
+// UI Components
+import { TopBar, MenuDrawer, FabMenu, Sheet, useToast } from './components/common/UI';
+import * as Icon from './components/common/Icons';
+
+const ACCENT_PRESETS = [
+  ['#5B3FBB', '#EFE9FF'],
+  ['#C9974A', '#F6ECD8'],
+  ['#2E6B5E', '#E1EFEB'],
+  ['#1F4D8F', '#E3ECF7'],
+  ['#B8385E', '#FAE3EA'],
+  ['#0F172A', '#E2E6EE'],
+];
 
 function App() {
-  const { user, loading } = useAuth();
+  const { user: authUser, loading: authLoading } = useAuth();
 
-  if (loading) {
-    return <div className="loading">Lädt...</div>;
+  // Route state machine
+  const [route, setRoute] = useState('login');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [scope, setScope] = useState('Noticias');
+  const toast = useToast();
+
+  // Theme
+  const [accentColor, setAccentColor] = useState('#5B3FBB');
+  const [darkMode, setDarkMode] = useState(false);
+
+  // User data
+  const [user, setUser] = useState({
+    first: '', last: '', email: '',
+    court: '', position: '', dept: '', interests: [],
+  });
+
+  // Signup flow
+  const [signupStep, setSignupStep] = useState(1);
+  const [signupData, setSignupData] = useState({
+    first: '', last: '', email: '', zip: '', city: '', pw: '', pw2: '',
+    court: '', position: '', dept: '', interests: [],
+  });
+
+  // Update user on authUser change
+  useEffect(() => {
+    if (authUser) {
+      setUser(u => ({
+        ...u,
+        email: authUser.email || authUser.displayName || 'Usuario',
+        first: authUser.displayName?.split(' ')[0] || 'Usuario',
+        last: authUser.displayName?.split(' ')[1] || '',
+      }));
+      setRoute('home');
+    } else if (!authLoading) {
+      setRoute('login');
+    }
+  }, [authUser, authLoading]);
+
+  // Apply theme
+  useEffect(() => {
+    const root = document.documentElement;
+    const [accent] = ACCENT_PRESETS.find(p => p[0] === accentColor) || ACCENT_PRESETS[0];
+    root.style.setProperty('--accent', accent);
+    root.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  }, [accentColor, darkMode]);
+
+  const handleLogin = async ({ email, password }) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast.show('¡Bienvenido!');
+    } catch (error) {
+      toast.show('Error al iniciar sesión: ' + error.message);
+    }
+  };
+
+  const handleSignup = async () => {
+    try {
+      if (signupData.pw !== signupData.pw2) {
+        toast.show('Las contraseñas no coinciden');
+        return;
+      }
+      await createUserWithEmailAndPassword(auth, signupData.email, signupData.pw);
+      setUser(u => ({ ...u, ...signupData }));
+      setRoute('welcome');
+      toast.show('¡Cuenta creada!');
+    } catch (error) {
+      toast.show('Error: ' + error.message);
+    }
+  };
+
+  const handleFab = (action) => {
+    if (action === 'upload' || action === 'post') {
+      setUploadOpen(true);
+    } else if (action === 'member') {
+      toast.show('Enlace de invitación copiado');
+    } else if (action === 'feedback') {
+      setRoute('feedback');
+    }
+  };
+
+  const onAction = (kind) => {
+    if (kind === 'comment') toast.show('Los comentarios estarán disponibles pronto');
+    else if (kind === 'pray') toast.show('🙏 Orando contigo');
+    else if (kind === 'share') toast.show('Enlace copiado');
+  };
+
+  const scopeOptions = ['Noticias', 'Departamento', 'Distrito', 'Corte', 'Líderes', 'Todos'];
+  const inAuth = ['login', 'signup', 'welcome', 'forgot', 'forgot-sent'].includes(route);
+
+  // Render screen
+  let body;
+  if (authLoading) {
+    return <div className="loading">Cargando...</div>;
+  }
+
+  if (route === 'login') {
+    body = (
+      <LoginScreen
+        onLogin={handleLogin}
+        onSignup={() => { setSignupStep(1); setRoute('signup'); }}
+        onForgot={() => setRoute('forgot')}
+      />
+    );
+  } else if (route === 'forgot') {
+    body = <ForgotScreen onBack={() => setRoute('login')} onSent={(em) => { setSignupData(d => ({ ...d, email: em })); setRoute('forgot-sent'); }} />;
+  } else if (route === 'forgot-sent') {
+    body = <ForgotSent email={signupData.email} onBack={() => setRoute('login')} />;
+  } else if (route === 'signup') {
+    body = (
+      <SignupScreen
+        step={signupStep}
+        data={signupData}
+        onChange={(p) => setSignupData(d => ({ ...d, ...p }))}
+        onNext={() => {
+          if (signupStep < 3) setSignupStep(s => s + 1);
+          else handleSignup();
+        }}
+        onBack={() => { if (signupStep > 1) setSignupStep(s => s - 1); else setRoute('login'); }}
+      />
+    );
+  } else if (route === 'welcome') {
+    body = <WelcomeScreen name={signupData.first || 'amigo'} onContinue={() => setRoute('home')} />;
+  } else if (route === 'home') {
+    body = <FeedScreen scope={scope} onAction={onAction} />;
+  } else if (route === 'inbox') {
+    body = <InboxScreen />;
+  } else if (route === 'schedule') {
+    body = <ScheduleScreen />;
+  } else if (route === 'appointment') {
+    body = <AppointmentScreen />;
+  } else if (route === 'mgmt') {
+    body = <ManagementScreen />;
+  } else if (route === 'upload') {
+    body = <UploadScreen onCancel={() => setRoute('home')} onDone={() => setRoute('home')} />;
+  } else if (route === 'feedback') {
+    body = <FeedbackScreen />;
+  } else if (route === 'baptism') {
+    body = <SimpleScreen icon={<Icon.Drop />} title="Bautismo" subtitle="Regístrate para el bautismo en agua" />;
+  } else if (route === 'nls') {
+    body = <SimpleScreen icon={<Icon.Spark />} title="Nuevos Pasos de Vida" subtitle="Tu viaje de discipulado" />;
+  } else if (route === 'profile') {
+    body = <ProfileScreen user={user} onSettings={() => setRoute('settings')} onLogout={() => { auth.signOut(); setRoute('login'); }} />;
+  } else if (route === 'settings') {
+    body = <SettingsScreen user={user} onBack={() => setRoute('profile')} />;
+  } else {
+    body = <FeedScreen scope={scope} onAction={onAction} />;
   }
 
   return (
-    <Router>
-      <div className="App">
-        <Header />
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                <header className="App-header">
-                  <h1>🙏 Church-Central</h1>
-                  <p>Event Planning & Information Sharing</p>
-                </header>
+    <div className="App app-root" style={{ position: 'relative', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {!inAuth && (
+        <TopBar
+          scope={scope}
+          scopeOptions={route === 'home' ? scopeOptions : null}
+          title={
+            route === 'inbox' ? 'Inbox' :
+            route === 'schedule' ? 'Calendario' :
+            route === 'appointment' ? 'Cita' :
+            route === 'mgmt' ? 'Gestión' :
+            route === 'profile' ? 'Perfil' :
+            route === 'settings' ? 'Configuración' :
+            route === 'upload' ? 'Compartir' :
+            route === 'feedback' ? 'Feedback' :
+            route === 'baptism' ? 'Bautismo' :
+            route === 'nls' ? 'Nuevos Pasos' : ''
+          }
+          onScope={setScope}
+          onMenu={() => setMenuOpen(true)}
+          onProfile={() => setRoute('profile')}
+        />
+      )}
 
-                {user ? (
-                  <div className="dashboard">
-                    <p>Willkommen, {user.email}!</p>
-                    <button onClick={() => signOut(auth)}>Abmelden</button>
-                  </div>
-                ) : (
-                  <div className="login">
-                    <p>Bitte melden Sie sich an, um fortzufahren.</p>
-                    <a href="/login">Zur Anmeldung</a>
-                  </div>
-                )}
-              </>
-            }
-          />
-          <Route path="/events" element={<EventsList />} />
-          <Route path="/login" element={<AuthPage mode="login" />} />
-          <Route path="/register" element={<AuthPage mode="register" />} />
-        </Routes>
+      <div className="nice-scroll" style={{ flex: 1, overflow: 'auto', paddingTop: inAuth ? 0 : 6, position: 'relative' }}>
+        {body}
       </div>
-    </Router>
+
+      {!inAuth && route !== 'upload' && <FabMenu onAction={handleFab} />}
+
+      <MenuDrawer
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        route={route}
+        onNavigate={setRoute}
+        onLogout={() => { setMenuOpen(false); auth.signOut(); setRoute('login'); }}
+      />
+
+      <Sheet open={uploadOpen} onClose={() => setUploadOpen(false)} height="92%">
+        {uploadOpen && <UploadScreen onCancel={() => setUploadOpen(false)} onDone={() => { setUploadOpen(false); toast.show('¡Compartido con la familia!'); }} />}
+      </Sheet>
+
+      {toast.node}
+    </div>
   );
 }
 
