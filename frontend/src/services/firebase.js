@@ -1,9 +1,11 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getDatabase } from "firebase/database";
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword 
+  createUserWithEmailAndPassword,
+  onAuthStateChanged
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -24,5 +26,8 @@ const analytics = getAnalytics(app);
 // Initialize Auth and export functions used in App.js
 export const auth = getAuth(app);
 
-export { signInWithEmailAndPassword, createUserWithEmailAndPassword };
+// Initialize Realtime Database
+export const db = getDatabase(app);
+
+export { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged };
 export default app;
