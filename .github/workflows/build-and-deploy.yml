@@ -50,7 +50,7 @@ jobs:
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@v13.1.0
         with:
-          args: deploy --project=church-central-992a7
+          args: deploy --project=church-central-992a7 --public frontend/build
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
@@ -72,6 +72,6 @@ jobs:
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@v13.1.0
         with:
-          args: deploy --project=church-central-992a7
+          args: deploy --project=church-central-992a7 --public frontend/build
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
