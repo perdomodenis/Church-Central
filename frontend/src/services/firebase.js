@@ -1,35 +1,28 @@
-import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 import { 
   getAuth, 
-  onAuthStateChanged,
-  signOut,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
-} from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword 
+} from "firebase/auth";
 
-// Your Firebase config (from Firebase Console)
 const firebaseConfig = {
-  apiKey: "AIzaSyCgRp_9rO47iBxMxBZGE9xMaJUf1E11YrE",
-  authDomain: "church-central-992a7.firebaseapp.com",
-  databaseURL: "https://church-central-992a7-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "church-central-992a7",
-  storageBucket: "church-central-992a7.firebasestorage.app",
-  messagingSenderId: "403018052718",
-  appId: "1:403018052718:web:a7ceedee1c6416bed0627f",
-  measurementId: "G-XWPXLKM790"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-// Initialize Firebase services
+// Initialize Auth and export functions used in App.js
 export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
 
-// Export auth functions
-export { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword };
+export { signInWithEmailAndPassword, createUserWithEmailAndPassword };
+export default app;
