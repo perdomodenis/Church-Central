@@ -75,7 +75,7 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
 
       {/* Language Section */}
       <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}}>{t('language')}</h3>
+        <h3 style={sectionTitleStyle}>{t('language')}</h3>
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <div>
