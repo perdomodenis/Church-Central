@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
 
-const LoginScreen = ({ onLogin, onSignup, onForgot }) => {
+const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (email && password) {
       onLogin({ email, password });
+    }
+  };
+
+  const handleGoogleClick = async () => {
+    setLoading(true);
+    try {
+      await onGoogleLogin();
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,15 +65,15 @@ const LoginScreen = ({ onLogin, onSignup, onForgot }) => {
           />
         </div>
 
-        <button 
-          type="submit" 
-          style={{ 
-            backgroundColor: 'var(--accent)', 
-            color: 'white', 
-            padding: '14px', 
-            borderRadius: '8px', 
-            border: 'none', 
-            fontWeight: '600', 
+        <button
+          type="submit"
+          style={{
+            backgroundColor: 'var(--accent)',
+            color: 'white',
+            padding: '14px',
+            borderRadius: '8px',
+            border: 'none',
+            fontWeight: '600',
             cursor: 'pointer',
             marginTop: '10px'
           }}
@@ -71,6 +81,38 @@ const LoginScreen = ({ onLogin, onSignup, onForgot }) => {
           Sign In
         </button>
       </form>
+
+      <div style={{ marginTop: '24px', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
+          <span style={{ fontSize: '0.85rem', color: '#999' }}>or</span>
+          <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleClick}
+          disabled={loading}
+          style={{
+            width: '100%',
+            padding: '14px',
+            borderRadius: '8px',
+            border: '1px solid #ddd',
+            backgroundColor: 'white',
+            fontWeight: '600',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            fontSize: '1rem',
+            opacity: loading ? 0.6 : 1
+          }}
+        >
+          <span style={{ fontSize: '1.2rem' }}>🔵</span>
+          {loading ? 'Signing in...' : 'Sign in with Google'}
+        </button>
+      </div>
 
       <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.9rem' }}>
         <button onClick={onForgot} style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline' }}>

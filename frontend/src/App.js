@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { useAuth } from './context/AuthContext';
 import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from './services/firebase';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 // Auth Screens
 import LoginScreen from './components/auth/LoginScreen';
@@ -117,6 +118,29 @@ function App() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const googleUser = result.user;
+
+      setUser(u => ({
+        ...u,
+        uid: googleUser.uid,
+        email: googleUser.email || '',
+        first: googleUser.displayName?.split(' ')[0] || 'User',
+        last: googleUser.displayName?.split(' ').slice(1).join(' ') || '',
+      }));
+
+      toast.show('Welcome with Google!');
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        return;
+      }
+      toast.show('Google login error: ' + error.message);
+    }
+  };
+
   const handleFab = (action) => {
     if (action === 'upload' || action === 'post') {
       setUploadOpen(true);
@@ -148,6 +172,7 @@ function App() {
         onLogin={handleLogin}
         onSignup={() => { setSignupStep(1); setRoute('signup'); }}
         onForgot={() => setRoute('forgot')}
+        onGoogleLogin={handleGoogleLogin}
       />
     );
   } else if (route === 'forgot') {
