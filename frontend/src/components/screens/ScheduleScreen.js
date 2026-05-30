@@ -43,8 +43,7 @@ const ScheduleScreen = () => {
 
   return (
     <div className="schedule-screen" style={{ padding: '16px', paddingBottom: '80px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#111' }}>Upcoming Events</h2>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px' }}>
         <button
           onClick={() => setShowAddModal(true)}
           style={{
