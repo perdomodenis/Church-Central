@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { seedTestData } from '../../services/seedData';
+import { seedProductionData } from '../../services/productionData';
 
 const DebugScreen = ({ onBack }) => {
   const [loading, setLoading] = useState(false);
@@ -10,7 +11,19 @@ const DebugScreen = ({ onBack }) => {
     setMessage('Agregando datos de prueba...');
     try {
       await seedTestData();
-      setMessage('✅ Datos agregados exitosamente! Recarga la página.');
+      setMessage('✅ Datos de prueba agregados exitosamente! Recarga la página.');
+    } catch (error) {
+      setMessage('❌ Error: ' + error.message);
+    }
+    setLoading(false);
+  };
+
+  const handleSeedProductionData = async () => {
+    setLoading(true);
+    setMessage('Agregando datos de producción...');
+    try {
+      await seedProductionData();
+      setMessage('✅ Datos de producción agregados exitosamente! Recarga la página.');
     } catch (error) {
       setMessage('❌ Error: ' + error.message);
     }
@@ -24,8 +37,12 @@ const DebugScreen = ({ onBack }) => {
       </button>
 
       <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '24px' }}>
-        Debug: Add Test Data
+        Debug: Load Data
       </h2>
+
+      <p style={{ color: '#666', marginBottom: '24px', fontSize: '0.9rem' }}>
+        Choose an option to populate the database with data:
+      </p>
 
       <button
         onClick={handleSeedData}
@@ -33,7 +50,26 @@ const DebugScreen = ({ onBack }) => {
         style={{
           width: '100%',
           padding: '16px',
-          backgroundColor: loading ? '#ccc' : 'var(--accent)',
+          backgroundColor: loading ? '#ccc' : '#FF6B6B',
+          color: 'white',
+          border: 'none',
+          borderRadius: '12px',
+          fontWeight: '700',
+          fontSize: '1rem',
+          cursor: loading ? 'not-allowed' : 'pointer',
+          marginBottom: '12px'
+        }}
+      >
+        {loading ? 'Adding...' : 'Add 5 Test Users (Demo Data)'}
+      </button>
+
+      <button
+        onClick={handleSeedProductionData}
+        disabled={loading}
+        style={{
+          width: '100%',
+          padding: '16px',
+          backgroundColor: loading ? '#ccc' : '#4CAF50',
           color: 'white',
           border: 'none',
           borderRadius: '12px',
@@ -43,7 +79,7 @@ const DebugScreen = ({ onBack }) => {
           marginBottom: '16px'
         }}
       >
-        {loading ? 'Adding...' : 'Add 5 Test Users'}
+        {loading ? 'Adding...' : 'Load Production Data (Grace Community Church)'}
       </button>
 
       {message && (
