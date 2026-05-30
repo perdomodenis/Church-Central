@@ -1,20 +1,32 @@
 import React, { useState } from 'react';
 
-const MOCK_STAFF = [
-  'Pastor John Doe',
-  'Pastor Sarah Jenkins',
-  'Youth Leader Mike Ross',
-  'Counseling Department'
+const STAFF_MEMBERS = [
+  { name: 'James Peterson', role: 'Senior Pastor' },
+  { name: 'Rachel Thompson', role: 'Worship Pastor' },
+  { name: 'Juan Rivera', role: 'Youth Director' },
+  { name: 'Sofia Garcia', role: 'Community Outreach Coordinator' },
+  { name: 'Mark Anderson', role: 'Bible Study Leader' },
+  { name: 'Patricia White', role: 'Prayer Coordinator' }
 ];
 
-const MOCK_EXISTING = [
-  { 
-    id: 1, 
-    staff: 'Pastor John Doe', 
-    date: 'Oct 30, 2023', 
-    time: '2:00 PM', 
+const RECENT_APPOINTMENTS = [
+  {
+    id: 1,
+    staff: 'James Peterson',
+    date: 'Jun 2, 2025',
+    time: '3:00 PM',
     status: 'Confirmed',
-    type: 'Spiritual Guidance'
+    type: 'Pastoral Counseling',
+    notes: 'Follow-up discussion'
+  },
+  {
+    id: 2,
+    staff: 'Rachel Thompson',
+    date: 'Jun 5, 2025',
+    time: '2:30 PM',
+    status: 'Scheduled',
+    type: 'Worship Discussion',
+    notes: 'Summer worship planning'
   }
 ];
 
@@ -50,7 +62,7 @@ const AppointmentScreen = () => {
             required
           >
             <option value="">Choose a person...</option>
-            {MOCK_STAFF.map(s => <option key={s} value={s}>{s}</option>)}
+            {STAFF_MEMBERS.map(s => <option key={s.name} value={s.name}>{s.name} - {s.role}</option>)}
           </select>
         </div>
 
@@ -92,7 +104,11 @@ const AppointmentScreen = () => {
 
       <div style={{ marginTop: '32px' }}>
         <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '16px' }}>Your Appointments</h3>
-        {MOCK_EXISTING.map(app => (
+        {RECENT_APPOINTMENTS.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '24px', color: '#999' }}>
+            No appointments scheduled yet
+          </div>
+        ) : RECENT_APPOINTMENTS.map(app => (
           <div key={app.id} style={appointmentCardStyle}>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 'bold', color: '#111' }}>{app.staff}</div>
@@ -111,7 +127,6 @@ const AppointmentScreen = () => {
             </div>
           </div>
         ))}
-      </div>
     </div>
   );
 };
