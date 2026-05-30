@@ -502,15 +502,15 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
 
 // Styles
 const avatarStyle = {
-  width: '100px',
-  height: '100px',
-  borderRadius: '50px',
+  width: '220px',
+  height: '220px',
+  borderRadius: '110px',
   backgroundColor: 'var(--accent)',
   color: 'white',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontSize: '2.5rem',
+  fontSize: '4rem',
   fontWeight: '800',
   boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
 };

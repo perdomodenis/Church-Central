@@ -70,6 +70,7 @@ function App() {
     if (authUser) {
       setUser(u => ({
         ...u,
+        uid: authUser.uid,
         email: authUser.email || authUser.displayName || 'User',
         first: authUser.displayName?.split(' ')[0] || 'User',
         last: authUser.displayName?.split(' ')[1] || '',

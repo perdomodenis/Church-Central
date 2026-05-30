@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
 import {
@@ -27,8 +28,12 @@ const analytics = getAnalytics(app);
 // Initialize Auth and export functions used in App.js
 export const auth = getAuth(app);
 
-// Initialize Realtime Database
+// Initialize Realtime Database (primary database)
 export const db = getDatabase(app);
+export const rtdb = getDatabase(app);
+
+// Initialize Firestore (optional, not currently in use)
+export const firestore = getFirestore(app);
 
 // Initialize Storage
 export const storage = getStorage(app);
