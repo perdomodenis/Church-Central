@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,13 +35,13 @@ const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
     }}>
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         <h1 style={{ color: 'var(--accent)', fontSize: '2.5rem', marginBottom: '8px' }}>Church Central</h1>
-        <p style={{ opacity: 0.7 }}>Sign in to your community</p>
+        <p style={{ opacity: 0.7 }}>{t('welcome')}</p>
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div className="input-group">
           <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
-            Email Address
+            {t('email')}
           </label>
           <input
             type="email"
@@ -53,7 +55,7 @@ const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
 
         <div className="input-group">
           <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
-            Password
+            {t('password')}
           </label>
           <input
             type="password"
@@ -78,7 +80,7 @@ const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
             marginTop: '10px'
           }}
         >
-          Sign In
+          {t('signIn')}
         </button>
       </form>
 

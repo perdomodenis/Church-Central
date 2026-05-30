@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import LanguageModal from '../modals/LanguageModal';
 
 const ACCENT_PRESETS = [
   ['#5B3FBB', '#EFE9FF'],
@@ -11,7 +12,8 @@ const ACCENT_PRESETS = [
 ];
 
 const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, setDarkMode }) => {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, t } = useLanguage();
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
 
   return (
     <div className="settings-screen" style={{ padding: '24px', paddingBottom: '100px' }}>
@@ -73,32 +75,33 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
 
       {/* Language Section */}
       <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Language / Idioma / Sprache / Langue</h3>
+        <h3 style={sectionTitleStyle}>Language</h3>
         <div style={cardStyle}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            {[
-              { code: 'en', name: 'English' },
-              { code: 'es', name: 'Español' },
-              { code: 'de', name: 'Deutsch' },
-              { code: 'fr', name: 'Français' }
-            ].map(lang => (
-              <button
-                key={lang.code}
-                onClick={() => setLanguage(lang.code)}
-                style={{
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: language === lang.code ? '2px solid var(--accent)' : '1px solid #ddd',
-                  backgroundColor: language === lang.code ? 'rgba(91, 63, 187, 0.08)' : 'white',
-                  fontWeight: language === lang.code ? '700' : '500',
-                  color: '#111',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                {lang.name}
-              </button>
-            ))}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <div>
+              <p style={{ margin: 0, fontWeight: '700', color: '#111' }}>Current Language</p>
+              <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#666' }}>
+                {language === 'en' && '🇬🇧 English'}
+                {language === 'es' && '🇪🇸 Español'}
+                {language === 'de' && '🇩🇪 Deutsch'}
+                {language === 'fr' && '🇫🇷 Français'}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowLanguageModal(true)}
+              style={{
+                backgroundColor: 'var(--accent)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              Change
+            </button>
           </div>
         </div>
       </div>
@@ -118,6 +121,10 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
         Church Central v1.0.4<br/>
         CCI Switzerland • Management System
       </div>
+
+      {showLanguageModal && (
+        <LanguageModal onClose={() => setShowLanguageModal(false)} />
+      )}
     </div>
   );
 };
