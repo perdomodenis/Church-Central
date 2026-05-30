@@ -321,39 +321,23 @@ const FeedScreen = ({ scope, onAction }) => {
       <div style={{ marginBottom: '24px' }}>
         <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '12px', color: '#111' }}>📅 Upcoming Events</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '16px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-            borderLeft: '4px solid var(--accent)'
-          }}>
-            <div style={{ fontWeight: '700', color: '#111', marginBottom: '4px' }}>🕊️ Sunday Service</div>
-            <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px' }}>Tomorrow at 10:00 AM</div>
-            <div style={{ fontSize: '0.8rem', color: '#999' }}>Main Campus & Downtown Campus</div>
-          </div>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '16px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-            borderLeft: '4px solid #667eea'
-          }}>
-            <div style={{ fontWeight: '700', color: '#111', marginBottom: '4px' }}>🎒 Youth Summer Camp</div>
-            <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px' }}>June 21-25, 2025</div>
-            <div style={{ fontSize: '0.8rem', color: '#999' }}>Registration closing soon</div>
-          </div>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '16px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-            borderLeft: '4px solid #667eea'
-          }}>
-            <div style={{ fontWeight: '700', color: '#111', marginBottom: '4px' }}>📖 Bible Study</div>
-            <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px' }}>Every Wednesday at 7:00 PM</div>
-            <div style={{ fontSize: '0.8rem', color: '#999' }}>Psalms Deep Dive - All welcome</div>
-          </div>
+          {[
+            { id: 1, emoji: '🕊️', title: 'Sunday Service', time: 'Tomorrow at 10:00 AM', location: 'Main Campus & Downtown Campus' },
+            { id: 2, emoji: '🎒', title: 'Youth Summer Camp', time: 'June 21-25, 2025', location: 'Registration closing soon' },
+            { id: 3, emoji: '📖', title: 'Bible Study', time: 'Every Wednesday at 7:00 PM', location: 'Psalms Deep Dive - All welcome' }
+          ].map(event => (
+            <div key={event.id} style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '16px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+              borderLeft: '4px solid ' + (event.id === 1 ? 'var(--accent)' : '#667eea')
+            }}>
+              <div style={{ fontWeight: '700', color: '#111', marginBottom: '4px' }}>{event.emoji} {event.title}</div>
+              <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px' }}>{event.time}</div>
+              <div style={{ fontSize: '0.8rem', color: '#999' }}>{event.location}</div>
+            </div>
+          ))}
         </div>
       </div>
 
