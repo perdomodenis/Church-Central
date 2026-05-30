@@ -1,59 +1,54 @@
-import { 
-  collection, 
-  getDocs, 
-  doc, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc 
-} from 'firebase/firestore';
-import { db } from './firebase';
+import { rtdb } from './firebase';
+import { ref, push, set, get, update, remove, query, orderByChild, limitToLast } from 'firebase/database';
 
-// Get all events
 export async function getAllEvents() {
   try {
-    const eventsCollection = collection(db, 'events');
-    const snapshot = await getDocs(eventsCollection);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
+    const eventsRef = ref(rtdb, 'events');
+    const snapshot = await get(eventsRef);
+    if (!snapshot.exists()) {
+      return [];
+    }
+    const data = snapshot.val();
+    return Object.keys(data).map(key => ({
+      id: key,
+      ...data[key]
     }));
   } catch (error) {
     console.error('Error fetching events:', error);
-    throw error;
+    return [];
   }
 }
 
-// Get single event by ID
 export async function getEventById(eventId) {
   try {
-    const eventDoc = doc(db, 'events', eventId);
-    const snapshot = await getDoc(eventDoc);
+    const eventRef = ref(rtdb, `events/${eventId}`);
+    const snapshot = await get(eventRef);
     if (snapshot.exists()) {
       return {
-        id: snapshot.id,
-        ...snapshot.data()
+        id: eventId,
+        ...snapshot.val()
       };
     }
     return null;
   } catch (error) {
     console.error('Error fetching event:', error);
-    throw error;
+    return null;
   }
 }
 
-// Create new event
 export async function createEvent(eventData) {
   try {
-    const eventsCollection = collection(db, 'events');
-    const docRef = await addDoc(eventsCollection, {
+    const eventsRef = ref(rtdb, 'events');
+    const newEventRef = push(eventsRef);
+    await set(newEventRef, {
       ...eventData,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     });
     return {
-      id: docRef.id,
-      ...eventData
+      id: newEventRef.key,
+      ...eventData,
+      createdAt: new Date().toISOString()
     };
   } catch (error) {
     console.error('Error creating event:', error);
@@ -61,13 +56,12 @@ export async function createEvent(eventData) {
   }
 }
 
-// Update event
 export async function updateEvent(eventId, updates) {
   try {
-    const eventDoc = doc(db, 'events', eventId);
-    await updateDoc(eventDoc, {
+    const eventRef = ref(rtdb, `events/${eventId}`);
+    await update(eventRef, {
       ...updates,
-      updatedAt: new Date()
+      updatedAt: new Date().toISOString()
     });
   } catch (error) {
     console.error('Error updating event:', error);
@@ -75,11 +69,10 @@ export async function updateEvent(eventId, updates) {
   }
 }
 
-// Delete event
 export async function deleteEvent(eventId) {
   try {
-    const eventDoc = doc(db, 'events', eventId);
-    await deleteDoc(eventDoc);
+    const eventRef = ref(rtdb, `events/${eventId}`);
+    await remove(eventRef);
   } catch (error) {
     console.error('Error deleting event:', error);
     throw error;
