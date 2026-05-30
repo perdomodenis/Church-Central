@@ -9,6 +9,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
   const [uploading, setUploading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(null);
   const [profileData, setProfileData] = useState({
     profilePhoto: null,
     bio: ''
@@ -53,15 +54,17 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
   };
 
   const handlePhotoUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !user?.uid) return;
+    const files = e.target.files;
+    if (!files || files.length === 0 || !user?.uid) return;
 
     setUploading(true);
     try {
-      await uploadPhoto(user.uid, file);
+      for (let i = 0; i < files.length; i++) {
+        await uploadPhoto(user.uid, files[i]);
+      }
       await loadPhotos();
     } catch (error) {
-      console.error('Error uploading photo:', error);
+      console.error('Error uploading photos:', error);
     }
     setUploading(false);
     e.target.value = '';
@@ -426,6 +429,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
           <input
             type="file"
             accept="image/*"
+            multiple
             onChange={handlePhotoUpload}
             disabled={uploading}
             style={{ display: 'none' }}
@@ -447,38 +451,30 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
         {loading ? (
           <p style={{ color: '#999', fontSize: '0.9rem' }}>Loading photos...</p>
         ) : photos.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px' }}>
-            {photos.map((photo) => (
-              <div key={photo.name} style={{ position: 'relative' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px' }}>
+            {photos.map((photo, index) => (
+              <div key={photo.name} style={{ position: 'relative', cursor: 'pointer' }}>
                 <img
                   src={photo.url}
                   alt="User photo"
+                  onClick={() => setSelectedPhotoIndex(index)}
                   style={{
                     width: '100%',
-                    height: '120px',
+                    height: '160px',
                     objectFit: 'cover',
-                    borderRadius: '8px'
+                    borderRadius: '12px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    transition: 'transform 0.2s, box-shadow 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.05)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
                   }}
                 />
-                <button
-                  onClick={() => handleDeletePhoto(photo.name)}
-                  style={{
-                    position: 'absolute',
-                    top: '4px',
-                    right: '4px',
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    backgroundColor: 'rgba(0,0,0,0.6)',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  ×
-                </button>
               </div>
             ))}
           </div>
@@ -486,6 +482,157 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
           <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>No photos yet.</p>
         )}
       </div>
+
+      {/* Photo Modal */}
+      {selectedPhotoIndex !== null && photos.length > 0 && (
+        <div
+          onClick={() => setSelectedPhotoIndex(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}
+          >
+            <img
+              src={photos[selectedPhotoIndex].url}
+              alt="Full size photo"
+              style={{
+                width: '100%',
+                height: 'auto',
+                maxHeight: '75vh',
+                borderRadius: '8px',
+                objectFit: 'contain'
+              }}
+            />
+
+            {/* Navigation and Delete Controls */}
+            <div style={{
+              display: 'flex',
+              gap: '16px',
+              marginTop: '20px',
+              alignItems: 'center'
+            }}>
+              {/* Previous Button */}
+              <button
+                onClick={() => setSelectedPhotoIndex((selectedPhotoIndex - 1 + photos.length) % photos.length)}
+                style={{
+                  backgroundColor: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '45px',
+                  height: '45px',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  color: '#333',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
+                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+              >
+                ‹
+              </button>
+
+              {/* Delete Button */}
+              <button
+                onClick={() => {
+                  const photoToDelete = photos[selectedPhotoIndex].name;
+                  handleDeletePhoto(photoToDelete);
+                  setSelectedPhotoIndex(null);
+                }}
+                style={{
+                  backgroundColor: '#e74c3c',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 20px',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '0.9rem',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#c0392b'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#e74c3c'}
+              >
+                🗑️ Delete
+              </button>
+
+              {/* Next Button */}
+              <button
+                onClick={() => setSelectedPhotoIndex((selectedPhotoIndex + 1) % photos.length)}
+                style={{
+                  backgroundColor: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '45px',
+                  height: '45px',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  color: '#333',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
+                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+              >
+                ›
+              </button>
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedPhotoIndex(null)}
+              style={{
+                position: 'absolute',
+                top: '-40px',
+                right: '0',
+                backgroundColor: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                fontSize: '24px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                color: '#333'
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Actions */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

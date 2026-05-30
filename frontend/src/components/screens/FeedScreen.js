@@ -230,6 +230,7 @@ const FeedScreen = ({ scope, onAction }) => {
   const [postComments, setPostComments] = useState({});
   const [expandedPost, setExpandedPost] = useState(null);
   const [commentText, setCommentText] = useState({});
+  const [selectedPost, setSelectedPost] = useState(null);
 
   const filteredPosts = scope === 'All' || scope === 'Todos'
     ? MOCK_POSTS
@@ -267,7 +268,12 @@ const FeedScreen = ({ scope, onAction }) => {
     <div className="feed-screen" style={{ padding: '12px' }}>
       {filteredPosts.length > 0 ? (
         filteredPosts.map(post => (
-          <div key={post.id} className="post-card" style={cardStyle}>
+          <div
+            key={post.id}
+            className="post-card"
+            style={{...cardStyle, cursor: 'pointer'}}
+            onClick={() => setSelectedPost(post)}
+          >
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
               <div style={avatarStyle}>
                 {post.author[0]}
@@ -292,13 +298,16 @@ const FeedScreen = ({ scope, onAction }) => {
 
             <div style={{ display: 'flex', borderTop: '1px solid #eee', paddingTop: '12px', gap: '16px' }}>
               <button onClick={() => onAction('pray')} style={actionButtonStyle}>
-                <span style={{ marginRight: '4px' }}>🙏</span> Pray
+                <span style={{ marginRight: '4px' }}>🙏</span> {post.prayers}
               </button>
               <button
-                onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExpandedPost(expandedPost === post.id ? null : post.id);
+                }}
                 style={actionButtonStyle}
               >
-                <span style={{ marginRight: '4px' }}>💬</span> Comment ({commentCount(post.id)})
+                <span style={{ marginRight: '4px' }}>💬</span> {commentCount(post.id)}
               </button>
               <button onClick={() => onAction('share')} style={actionButtonStyle}>
                 <span style={{ marginRight: '4px' }}>🔗</span> Share
@@ -354,6 +363,171 @@ const FeedScreen = ({ scope, onAction }) => {
       ) : (
         <div style={{ textAlign: 'center', padding: '40px', opacity: 0.5 }}>
           <p>No updates in this category yet.</p>
+        </div>
+      )}
+
+      {/* Post Detail Modal */}
+      {selectedPost && (
+        <div
+          onClick={() => setSelectedPost(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px',
+            overflowY: 'auto'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '16px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              position: 'relative'
+            }}
+          >
+            <button
+              onClick={() => setSelectedPost(null)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                backgroundColor: 'white',
+                border: '1px solid #ddd',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                fontSize: '20px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                color: '#333',
+                zIndex: 10
+              }}
+            >
+              ×
+            </button>
+
+            {selectedPost.image && (
+              <img
+                src={selectedPost.image}
+                alt="Post"
+                style={{
+                  width: '100%',
+                  height: '300px',
+                  objectFit: 'cover',
+                  borderTopLeftRadius: '16px',
+                  borderTopRightRadius: '16px'
+                }}
+              />
+            )}
+
+            <div style={{ padding: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{...avatarStyle, width: '50px', height: '50px', fontSize: '1.2rem'}}>
+                  {selectedPost.author[0]}
+                </div>
+                <div style={{ marginLeft: '12px' }}>
+                  <div style={{ fontWeight: '700', fontSize: '1rem' }}>{selectedPost.author}</div>
+                  <div style={{ fontSize: '0.85rem', color: '#666' }}>{selectedPost.time}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#999', marginTop: '4px' }}>Category: {selectedPost.scope}</div>
+                </div>
+              </div>
+
+              <p style={{
+                fontSize: '1rem',
+                lineHeight: '1.6',
+                color: '#111',
+                marginBottom: '24px',
+                whiteSpace: 'pre-wrap'
+              }}>
+                {selectedPost.content}
+              </p>
+
+              <div style={{
+                display: 'flex',
+                gap: '24px',
+                paddingBottom: '24px',
+                borderBottom: '1px solid #eee',
+                marginBottom: '24px'
+              }}>
+                <div style={{ textAlign: 'center', flex: 1 }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--accent)' }}>
+                    {selectedPost.prayers}
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>Prayers</div>
+                </div>
+                <div style={{ textAlign: 'center', flex: 1 }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--accent)' }}>
+                    {getPostComments(selectedPost.id).length}
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>Comments</div>
+                </div>
+              </div>
+
+              <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '16px' }}>Comments</h3>
+              <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '16px' }}>
+                {getPostComments(selectedPost.id).length > 0 ? (
+                  getPostComments(selectedPost.id).map(comment => (
+                    <div key={comment.id} style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #f0f0f0' }}>
+                      <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{comment.author}</div>
+                      <div style={{ fontSize: '0.9rem', color: '#333', marginTop: '6px', lineHeight: '1.5' }}>{comment.text}</div>
+                    </div>
+                  ))
+                ) : (
+                  <p style={{ color: '#999', fontSize: '0.9rem', fontStyle: 'italic' }}>No comments yet.</p>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  placeholder="Add a comment..."
+                  value={commentText[selectedPost.id] || ''}
+                  onChange={(e) => setCommentText(prev => ({ ...prev, [selectedPost.id]: e.target.value }))}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    fontSize: '0.9rem',
+                    fontFamily: 'inherit'
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    handleAddComment(selectedPost.id);
+                    setCommentText(prev => ({ ...prev, [selectedPost.id]: '' }));
+                  }}
+                  style={{
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    backgroundColor: 'var(--accent)',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  Post
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
