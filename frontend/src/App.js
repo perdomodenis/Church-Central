@@ -26,6 +26,7 @@ import EventsScreen from './components/screens/EventsScreen';
 import MessagesScreen from './components/screens/MessagesScreen';
 import MemberSearchScreen from './components/screens/MemberSearchScreen';
 import MemberProfileScreen from './components/screens/MemberProfileScreen';
+import DebugScreen from './components/screens/DebugScreen';
 
 // UI Components
 import { TopBar, MenuDrawer, FabMenu, Sheet, useToast } from './components/common/UI';
@@ -205,6 +206,8 @@ function App() {
     body = <MemberSearchScreen user={user} onSelectMember={(m) => { setSelectedMember(m); setRoute('member-profile'); }} onNavigate={setRoute} />;
   } else if (route === 'member-profile') {
     body = <MemberProfileScreen member={selectedMember} user={user} onBack={() => setRoute('members')} onMessage={() => setRoute('messages')} onNavigate={setRoute} />;
+  } else if (route === 'debug') {
+    body = <DebugScreen onBack={() => setRoute('home')} />;
   } else {
     body = <FeedScreen scope={scope} onAction={onAction} />;
   }
