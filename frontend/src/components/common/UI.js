@@ -52,9 +52,12 @@ export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout }) => {
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '0 20px' }}>
           <MenuItem icon={<Icon.Home />} label="Home" active={route === 'home'} onClick={() => handleNavigate('home')} />
           <MenuItem icon={<Icon.Inbox />} label="Inbox" active={route === 'inbox'} onClick={() => handleNavigate('inbox')} />
+          <MenuItem icon="💬" label="Messages" active={route === 'messages'} onClick={() => handleNavigate('messages')} />
           <MenuItem icon={<Icon.Calendar />} label="Schedule" active={route === 'schedule'} onClick={() => handleNavigate('schedule')} />
           <MenuItem icon={<Icon.Appointment />} label="Appointments" active={route === 'appointment'} onClick={() => handleNavigate('appointment')} />
+          <MenuItem icon={<Icon.Calendar />} label="Events" active={route === 'events'} onClick={() => handleNavigate('events')} />
           <MenuItem icon={<Icon.Management />} label="Management" active={route === 'mgmt'} onClick={() => handleNavigate('mgmt')} />
+          <MenuItem icon="💧" label="Baptism" active={route === 'baptism'} onClick={() => handleNavigate('baptism')} />
           <MenuItem icon={<Icon.Profile />} label="Profile" active={route === 'profile'} onClick={() => handleNavigate('profile')} />
           <MenuItem icon={<Icon.Feedback />} label="Feedback" active={route === 'feedback'} onClick={() => handleNavigate('feedback')} />
           <div style={{ borderTop: '1px solid #eee', marginTop: '20px', paddingTop: '20px' }}>

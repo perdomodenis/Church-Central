@@ -1,9 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getDatabase } from "firebase/database";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
+import { getStorage } from "firebase/storage";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   onAuthStateChanged
 } from "firebase/auth";
@@ -28,6 +29,9 @@ export const auth = getAuth(app);
 
 // Initialize Realtime Database
 export const db = getDatabase(app);
+
+// Initialize Storage
+export const storage = getStorage(app);
 
 export { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged };
 export default app;

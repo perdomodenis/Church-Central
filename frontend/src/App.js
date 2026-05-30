@@ -21,6 +21,9 @@ import ProfileScreen from './components/screens/ProfileScreen';
 import SettingsScreen from './components/screens/SettingsScreen';
 import FeedbackScreen from './components/screens/FeedbackScreen';
 import SimpleScreen from './components/screens/SimpleScreen';
+import BaptismScreen from './components/screens/BaptismScreen';
+import EventsScreen from './components/screens/EventsScreen';
+import MessagesScreen from './components/screens/MessagesScreen';
 
 // UI Components
 import { TopBar, MenuDrawer, FabMenu, Sheet, useToast } from './components/common/UI';
@@ -165,10 +168,14 @@ function App() {
     body = <FeedScreen scope={scope} onAction={onAction} />;
   } else if (route === 'inbox') {
     body = <InboxScreen />;
+  } else if (route === 'messages') {
+    body = <MessagesScreen user={user} />;
   } else if (route === 'schedule') {
     body = <ScheduleScreen />;
   } else if (route === 'appointment') {
     body = <AppointmentScreen />;
+  } else if (route === 'events') {
+    body = <EventsScreen user={user} />;
   } else if (route === 'mgmt') {
     body = <ManagementScreen />;
   } else if (route === 'upload') {
@@ -176,11 +183,11 @@ function App() {
   } else if (route === 'feedback') {
     body = <FeedbackScreen />;
   } else if (route === 'baptism') {
-    body = <SimpleScreen icon={<Icon.Drop />} title="Baptism" subtitle="Register for water baptism" />;
+    body = <BaptismScreen user={user} />;
   } else if (route === 'nls') {
     body = <SimpleScreen icon={<Icon.Spark />} title="New Life Steps" subtitle="Your discipleship journey" />;
   } else if (route === 'profile') {
-    body = <ProfileScreen user={user} onSettings={() => setRoute('settings')} onLogout={() => { auth.signOut(); setRoute('login'); }} />;
+    body = <ProfileScreen user={user} onUpdateUser={setUser} onSettings={() => setRoute('settings')} onLogout={() => { auth.signOut(); setRoute('login'); }} />;
   } else if (route === 'settings') {
     body = (
       <SettingsScreen 
@@ -202,14 +209,16 @@ function App() {
           scopeOptions={route === 'home' ? scopeOptions : null}
           title={
             route === 'inbox' ? 'Inbox' :
+            route === 'messages' ? 'Messages' :
             route === 'schedule' ? 'Schedule' :
             route === 'appointment' ? 'Appointment' :
+            route === 'events' ? 'Events' :
             route === 'mgmt' ? 'Management' :
+            route === 'baptism' ? 'Baptism' :
             route === 'profile' ? 'Profile' :
             route === 'settings' ? 'Settings' :
             route === 'upload' ? 'Share' :
             route === 'feedback' ? 'Feedback' :
-            route === 'baptism' ? 'Baptism' :
             route === 'nls' ? 'New Steps' : ''
           }
           onScope={setScope}
