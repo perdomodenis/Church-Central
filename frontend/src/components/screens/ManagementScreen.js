@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { approveAppointment, rejectAppointment, getPendingAppointments, getApprovedAppointments, getRejectedAppointments } from '../../services/appointmentService';
+import { useAuth } from '../../context/AuthContext';
 
 const PENDING_APPOINTMENTS = [
   {
     id: 1,
     requester: 'Alice Smith',
-    staff: 'Pastor John Doe',
-    date: 'Nov 02, 2023',
+    staff: 'James Peterson',
+    date: 'Jun 10, 2025',
     time: '11:00 AM',
     reason: 'Spiritual guidance regarding career changes.',
     type: 'Guidance'
@@ -13,11 +15,11 @@ const PENDING_APPOINTMENTS = [
   {
     id: 2,
     requester: 'Bob Johnson',
-    staff: 'Counseling Department',
-    date: 'Nov 05, 2023',
+    staff: 'Rachel Thompson',
+    date: 'Jun 15, 2025',
     time: '4:00 PM',
-    reason: 'Family counseling session request.',
-    type: 'Counseling'
+    reason: 'Worship planning discussion.',
+    type: 'Discussion'
   }
 ];
 
@@ -39,11 +41,55 @@ const PENDING_POSTS = [
 ];
 
 const ManagementScreen = () => {
-  const [activeTab, setActiveTab] = useState('appointments');
+  const { user: authUser } = useAuth();
+  const [activeTab, setActiveTab] = useState('pending');
+  const [pendingAppointments, setPendingAppointments] = useState(PENDING_APPOINTMENTS);
+  const [approvedAppointments, setApprovedAppointments] = useState([]);
+  const [rejectedAppointments, setRejectedAppointments] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleAction = (type, id, action) => {
-    console.log(`${action} ${type} with ID: ${id}`);
-    alert(`${type} ${action === 'approve' ? 'approved' : 'rejected'}.`);
+  useEffect(() => {
+    loadAppointments();
+  }, []);
+
+  const loadAppointments = async () => {
+    setLoading(true);
+    try {
+      const pending = await getPendingAppointments();
+      const approved = await getApprovedAppointments();
+      const rejected = await getRejectedAppointments();
+
+      if (pending.length > 0) setPendingAppointments(pending);
+      if (approved.length > 0) setApprovedAppointments(approved);
+      if (rejected.length > 0) setRejectedAppointments(rejected);
+    } catch (error) {
+      console.error('Error loading appointments:', error);
+    }
+    setLoading(false);
+  };
+
+  const handleApprove = async (id) => {
+    try {
+      await approveAppointment(id, authUser?.displayName || 'Admin');
+      setPendingAppointments(prev => prev.filter(app => app.id !== id));
+      alert('✅ Appointment approved!');
+      await loadAppointments();
+    } catch (error) {
+      alert('Error approving appointment');
+      console.error(error);
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      await rejectAppointment(id, authUser?.displayName || 'Admin', 'Not approved at this time');
+      setPendingAppointments(prev => prev.filter(app => app.id !== id));
+      alert('❌ Appointment rejected!');
+      await loadAppointments();
+    } catch (error) {
+      alert('Error rejecting appointment');
+      console.error(error);
+    }
   };
 
   return (
@@ -54,66 +100,105 @@ const ManagementScreen = () => {
       </div>
 
       {/* Tabs */}
-      <div style={{ 
-        display: 'flex', 
-        backgroundColor: '#eee', 
-        padding: '4px', 
-        borderRadius: '10px', 
-        marginBottom: '20px' 
+      <div style={{
+        display: 'flex',
+        backgroundColor: '#eee',
+        padding: '4px',
+        borderRadius: '10px',
+        marginBottom: '20px',
+        gap: '4px'
       }}>
-        <button 
-          onClick={() => setActiveTab('appointments')}
-          style={tabButtonStyle(activeTab === 'appointments')}
+        <button
+          onClick={() => setActiveTab('pending')}
+          style={tabButtonStyle(activeTab === 'pending')}
         >
-          Appointments
+          ⏳ Pending ({pendingAppointments.length})
         </button>
-        <button 
-          onClick={() => setActiveTab('posts')}
-          style={tabButtonStyle(activeTab === 'posts')}
+        <button
+          onClick={() => setActiveTab('approved')}
+          style={tabButtonStyle(activeTab === 'approved')}
         >
-          Posts
+          ✅ Approved ({approvedAppointments.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('rejected')}
+          style={tabButtonStyle(activeTab === 'rejected')}
+        >
+          ❌ Rejected ({rejectedAppointments.length})
         </button>
       </div>
 
       {/* Content */}
       <div className="mgmt-content">
-        {activeTab === 'appointments' ? (
-          PENDING_APPOINTMENTS.map(app => (
-            <div key={app.id} style={cardStyle}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>{app.requester}</span>
-                <span style={tagStyle}>{app.type}</span>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+            Loading...
+          </div>
+        ) : activeTab === 'pending' ? (
+          pendingAppointments.length > 0 ? (
+            pendingAppointments.map(app => (
+              <div key={app.id} style={cardStyle}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>{app.requester}</span>
+                  <span style={tagStyle}>{app.type}</span>
+                </div>
+                <div style={detailStyle}>With: <strong>{app.staff}</strong></div>
+                <div style={detailStyle}>📅 {app.date} at {app.time}</div>
+                <p style={{ fontSize: '0.9rem', margin: '12px 0', fontStyle: 'italic', color: '#555' }}>
+                  "{app.reason}"
+                </p>
+                <div style={actionRowStyle}>
+                  <button onClick={() => handleReject(app.id)} style={secondaryButtonStyle}>❌ Reject</button>
+                  <button onClick={() => handleApprove(app.id)} style={primaryButtonStyle}>✅ Approve</button>
+                </div>
               </div>
-              <div style={detailStyle}>With: <strong>{app.staff}</strong></div>
-              <div style={detailStyle}>📅 {app.date} at {app.time}</div>
-              <p style={{ fontSize: '0.9rem', margin: '12px 0', fontStyle: 'italic', color: '#555' }}>
-                "{app.reason}"
-              </p>
-              <div style={actionRowStyle}>
-                <button onClick={() => handleAction('Appointment', app.id, 'reject')} style={secondaryButtonStyle}>Reject</button>
-                <button onClick={() => handleAction('Appointment', app.id, 'approve')} style={primaryButtonStyle}>Approve</button>
-              </div>
+            ))
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+              <p>No pending appointments</p>
             </div>
-          ))
+          )
+        ) : activeTab === 'approved' ? (
+          approvedAppointments.length > 0 ? (
+            approvedAppointments.map(app => (
+              <div key={app.id} style={{...cardStyle, borderLeft: '4px solid #4caf50'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>✅ {app.requester}</span>
+                  <span style={{...tagStyle, backgroundColor: '#e8f5e9', color: '#2e7d32'}}>{app.type}</span>
+                </div>
+                <div style={detailStyle}>With: <strong>{app.staff}</strong></div>
+                <div style={detailStyle}>📅 {app.date} at {app.time}</div>
+                <div style={{fontSize: '0.8rem', color: '#4caf50', marginTop: '8px'}}>Approved by: {app.approvedBy}</div>
+                <div style={{fontSize: '0.8rem', color: '#4caf50'}}>Decided: {new Date(app.decidedAt).toLocaleString()}</div>
+              </div>
+            ))
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+              <p>No approved appointments</p>
+            </div>
+          )
         ) : (
-          PENDING_POSTS.map(post => (
-            <div key={post.id} style={cardStyle}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>{post.author}</span>
-                <span style={tagStyle}>{post.scope}</span>
+          rejectedAppointments.length > 0 ? (
+            rejectedAppointments.map(app => (
+              <div key={app.id} style={{...cardStyle, borderLeft: '4px solid #f44336'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>❌ {app.requester}</span>
+                  <span style={{...tagStyle, backgroundColor: '#ffebee', color: '#c62828'}}>{app.type}</span>
+                </div>
+                <div style={detailStyle}>With: <strong>{app.staff}</strong></div>
+                <div style={detailStyle}>📅 {app.date} at {app.time}</div>
+                <div style={{fontSize: '0.8rem', color: '#f44336', marginTop: '8px'}}>Rejected by: {app.rejectedBy}</div>
+                <div style={{fontSize: '0.8rem', color: '#f44336'}}>Decided: {new Date(app.decidedAt).toLocaleString()}</div>
               </div>
-              <div style={detailStyle}>{post.time}</div>
-              <p style={{ fontSize: '0.9rem', margin: '12px 0', lineHeight: '1.4' }}>
-                {post.content}
-              </p>
-              <div style={actionRowStyle}>
-                <button onClick={() => handleAction('Post', post.id, 'reject')} style={secondaryButtonStyle}>Delete</button>
-                <button onClick={() => handleAction('Post', post.id, 'approve')} style={primaryButtonStyle}>Publish</button>
-              </div>
+            ))
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+              <p>No rejected appointments</p>
             </div>
-          ))
+          )
         )}
       </div>
+
     </div>
   );
 };
