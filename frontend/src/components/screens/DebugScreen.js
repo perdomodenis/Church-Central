@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { seedTestData } from '../../services/seedData';
 import { seedProductionData } from '../../services/productionData';
+import { seedLiveData } from '../../services/liveData';
 
 const DebugScreen = ({ onBack }) => {
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,18 @@ const DebugScreen = ({ onBack }) => {
     try {
       await seedProductionData();
       setMessage('✅ Datos de producción agregados exitosamente! Recarga la página.');
+    } catch (error) {
+      setMessage('❌ Error: ' + error.message);
+    }
+    setLoading(false);
+  };
+
+  const handleSeedLiveData = async () => {
+    setLoading(true);
+    setMessage('Agregando datos VIVOS de la iglesia...');
+    try {
+      await seedLiveData();
+      setMessage('✅ ¡Datos VIVOS agregados! La app está lista para producción. Recarga la página.');
     } catch (error) {
       setMessage('❌ Error: ' + error.message);
     }
@@ -76,10 +89,29 @@ const DebugScreen = ({ onBack }) => {
           fontWeight: '700',
           fontSize: '1rem',
           cursor: loading ? 'not-allowed' : 'pointer',
-          marginBottom: '16px'
+          marginBottom: '12px'
         }}
       >
         {loading ? 'Adding...' : 'Load Production Data (Grace Community Church)'}
+      </button>
+
+      <button
+        onClick={handleSeedLiveData}
+        disabled={loading}
+        style={{
+          width: '100%',
+          padding: '16px',
+          backgroundColor: loading ? '#ccc' : '#2196F3',
+          color: 'white',
+          border: 'none',
+          borderRadius: '12px',
+          fontWeight: '700',
+          fontSize: '1rem',
+          cursor: loading ? 'not-allowed' : 'pointer',
+          marginBottom: '16px'
+        }}
+      >
+        {loading ? 'Adding...' : '🚀 Load LIVE Data (App Ready for Production!)'}
       </button>
 
       {message && (
