@@ -24,21 +24,21 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
 
       {/* Account Section */}
       <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Account</h3>
+        <h3 style={sectionTitleStyle}>{t('account')}</h3>
         <div style={cardStyle}>
-           <p style={{ margin: 0, fontSize: '0.85rem', color: '#666', fontWeight: '600' }}>Logged in as</p>
+           <p style={{ margin: 0, fontSize: '0.85rem', color: '#666', fontWeight: '600' }}>{t('loggedInAs')}: {user.email}</p>
            <p style={{ margin: '4px 0 0 0', fontWeight: '700', color: '#111' }}>{user.email}</p>
         </div>
       </div>
 
       {/* Appearance Section */}
       <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Appearance</h3>
+        <h3 style={sectionTitleStyle}>{t('appearance')}</h3>
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
             <div>
               <p style={{ margin: 0, fontWeight: '700', color: '#111' }}>{t('darkMode')}</p>
-              <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: '#666' }}>Adjust the app's visual theme</p>
+              <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: '#666' }}>{t('adjustTheme')}</p>
             </div>
             <input 
               type="checkbox" 
@@ -79,7 +79,7 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <div>
-              <p style={{ margin: 0, fontWeight: '700', color: '#111' }}>Current Language</p>
+              <p style={{ margin: 0, fontWeight: '700', color: '#111' }}>{t('currentLanguage')}</p>
               <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#666' }}>
                 {language === 'en' && '🇬🇧 English'}
                 {language === 'es' && '🇪🇸 Español'}
@@ -108,10 +108,10 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
 
       {/* Preferences Section */}
       <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Preferences</h3>
+        <h3 style={sectionTitleStyle}>{t('preferences')}</h3>
         <div style={cardStyle}>
            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-             <span style={{ fontWeight: '700', color: '#111' }}>Push Notifications</span>
+             <span style={{ fontWeight: '700', color: '#111' }}>{t('pushNotifications')}</span>
              <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
            </div>
         </div>

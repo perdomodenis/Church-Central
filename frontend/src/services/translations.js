@@ -64,10 +64,17 @@ const translations = {
     noBaptismEvents: 'No baptism events scheduled yet. Check back soon!',
 
     // Settings
+    account: 'Account',
+    loggedInAs: 'Logged in as',
+    appearance: 'Appearance',
+    adjustTheme: 'Adjust the app\'s visual theme',
+    pushNotifications: 'Push Notifications',
     language: 'Language',
     darkMode: 'Dark Mode',
     accentColor: 'Accent Color',
     theme: 'Theme',
+    currentLanguage: 'Current Language',
+    preferences: 'Preferences',
 
     // Members
     searchMembers: 'Search Members',
@@ -144,10 +151,17 @@ const translations = {
     createBaptismEvent: 'Crear Evento de Bautismo',
     noBaptismEvents: 'No hay eventos de bautismo programados. ¡Vuelve pronto!',
 
+    account: 'Cuenta',
+    loggedInAs: 'Conectado como',
+    appearance: 'Apariencia',
+    adjustTheme: 'Ajusta el tema visual de la aplicación',
+    pushNotifications: 'Notificaciones Push',
     language: 'Idioma',
     darkMode: 'Modo Oscuro',
     accentColor: 'Color de Énfasis',
     theme: 'Tema',
+    currentLanguage: 'Idioma Actual',
+    preferences: 'Preferencias',
 
     searchMembers: 'Buscar Miembros',
     memberProfile: 'Perfil del Miembro',
@@ -222,10 +236,17 @@ const translations = {
     createBaptismEvent: 'Taufveranstaltung erstellen',
     noBaptismEvents: 'Noch keine Taufereignisse geplant. Komm bald vorbei!',
 
+    account: 'Konto',
+    loggedInAs: 'Angemeldet als',
+    appearance: 'Erscheinungsbild',
+    adjustTheme: 'Passen Sie das visuelle Thema der App an',
+    pushNotifications: 'Push-Benachrichtigungen',
     language: 'Sprache',
     darkMode: 'Dunkler Modus',
     accentColor: 'Akzentfarbe',
     theme: 'Thema',
+    currentLanguage: 'Aktuelle Sprache',
+    preferences: 'Einstellungen',
 
     searchMembers: 'Mitglieder suchen',
     memberProfile: 'Mitgliederprofil',
@@ -300,10 +321,17 @@ const translations = {
     createBaptismEvent: 'Créer un événement de baptême',
     noBaptismEvents: 'Aucun événement de baptême prévu pour le moment. Revenez bientôt!',
 
+    account: 'Compte',
+    loggedInAs: 'Connecté en tant que',
+    appearance: 'Apparence',
+    adjustTheme: 'Ajustez le thème visuel de l\'application',
+    pushNotifications: 'Notifications Push',
     language: 'Langue',
     darkMode: 'Mode sombre',
     accentColor: 'Couleur accentuée',
     theme: 'Thème',
+    currentLanguage: 'Langue actuelle',
+    preferences: 'Préférences',
 
     searchMembers: 'Rechercher des membres',
     memberProfile: 'Profil du membre',
