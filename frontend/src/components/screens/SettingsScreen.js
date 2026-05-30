@@ -19,7 +19,7 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
     <div className="settings-screen" style={{ padding: '24px', paddingBottom: '100px' }}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
         <button onClick={onBack} style={backButtonStyle}>←</button>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, marginLeft: '12px' }}>Settings</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, marginLeft: '12px' }}>{t('settings')}</h2>
       </div>
 
       {/* Account Section */}
@@ -37,7 +37,7 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
             <div>
-              <p style={{ margin: 0, fontWeight: '700', color: '#111' }}>Dark Mode</p>
+              <p style={{ margin: 0, fontWeight: '700', color: '#111' }}>{t('darkMode')}</p>
               <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: '#666' }}>Adjust the app's visual theme</p>
             </div>
             <input 
@@ -49,7 +49,7 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
           </div>
 
           <label style={{ display: 'block', marginBottom: '12px', fontSize: '0.85rem', fontWeight: '700', color: '#111' }}>
-            Accent Color
+            {t('accentColor')}
           </label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
             {ACCENT_PRESETS.map(([color]) => (
@@ -75,7 +75,7 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
 
       {/* Language Section */}
       <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Language</h3>
+        <h3 style={sectionTitleStyle}}>{t('language')}</h3>
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <div>
@@ -100,7 +100,7 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
                 fontSize: '0.9rem'
               }}
             >
-              Change
+              {t('edit')}
             </button>
           </div>
         </div>
