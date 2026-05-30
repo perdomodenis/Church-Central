@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { useAuth } from './context/AuthContext';
 import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from './services/firebase';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { seedLiveData } from './services/liveData';
 
 // Auth Screens
 import LoginScreen from './components/auth/LoginScreen';
@@ -93,6 +95,19 @@ function App() {
     root.setAttribute('data-theme', darkMode ? 'dark' : 'light');
   }, [accentColor, darkMode]);
 
+  // Auto-load live data on first mount (only once)
+  useEffect(() => {
+    const hasLoadedData = sessionStorage.getItem('liveDataLoaded');
+    if (!hasLoadedData && authUser) {
+      seedLiveData().then(() => {
+        sessionStorage.setItem('liveDataLoaded', 'true');
+        console.log('✅ Live data loaded automatically');
+      }).catch(err => {
+        console.log('Note: Live data already exists or will be loaded from Firebase');
+      });
+    }
+  }, [authUser]);
+
   const handleLogin = async ({ email, password }) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -114,6 +129,29 @@ function App() {
       toast.show('Account created!');
     } catch (error) {
       toast.show('Error: ' + error.message);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const googleUser = result.user;
+
+      setUser(u => ({
+        ...u,
+        uid: googleUser.uid,
+        email: googleUser.email || '',
+        first: googleUser.displayName?.split(' ')[0] || 'User',
+        last: googleUser.displayName?.split(' ').slice(1).join(' ') || '',
+      }));
+
+      toast.show('Welcome with Google!');
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        return;
+      }
+      toast.show('Google login error: ' + error.message);
     }
   };
 
@@ -148,6 +186,7 @@ function App() {
         onLogin={handleLogin}
         onSignup={() => { setSignupStep(1); setRoute('signup'); }}
         onForgot={() => setRoute('forgot')}
+        onGoogleLogin={handleGoogleLogin}
       />
     );
   } else if (route === 'forgot') {

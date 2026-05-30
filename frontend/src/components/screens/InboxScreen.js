@@ -1,47 +1,65 @@
 import React, { useState } from 'react';
 
-const MOCK_MESSAGES = [
+const CHURCH_MESSAGES = [
   {
     id: 1,
-    sender: 'Admin Office',
-    subject: 'Important: Church-wide Meeting Next Week',
-    preview: 'Dear members, please note there will be a mandatory church-wide meeting...',
-    body: 'Dear members,\n\nPlease note there will be a mandatory church-wide meeting next week on Saturday at 10:00 AM. This meeting is important for all members to attend.\n\nWe will be discussing upcoming events and initiatives.\n\nLocation: Main Hall\nTime: 10:00 AM\nDate: Saturday\n\nLooking forward to seeing you there!',
-    time: '2 hours ago',
+    sender: 'James Peterson',
+    subject: '✨ Sunday Service - "Grace Unfolded" - Don\'t Miss It!',
+    preview: 'This Sunday at 10 AM we continue our series on God\'s relentless grace...',
+    body: 'Dear Grace Community Family,\n\nThis Sunday at 10 AM we continue our series "Grace Unfolded" where we explore God\'s never-ending grace in our lives.\n\nService Details:\n📍 Main Campus & Downtown Campus\n⏰ 10:00 AM - 11:30 AM\n☕ Coffee & fellowship from 9:45 AM\n\nBring your family and friends!\n\nBlessings,\nPastor James',
+    time: 'hace 1 hora',
     read: false,
   },
   {
     id: 2,
-    sender: 'Youth Ministry',
-    subject: 'Youth Retreat Photos Are Here!',
-    preview: 'Check out all the amazing moments from our recent youth retreat...',
-    body: 'Hi Youth Group!\n\nCheck out all the amazing moments from our recent youth retreat! The photos are now available in our shared album.\n\nThanks to everyone who participated. It was an incredible experience!\n\nView the album: [Link]\n\nSee you at the next event!',
-    time: 'Yesterday',
-    read: true,
+    sender: 'Juan Rivera',
+    subject: '🎒 Youth Summer Camp - Registration Closing Soon!',
+    preview: 'Only 2 spots left! June 21-25 at Rocky Mountain Camp...',
+    body: 'Youth Group!\n\nOnly 2 SPOTS LEFT for our Youth Summer Camp!\n\nCamp Details:\n📅 June 21-25, 2025\n🏕️ Rocky Mountain Camp, Estes Park\n💰 $299 (Early bird price until May 31)\n\nActivities:\n• Worship & Teaching\n• Outdoor Adventures\n• Team Challenges\n• Friendship & Fellowship\n\nRegister NOW at the youth table or contact me!\n\nIn Christ,\nJuan Rivera\nYouth Director',
+    time: 'hace 3 horas',
+    read: false,
   },
   {
     id: 3,
-    sender: 'Pastor John',
-    subject: 'A Word of Encouragement',
-    preview: 'I wanted to share a quick word of encouragement with all of you this week...',
-    body: 'Dear Beloved,\n\nI wanted to share a quick word of encouragement with all of you this week.\n\nNo matter what challenges you may be facing, remember that God is with you. His love never fails, and His grace is sufficient for all our needs.\n\nLet us continue to support one another in prayer and in love.\n\nBlessings,\nPastor John',
-    time: '3 days ago',
+    sender: 'Rachel Thompson',
+    subject: '🎵 Worship Band Rehearsal - Friday 7 PM',
+    preview: 'Preparing something special for Sunday\'s service...',
+    body: 'Hi Worship Team,\n\nOur worship band rehearsal is THIS FRIDAY at 7 PM in the Worship Center.\n\nWe\'re rehearsing 3 new songs for Sunday\'s service that will absolutely bless our congregation!\n\nSee you then!\n\n🎵 Rachel',
+    time: 'hace 5 horas',
     read: true,
   },
   {
     id: 4,
-    sender: 'Finance Department',
-    subject: 'Annual Giving Statement Available',
-    preview: 'Your annual giving statement for the past year is now available...',
-    body: 'Dear Member,\n\nYour annual giving statement for the past year is now available in your account.\n\nYou can download it from your profile page under "Documents".\n\nThank you for your generous contributions to our church community!\n\nIf you have any questions, please contact the Finance Department.',
-    time: '1 week ago',
+    sender: 'Sofia Garcia',
+    subject: '❤️ Food Bank Volunteer Day - TODAY 9 AM',
+    preview: 'Pack food for 500 families - We need YOUR help!',
+    body: 'Prayer Warriors & Servants,\n\nTODAY at 9 AM we\'re at the Denver Food Bank packing food for 500 families!\n\n📍 Denver Food Bank, 250 Park Ave W\n⏰ 9:00 AM - 12:00 PM\n\nBring:\n• Comfortable clothing\n• Water\n• A servant\'s heart\n\nWe already have 18 volunteers signed up - join us!\n\nIn love,\nSofia Garcia\nCommunity Outreach',
+    time: 'hace 8 horas',
+    read: true,
+  },
+  {
+    id: 5,
+    sender: 'Mark Anderson',
+    subject: '📖 Bible Study - Psalms Deep Dive - This Wednesday',
+    preview: 'Join us for an in-depth study of selected Psalms...',
+    body: 'Bible Study Community,\n\nThis Wednesday at 7 PM we continue our study:\n\n"PSALMS & PRAYER"\n8-week deep dive into the Psalms\n\n📍 Main Campus - Fellowship Hall\n⏰ 7:00 PM - 8:30 PM\n☕ Coffee & snacks from 6:45 PM\n\nThis week: Psalms 23, 42, 137\n(Comfort, Longing, Lament)\n\nAll levels welcome!\n\nIn the Word,\nMark Anderson',
+    time: '1 día atrás',
+    read: true,
+  },
+  {
+    id: 6,
+    sender: 'Patricia White',
+    subject: '🙏 Prayer Request - Chen Family Newborn & Robert\'s Healing',
+    preview: 'Please lift these families in prayer this week...',
+    body: 'Prayer Partners,\n\nPlease intercede for:\n\n1. The Chen Family - welcoming baby Grace to their family! Prayers for health, blessing, and rest for parents.\n\n2. Brother Robert - recovering from surgery. Prayers for rapid healing and God\'s strength during recovery.\n\n3. The Martinez Family - still rebuilding after the fire. Prayers for provision and restoration.\n\nLet\'s cover these in prayer!\n\n🙏 Patricia White\nPrayer Coordinator',
+    time: '2 días atrás',
     read: false,
   },
 ];
 
 const InboxScreen = () => {
   const [selectedMessage, setSelectedMessage] = useState(null);
-  const [messages, setMessages] = useState(MOCK_MESSAGES);
+  const [messages, setMessages] = useState(CHURCH_MESSAGES);
 
   const handleOpenMessage = (messageId) => {
     setSelectedMessage(messageId);

@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
+import LanguageModal from '../modals/LanguageModal';
 
 const ACCENT_PRESETS = [
   ['#5B3FBB', '#EFE9FF'],
@@ -10,30 +12,33 @@ const ACCENT_PRESETS = [
 ];
 
 const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, setDarkMode }) => {
+  const { language, t } = useLanguage();
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+
   return (
     <div className="settings-screen" style={{ padding: '24px', paddingBottom: '100px' }}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
         <button onClick={onBack} style={backButtonStyle}>←</button>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, marginLeft: '12px' }}>Settings</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, marginLeft: '12px' }}>{t('settings')}</h2>
       </div>
 
       {/* Account Section */}
       <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Account</h3>
+        <h3 style={sectionTitleStyle}>{t('account')}</h3>
         <div style={cardStyle}>
-           <p style={{ margin: 0, fontSize: '0.85rem', color: '#666', fontWeight: '600' }}>Logged in as</p>
+           <p style={{ margin: 0, fontSize: '0.85rem', color: '#666', fontWeight: '600' }}>{t('loggedInAs')}: {user.email}</p>
            <p style={{ margin: '4px 0 0 0', fontWeight: '700', color: '#111' }}>{user.email}</p>
         </div>
       </div>
 
       {/* Appearance Section */}
       <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Appearance</h3>
+        <h3 style={sectionTitleStyle}>{t('appearance')}</h3>
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
             <div>
-              <p style={{ margin: 0, fontWeight: '700', color: '#111' }}>Dark Mode</p>
-              <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: '#666' }}>Adjust the app's visual theme</p>
+              <p style={{ margin: 0, fontWeight: '700', color: '#111' }}>{t('darkMode')}</p>
+              <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: '#666' }}>{t('adjustTheme')}</p>
             </div>
             <input 
               type="checkbox" 
@@ -44,7 +49,7 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
           </div>
 
           <label style={{ display: 'block', marginBottom: '12px', fontSize: '0.85rem', fontWeight: '700', color: '#111' }}>
-            Accent Color
+            {t('accentColor')}
           </label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
             {ACCENT_PRESETS.map(([color]) => (
@@ -68,12 +73,45 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
         </div>
       </div>
 
+      {/* Language Section */}
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}>{t('language')}</h3>
+        <div style={cardStyle}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <div>
+              <p style={{ margin: 0, fontWeight: '700', color: '#111' }}>{t('currentLanguage')}</p>
+              <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#666' }}>
+                {language === 'en' && '🇬🇧 English'}
+                {language === 'es' && '🇪🇸 Español'}
+                {language === 'de' && '🇩🇪 Deutsch'}
+                {language === 'fr' && '🇫🇷 Français'}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowLanguageModal(true)}
+              style={{
+                backgroundColor: 'var(--accent)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              {t('edit')}
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Preferences Section */}
       <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Preferences</h3>
+        <h3 style={sectionTitleStyle}>{t('preferences')}</h3>
         <div style={cardStyle}>
            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-             <span style={{ fontWeight: '700', color: '#111' }}>Push Notifications</span>
+             <span style={{ fontWeight: '700', color: '#111' }}>{t('pushNotifications')}</span>
              <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
            </div>
         </div>
@@ -83,6 +121,10 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
         Church Central v1.0.4<br/>
         CCI Switzerland • Management System
       </div>
+
+      {showLanguageModal && (
+        <LanguageModal onClose={() => setShowLanguageModal(false)} />
+      )}
     </div>
   );
 };

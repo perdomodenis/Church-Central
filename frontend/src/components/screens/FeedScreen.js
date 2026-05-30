@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { rtdb } from '../../services/firebase';
+import { ref, onValue } from 'firebase/database';
 import * as Icon from '../common/Icons';
 
-const MOCK_POSTS = [
+// Fallback mock posts if no data in Firebase
+const FALLBACK_POSTS = [
   {
     id: 1,
     author: 'Church Media',
@@ -227,14 +230,36 @@ const MOCK_POSTS = [
 ];
 
 const FeedScreen = ({ scope, onAction }) => {
+  const [posts, setPosts] = useState([]);
   const [postComments, setPostComments] = useState({});
   const [expandedPost, setExpandedPost] = useState(null);
   const [commentText, setCommentText] = useState({});
   const [selectedPost, setSelectedPost] = useState(null);
 
+  // Load posts from Firebase
+  useEffect(() => {
+    const feedRef = ref(rtdb, 'feed');
+    const unsubscribe = onValue(feedRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const postsArray = Object.values(data).sort((a, b) =>
+          new Date(b.timestamp) - new Date(a.timestamp)
+        );
+        setPosts(postsArray);
+      } else {
+        setPosts(FALLBACK_POSTS);
+      }
+    }, (error) => {
+      console.error('Error loading feed:', error);
+      setPosts(FALLBACK_POSTS);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const filteredPosts = scope === 'All' || scope === 'Todos'
-    ? MOCK_POSTS
-    : MOCK_POSTS.filter(post => post.scope === scope);
+    ? posts
+    : posts.filter(post => post.scope === scope);
 
   const handleAddComment = (postId) => {
     const text = commentText[postId] || '';
@@ -243,7 +268,7 @@ const FeedScreen = ({ scope, onAction }) => {
     setPostComments(prev => ({
       ...prev,
       [postId]: [
-        ...(prev[postId] || MOCK_POSTS.find(p => p.id === postId)?.comments || []),
+        ...(prev[postId] || posts.find(p => p.id === postId)?.comments || []),
         {
           id: Date.now(),
           author: 'You',
@@ -259,7 +284,7 @@ const FeedScreen = ({ scope, onAction }) => {
   };
 
   const getPostComments = (postId) => {
-    return postComments[postId] || MOCK_POSTS.find(p => p.id === postId)?.comments || [];
+    return postComments[postId] || posts.find(p => p.id === postId)?.comments || [];
   };
 
   const commentCount = (postId) => getPostComments(postId).length;
