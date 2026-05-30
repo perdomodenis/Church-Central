@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { useAuth } from './context/AuthContext';
 import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from './services/firebase';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { seedLiveData } from './services/liveData';
 
 // Auth Screens
 import LoginScreen from './components/auth/LoginScreen';
@@ -21,6 +23,12 @@ import ProfileScreen from './components/screens/ProfileScreen';
 import SettingsScreen from './components/screens/SettingsScreen';
 import FeedbackScreen from './components/screens/FeedbackScreen';
 import SimpleScreen from './components/screens/SimpleScreen';
+import BaptismScreen from './components/screens/BaptismScreen';
+import EventsScreen from './components/screens/EventsScreen';
+import MessagesScreen from './components/screens/MessagesScreen';
+import MemberSearchScreen from './components/screens/MemberSearchScreen';
+import MemberProfileScreen from './components/screens/MemberProfileScreen';
+import DebugScreen from './components/screens/DebugScreen';
 
 // UI Components
 import { TopBar, MenuDrawer, FabMenu, Sheet, useToast } from './components/common/UI';
@@ -43,6 +51,7 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [scope, setScope] = useState('News');
+  const [selectedMember, setSelectedMember] = useState(null);
   const toast = useToast();
 
   // Theme
@@ -67,6 +76,7 @@ function App() {
     if (authUser) {
       setUser(u => ({
         ...u,
+        uid: authUser.uid,
         email: authUser.email || authUser.displayName || 'User',
         first: authUser.displayName?.split(' ')[0] || 'User',
         last: authUser.displayName?.split(' ')[1] || '',
@@ -84,6 +94,19 @@ function App() {
     root.style.setProperty('--accent', accent);
     root.setAttribute('data-theme', darkMode ? 'dark' : 'light');
   }, [accentColor, darkMode]);
+
+  // Auto-load live data on first mount (only once)
+  useEffect(() => {
+    const hasLoadedData = sessionStorage.getItem('liveDataLoaded');
+    if (!hasLoadedData && authUser) {
+      seedLiveData().then(() => {
+        sessionStorage.setItem('liveDataLoaded', 'true');
+        console.log('✅ Live data loaded automatically');
+      }).catch(err => {
+        console.log('Note: Live data already exists or will be loaded from Firebase');
+      });
+    }
+  }, [authUser]);
 
   const handleLogin = async ({ email, password }) => {
     try {
@@ -106,6 +129,29 @@ function App() {
       toast.show('Account created!');
     } catch (error) {
       toast.show('Error: ' + error.message);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const googleUser = result.user;
+
+      setUser(u => ({
+        ...u,
+        uid: googleUser.uid,
+        email: googleUser.email || '',
+        first: googleUser.displayName?.split(' ')[0] || 'User',
+        last: googleUser.displayName?.split(' ').slice(1).join(' ') || '',
+      }));
+
+      toast.show('Welcome with Google!');
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        return;
+      }
+      toast.show('Google login error: ' + error.message);
     }
   };
 
@@ -140,6 +186,7 @@ function App() {
         onLogin={handleLogin}
         onSignup={() => { setSignupStep(1); setRoute('signup'); }}
         onForgot={() => setRoute('forgot')}
+        onGoogleLogin={handleGoogleLogin}
       />
     );
   } else if (route === 'forgot') {
@@ -165,10 +212,14 @@ function App() {
     body = <FeedScreen scope={scope} onAction={onAction} />;
   } else if (route === 'inbox') {
     body = <InboxScreen />;
+  } else if (route === 'messages') {
+    body = <MessagesScreen user={user} />;
   } else if (route === 'schedule') {
     body = <ScheduleScreen />;
   } else if (route === 'appointment') {
     body = <AppointmentScreen />;
+  } else if (route === 'events') {
+    body = <EventsScreen user={user} />;
   } else if (route === 'mgmt') {
     body = <ManagementScreen />;
   } else if (route === 'upload') {
@@ -176,20 +227,26 @@ function App() {
   } else if (route === 'feedback') {
     body = <FeedbackScreen />;
   } else if (route === 'baptism') {
-    body = <SimpleScreen icon={<Icon.Drop />} title="Baptism" subtitle="Register for water baptism" />;
+    body = <BaptismScreen user={user} />;
   } else if (route === 'nls') {
     body = <SimpleScreen icon={<Icon.Spark />} title="New Life Steps" subtitle="Your discipleship journey" />;
   } else if (route === 'profile') {
-    body = <ProfileScreen user={user} onSettings={() => setRoute('settings')} onLogout={() => { auth.signOut(); setRoute('login'); }} />;
+    body = <ProfileScreen user={user} onUpdateUser={setUser} onSettings={() => setRoute('settings')} onLogout={() => { auth.signOut(); setRoute('login'); }} />;
   } else if (route === 'settings') {
     body = (
-      <SettingsScreen 
-        user={user} 
-        onBack={() => setRoute('profile')} 
+      <SettingsScreen
+        user={user}
+        onBack={() => setRoute('profile')}
         accentColor={accentColor} setAccentColor={setAccentColor}
         darkMode={darkMode} setDarkMode={setDarkMode}
       />
     );
+  } else if (route === 'members') {
+    body = <MemberSearchScreen user={user} onSelectMember={(m) => { setSelectedMember(m); setRoute('member-profile'); }} onNavigate={setRoute} />;
+  } else if (route === 'member-profile') {
+    body = <MemberProfileScreen member={selectedMember} user={user} onBack={() => setRoute('members')} onMessage={() => setRoute('messages')} onNavigate={setRoute} />;
+  } else if (route === 'debug') {
+    body = <DebugScreen onBack={() => setRoute('home')} />;
   } else {
     body = <FeedScreen scope={scope} onAction={onAction} />;
   }
@@ -202,14 +259,16 @@ function App() {
           scopeOptions={route === 'home' ? scopeOptions : null}
           title={
             route === 'inbox' ? 'Inbox' :
+            route === 'messages' ? 'Messages' :
             route === 'schedule' ? 'Schedule' :
             route === 'appointment' ? 'Appointment' :
+            route === 'events' ? 'Events' :
             route === 'mgmt' ? 'Management' :
+            route === 'baptism' ? 'Baptism' :
             route === 'profile' ? 'Profile' :
             route === 'settings' ? 'Settings' :
             route === 'upload' ? 'Share' :
             route === 'feedback' ? 'Feedback' :
-            route === 'baptism' ? 'Baptism' :
             route === 'nls' ? 'New Steps' : ''
           }
           onScope={setScope}

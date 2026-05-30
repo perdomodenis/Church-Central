@@ -1,87 +1,117 @@
-import { 
-  collection, 
-  getDocs, 
-  doc, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc 
-} from 'firebase/firestore';
-import { db } from './firebase';
+import { rtdb } from './firebase';
+import { ref, push, set, get, update, remove } from 'firebase/database';
 
-// Get all events
-export async function getAllEvents() {
+export const addEvent = async (eventData, userId) => {
   try {
-    const eventsCollection = collection(db, 'events');
-    const snapshot = await getDocs(eventsCollection);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    const eventsRef = ref(rtdb, 'events');
+    const newEventRef = push(eventsRef);
+
+    const event = {
+      title: eventData.title,
+      startTime: eventData.startTime,
+      endTime: eventData.endTime,
+      location: eventData.location || '',
+      description: eventData.description || '',
+      category: eventData.category || 'Event',
+      createdBy: userId,
+      createdByName: eventData.createdByName || 'Unknown',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    await set(newEventRef, event);
+    return { id: newEventRef.key, ...event };
+  } catch (error) {
+    console.error('Error adding event:', error);
+    throw error;
+  }
+};
+
+export const getAllEvents = async () => {
+  try {
+    const eventsRef = ref(rtdb, 'events');
+    const snapshot = await get(eventsRef);
+
+    if (!snapshot.exists()) {
+      return [];
+    }
+
+    const events = [];
+    snapshot.forEach((childSnapshot) => {
+      events.push({
+        id: childSnapshot.key,
+        ...childSnapshot.val()
+      });
+    });
+
+    return events.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
   } catch (error) {
     console.error('Error fetching events:', error);
-    throw error;
+    return [];
   }
-}
+};
 
-// Get single event by ID
-export async function getEventById(eventId) {
+export const updateEvent = async (eventId, eventData) => {
   try {
-    const eventDoc = doc(db, 'events', eventId);
-    const snapshot = await getDoc(eventDoc);
-    if (snapshot.exists()) {
-      return {
-        id: snapshot.id,
-        ...snapshot.data()
-      };
-    }
-    return null;
-  } catch (error) {
-    console.error('Error fetching event:', error);
-    throw error;
-  }
-}
+    const eventRef = ref(rtdb, `events/${eventId}`);
 
-// Create new event
-export async function createEvent(eventData) {
-  try {
-    const eventsCollection = collection(db, 'events');
-    const docRef = await addDoc(eventsCollection, {
+    const updatedData = {
       ...eventData,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-    return {
-      id: docRef.id,
-      ...eventData
+      updatedAt: new Date().toISOString()
     };
-  } catch (error) {
-    console.error('Error creating event:', error);
-    throw error;
-  }
-}
 
-// Update event
-export async function updateEvent(eventId, updates) {
-  try {
-    const eventDoc = doc(db, 'events', eventId);
-    await updateDoc(eventDoc, {
-      ...updates,
-      updatedAt: new Date()
-    });
+    await update(eventRef, updatedData);
+    return { id: eventId, ...updatedData };
   } catch (error) {
     console.error('Error updating event:', error);
     throw error;
   }
-}
+};
 
-// Delete event
-export async function deleteEvent(eventId) {
+export const deleteEvent = async (eventId) => {
   try {
-    const eventDoc = doc(db, 'events', eventId);
-    await deleteDoc(eventDoc);
+    const eventRef = ref(rtdb, `events/${eventId}`);
+    await remove(eventRef);
+    return true;
   } catch (error) {
     console.error('Error deleting event:', error);
     throw error;
   }
-}
+};
+
+export const getEventsByUser = async (userId) => {
+  try {
+    const eventsRef = ref(rtdb, 'events');
+    const snapshot = await get(eventsRef);
+
+    if (!snapshot.exists()) {
+      return [];
+    }
+
+    const events = [];
+    snapshot.forEach((childSnapshot) => {
+      const event = childSnapshot.val();
+      if (event.createdBy === userId) {
+        events.push({
+          id: childSnapshot.key,
+          ...event
+        });
+      }
+    });
+
+    return events;
+  } catch (error) {
+    console.error('Error fetching user events:', error);
+    return [];
+  }
+};
+
+export const extractCategory = (title) => {
+  const lowerTitle = title.toLowerCase();
+  if (lowerTitle.includes('worship') || lowerTitle.includes('service')) return 'Worship';
+  if (lowerTitle.includes('youth')) return 'Youth';
+  if (lowerTitle.includes('bible') || lowerTitle.includes('study')) return 'Study';
+  if (lowerTitle.includes('community') || lowerTitle.includes('outreach')) return 'Community';
+  if (lowerTitle.includes('baptism')) return 'Baptism';
+  return 'Event';
+};
