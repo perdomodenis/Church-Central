@@ -290,7 +290,78 @@ const FeedScreen = ({ scope, onAction }) => {
   const commentCount = (postId) => getPostComments(postId).length;
 
   return (
-    <div className="feed-screen" style={{ padding: '12px' }}>
+    <div className="feed-screen" style={{ padding: '12px', paddingBottom: '100px' }}>
+      {/* Church Info Section */}
+      <div style={{
+        backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: '16px',
+        padding: '24px',
+        marginBottom: '20px',
+        color: 'white',
+        boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)'
+      }}>
+        <h2 style={{ margin: '0 0 12px 0', fontSize: '1.5rem', fontWeight: '800' }}>⛪ Grace Community Church</h2>
+        <p style={{ margin: '0 0 16px 0', opacity: 0.9, fontSize: '0.95rem' }}>
+          A vibrant community of believers dedicated to spiritual growth and serving our city.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.1)', padding: '12px', borderRadius: '8px' }}>
+            <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>Main Service</div>
+            <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>Sunday 10 AM</div>
+          </div>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.1)', padding: '12px', borderRadius: '8px' }}>
+            <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>Active Members</div>
+            <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>1,250+</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Upcoming Events Section */}
+      <div style={{ marginBottom: '24px' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '12px', color: '#111' }}>📅 Upcoming Events</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '16px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            borderLeft: '4px solid var(--accent)'
+          }}>
+            <div style={{ fontWeight: '700', color: '#111', marginBottom: '4px' }}>🕊️ Sunday Service</div>
+            <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px' }}>Tomorrow at 10:00 AM</div>
+            <div style={{ fontSize: '0.8rem', color: '#999' }}>Main Campus & Downtown Campus</div>
+          </div>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '16px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            borderLeft: '4px solid #667eea'
+          }}>
+            <div style={{ fontWeight: '700', color: '#111', marginBottom: '4px' }}>🎒 Youth Summer Camp</div>
+            <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px' }}>June 21-25, 2025</div>
+            <div style={{ fontSize: '0.8rem', color: '#999' }}>Registration closing soon</div>
+          </div>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '16px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            borderLeft: '4px solid #667eea'
+          }}>
+            <div style={{ fontWeight: '700', color: '#111', marginBottom: '4px' }}>📖 Bible Study</div>
+            <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px' }}>Every Wednesday at 7:00 PM</div>
+            <div style={{ fontSize: '0.8rem', color: '#999' }}>Psalms Deep Dive - All welcome</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Posts Section */}
+      <div>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '12px', color: '#111' }}>📰 News & Updates</h3>
+      </div>
+
       {filteredPosts.length > 0 ? (
         filteredPosts.map(post => (
           <div
