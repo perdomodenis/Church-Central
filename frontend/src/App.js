@@ -42,7 +42,7 @@ function App() {
   const [route, setRoute] = useState('login');
   const [menuOpen, setMenuOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [scope, setScope] = useState('Noticias');
+  const [scope, setScope] = useState('News');
   const toast = useToast();
 
   // Theme
@@ -67,8 +67,8 @@ function App() {
     if (authUser) {
       setUser(u => ({
         ...u,
-        email: authUser.email || authUser.displayName || 'Usuario',
-        first: authUser.displayName?.split(' ')[0] || 'Usuario',
+        email: authUser.email || authUser.displayName || 'User',
+        first: authUser.displayName?.split(' ')[0] || 'User',
         last: authUser.displayName?.split(' ')[1] || '',
       }));
       setRoute('home');
@@ -88,22 +88,22 @@ function App() {
   const handleLogin = async ({ email, password }) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast.show('¡Bienvenido!');
+      toast.show('Welcome!');
     } catch (error) {
-      toast.show('Error al iniciar sesión: ' + error.message);
+      toast.show('Login error: ' + error.message);
     }
   };
 
   const handleSignup = async () => {
     try {
       if (signupData.pw !== signupData.pw2) {
-        toast.show('Las contraseñas no coinciden');
+        toast.show('Passwords do not match');
         return;
       }
       await createUserWithEmailAndPassword(auth, signupData.email, signupData.pw);
       setUser(u => ({ ...u, ...signupData }));
       setRoute('welcome');
-      toast.show('¡Cuenta creada!');
+      toast.show('Account created!');
     } catch (error) {
       toast.show('Error: ' + error.message);
     }
@@ -113,25 +113,25 @@ function App() {
     if (action === 'upload' || action === 'post') {
       setUploadOpen(true);
     } else if (action === 'member') {
-      toast.show('Enlace de invitación copiado');
+      toast.show('Invite link copied');
     } else if (action === 'feedback') {
       setRoute('feedback');
     }
   };
 
   const onAction = (kind) => {
-    if (kind === 'comment') toast.show('Los comentarios estarán disponibles pronto');
-    else if (kind === 'pray') toast.show('🙏 Orando contigo');
-    else if (kind === 'share') toast.show('Enlace copiado');
+    if (kind === 'comment') toast.show('Comments will be available soon');
+    else if (kind === 'pray') toast.show('🙏 Praying with you');
+    else if (kind === 'share') toast.show('Link copied');
   };
 
-  const scopeOptions = ['Noticias', 'Departamento', 'Distrito', 'Corte', 'Líderes', 'Todos'];
+  const scopeOptions = ['News', 'Department', 'District', 'Court', 'Leaders', 'All'];
   const inAuth = ['login', 'signup', 'welcome', 'forgot', 'forgot-sent'].includes(route);
 
   // Render screen
   let body;
   if (authLoading) {
-    return <div className="loading">Cargando...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   if (route === 'login') {
@@ -160,7 +160,7 @@ function App() {
       />
     );
   } else if (route === 'welcome') {
-    body = <WelcomeScreen name={signupData.first || 'amigo'} onContinue={() => setRoute('home')} />;
+    body = <WelcomeScreen name={signupData.first || 'friend'} onContinue={() => setRoute('home')} />;
   } else if (route === 'home') {
     body = <FeedScreen scope={scope} onAction={onAction} />;
   } else if (route === 'inbox') {
@@ -176,13 +176,20 @@ function App() {
   } else if (route === 'feedback') {
     body = <FeedbackScreen />;
   } else if (route === 'baptism') {
-    body = <SimpleScreen icon={<Icon.Drop />} title="Bautismo" subtitle="Regístrate para el bautismo en agua" />;
+    body = <SimpleScreen icon={<Icon.Drop />} title="Baptism" subtitle="Register for water baptism" />;
   } else if (route === 'nls') {
-    body = <SimpleScreen icon={<Icon.Spark />} title="Nuevos Pasos de Vida" subtitle="Tu viaje de discipulado" />;
+    body = <SimpleScreen icon={<Icon.Spark />} title="New Life Steps" subtitle="Your discipleship journey" />;
   } else if (route === 'profile') {
     body = <ProfileScreen user={user} onSettings={() => setRoute('settings')} onLogout={() => { auth.signOut(); setRoute('login'); }} />;
   } else if (route === 'settings') {
-    body = <SettingsScreen user={user} onBack={() => setRoute('profile')} />;
+    body = (
+      <SettingsScreen 
+        user={user} 
+        onBack={() => setRoute('profile')} 
+        accentColor={accentColor} setAccentColor={setAccentColor}
+        darkMode={darkMode} setDarkMode={setDarkMode}
+      />
+    );
   } else {
     body = <FeedScreen scope={scope} onAction={onAction} />;
   }
@@ -195,15 +202,15 @@ function App() {
           scopeOptions={route === 'home' ? scopeOptions : null}
           title={
             route === 'inbox' ? 'Inbox' :
-            route === 'schedule' ? 'Calendario' :
-            route === 'appointment' ? 'Cita' :
-            route === 'mgmt' ? 'Gestión' :
-            route === 'profile' ? 'Perfil' :
-            route === 'settings' ? 'Configuración' :
-            route === 'upload' ? 'Compartir' :
+            route === 'schedule' ? 'Schedule' :
+            route === 'appointment' ? 'Appointment' :
+            route === 'mgmt' ? 'Management' :
+            route === 'profile' ? 'Profile' :
+            route === 'settings' ? 'Settings' :
+            route === 'upload' ? 'Share' :
             route === 'feedback' ? 'Feedback' :
-            route === 'baptism' ? 'Bautismo' :
-            route === 'nls' ? 'Nuevos Pasos' : ''
+            route === 'baptism' ? 'Baptism' :
+            route === 'nls' ? 'New Steps' : ''
           }
           onScope={setScope}
           onMenu={() => setMenuOpen(true)}
@@ -226,7 +233,7 @@ function App() {
       />
 
       <Sheet open={uploadOpen} onClose={() => setUploadOpen(false)} height="92%">
-        {uploadOpen && <UploadScreen onCancel={() => setUploadOpen(false)} onDone={() => { setUploadOpen(false); toast.show('¡Compartido con la familia!'); }} />}
+        {uploadOpen && <UploadScreen onCancel={() => setUploadOpen(false)} onDone={() => { setUploadOpen(false); toast.show('Shared with the family!'); }} />}
       </Sheet>
 
       {toast.node}
