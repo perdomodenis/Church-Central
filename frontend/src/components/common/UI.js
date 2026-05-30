@@ -61,6 +61,7 @@ export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout }) => {
           <MenuItem icon="💧" label="Baptism" active={route === 'baptism'} onClick={() => handleNavigate('baptism')} />
           <MenuItem icon={<Icon.Profile />} label="Profile" active={route === 'profile'} onClick={() => handleNavigate('profile')} />
           <MenuItem icon={<Icon.Feedback />} label="Feedback" active={route === 'feedback'} onClick={() => handleNavigate('feedback')} />
+          <MenuItem icon="🔧" label="Debug" active={route === 'debug'} onClick={() => handleNavigate('debug')} />
           <div style={{ borderTop: '1px solid #eee', marginTop: '20px', paddingTop: '20px' }}>
             <MenuItem label="Sign Out" onClick={handleLogout} />
           </div>
