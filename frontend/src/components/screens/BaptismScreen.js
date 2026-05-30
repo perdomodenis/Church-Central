@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { rtdb } from '../../services/firebase';
+import { ref, onValue } from 'firebase/database';
 import { useAuth } from '../../context/AuthContext';
-import { getAllBaptismEvents, registerForBaptism, unregisterFromBaptism, checkBaptismRegistration, createBaptismEvent } from '../../services/baptismService';
+import { registerForBaptism, unregisterFromBaptism, checkBaptismRegistration } from '../../services/baptismService';
 import AddBaptismModal from './AddBaptismModal';
 
 const BaptismScreen = ({ user }) => {
@@ -11,22 +13,32 @@ const BaptismScreen = ({ user }) => {
   const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
-    fetchBaptismEvents();
-  }, []);
+    const eventsRef = ref(rtdb, 'baptisms/events');
 
-  const fetchBaptismEvents = async () => {
-    setLoading(true);
-    const allEvents = await getAllBaptismEvents();
-    setEvents(allEvents);
+    const unsubscribe = onValue(eventsRef, async (snapshot) => {
+      if (snapshot.exists()) {
+        const eventsData = snapshot.val();
+        const eventsList = Object.entries(eventsData).map(([key, value]) => ({
+          id: key,
+          ...value
+        })).sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
 
-    const regs = {};
-    for (const event of allEvents) {
-      const isRegistered = await checkBaptismRegistration(event.id, authUser?.uid);
-      regs[event.id] = isRegistered;
-    }
-    setRegistrations(regs);
-    setLoading(false);
-  };
+        setEvents(eventsList);
+
+        const regs = {};
+        for (const event of eventsList) {
+          const isRegistered = await checkBaptismRegistration(event.id, authUser?.uid);
+          regs[event.id] = isRegistered;
+        }
+        setRegistrations(regs);
+      } else {
+        setEvents([]);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [authUser?.uid]);
 
   const handleRegister = async (eventId) => {
     try {
