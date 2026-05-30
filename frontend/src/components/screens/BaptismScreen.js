@@ -1,241 +1,218 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../services/firebase';
-import { ref, set, get, remove } from 'firebase/database';
+import { useAuth } from '../../context/AuthContext';
+import { getAllBaptismEvents, registerForBaptism, unregisterFromBaptism, checkBaptismRegistration, createBaptismEvent } from '../../services/baptismService';
+import AddBaptismModal from './AddBaptismModal';
 
 const BaptismScreen = ({ user }) => {
-  const [isRegistered, setIsRegistered] = useState(false);
+  const { user: authUser } = useAuth();
+  const [events, setEvents] = useState([]);
+  const [registrations, setRegistrations] = useState({});
   const [loading, setLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
-    checkRegistration();
-  }, [user?.uid]);
+    fetchBaptismEvents();
+  }, []);
 
-  const checkRegistration = async () => {
-    if (!user?.uid) return;
-    try {
-      const snapshot = await get(ref(db, `baptisms/${user.uid}`));
-      setIsRegistered(!!snapshot.val());
-    } catch (error) {
-      console.error('Error checking registration:', error);
+  const fetchBaptismEvents = async () => {
+    setLoading(true);
+    const allEvents = await getAllBaptismEvents();
+    setEvents(allEvents);
+
+    const regs = {};
+    for (const event of allEvents) {
+      const isRegistered = await checkBaptismRegistration(event.id, authUser?.uid);
+      regs[event.id] = isRegistered;
     }
+    setRegistrations(regs);
     setLoading(false);
   };
 
-  const handleRegister = async () => {
-    if (!user?.uid) return;
+  const handleRegister = async (eventId) => {
     try {
-      await set(ref(db, `baptisms/${user.uid}`), {
-        name: `${user.first} ${user.last}`,
-        email: user.email,
-        timestamp: new Date().toISOString(),
-        status: 'registered'
-      });
-      setIsRegistered(true);
+      await registerForBaptism(eventId, authUser.uid, authUser.displayName || 'User', authUser.email);
+      setRegistrations(prev => ({ ...prev, [eventId]: true }));
+      
+      setEvents(prev =>
+        prev.map(e =>
+          e.id === eventId ? { ...e, attendees: (e.attendees || 0) + 1 } : e
+        )
+      );
     } catch (error) {
-      console.error('Error registering:', error);
+      alert('Error registering: ' + error.message);
     }
   };
 
-  const handleUnregister = async () => {
-    if (!user?.uid) return;
+  const handleUnregister = async (eventId) => {
     try {
-      await remove(ref(db, `baptisms/${user.uid}`));
-      setIsRegistered(false);
+      await unregisterFromBaptism(eventId, authUser.uid);
+      setRegistrations(prev => ({ ...prev, [eventId]: false }));
+      
+      setEvents(prev =>
+        prev.map(e =>
+          e.id === eventId ? { ...e, attendees: Math.max(0, (e.attendees || 0) - 1) } : e
+        )
+      );
     } catch (error) {
-      console.error('Error unregistering:', error);
+      alert('Error unregistering: ' + error.message);
     }
+  };
+
+  const handleEventAdded = (newEvent) => {
+    setEvents(prev => [...prev, newEvent].sort((a, b) => 
+      new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`)
+    ));
+    setShowAddModal(false);
   };
 
   return (
-    <div style={{ padding: '24px', paddingBottom: '100px' }}>
+    <div style={{ padding: '16px', paddingBottom: '100px' }}>
       {/* Header */}
-      <div style={{
-        textAlign: 'center',
-        marginBottom: '32px',
-        backgroundColor: 'rgba(91, 63, 187, 0.08)',
-        padding: '24px',
-        borderRadius: '16px'
-      }}>
-        <div style={{ fontSize: '3rem', marginBottom: '12px' }}>💧</div>
-        <h2 style={{ fontSize: '1.75rem', fontWeight: '800', margin: '0 0 8px 0', color: '#111' }}>
-          Water Baptism
-        </h2>
-        <p style={{ color: '#666', fontSize: '0.95rem', margin: 0 }}>
-          Register for your water baptism ceremony
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: '#111' }}>💧 Water Baptism</h2>
+          <p style={{ color: '#666', fontSize: '0.9rem', margin: '4px 0 0 0' }}>Register for baptism ceremonies</p>
+        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          style={{
+            backgroundColor: 'var(--accent)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '8px 16px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            fontSize: '0.9rem'
+          }}
+        >
+          + Add Event
+        </button>
+      </div>
+
+      {/* Info Section */}
+      <div style={infoCardStyle}>
+        <h3 style={{ margin: '0 0 12px 0', fontSize: '1rem', fontWeight: '700' }}>What is Water Baptism?</h3>
+        <p style={{ margin: 0, color: '#555', fontSize: '0.9rem', lineHeight: '1.5' }}>
+          Water baptism is a public declaration of your faith in Jesus Christ. It represents your commitment to follow Christ and be part of our church community.
         </p>
       </div>
 
-      {/* About Section */}
-      <div style={cardStyle}>
-        <h3 style={sectionTitleStyle}>What is Water Baptism?</h3>
-        <p style={textStyle}>
-          Water baptism is a public declaration of your faith in Jesus Christ. It's an important step in your spiritual journey and represents your commitment to follow Christ and be part of our church community.
-        </p>
-      </div>
-
-      {/* Details Section */}
-      <div style={cardStyle}>
-        <h3 style={sectionTitleStyle}>Baptism Details</h3>
-
-        <div style={infoBoxStyle}>
-          <div style={{ fontSize: '1.5rem', marginRight: '12px' }}>📅</div>
-          <div>
-            <p style={labelStyle}>Date & Time</p>
-            <p style={valueStyle}>Sundays after service or as scheduled</p>
-          </div>
+      {/* Events List */}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
+          Loading baptism events...
         </div>
-
-        <div style={infoBoxStyle}>
-          <div style={{ fontSize: '1.5rem', marginRight: '12px' }}>📍</div>
-          <div>
-            <p style={labelStyle}>Location</p>
-            <p style={valueStyle}>Church baptismal pool or designated water source</p>
-          </div>
+      ) : events.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
+          No baptism events scheduled yet. Check back soon! 📅
         </div>
+      ) : (
+        events.map(event => (
+          <div key={event.id} style={eventCardStyle}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700', color: '#111' }}>
+                {event.title}
+              </h3>
+              <div style={{
+                backgroundColor: 'rgba(91, 63, 187, 0.1)',
+                color: 'var(--accent)',
+                padding: '4px 12px',
+                borderRadius: '20px',
+                fontSize: '0.85rem',
+                fontWeight: '600'
+              }}>
+                👥 {event.attendees || 0} attending
+              </div>
+            </div>
 
-        <div style={infoBoxStyle}>
-          <div style={{ fontSize: '1.5rem', marginRight: '12px' }}>⏱️</div>
-          <div>
-            <p style={labelStyle}>Preparation</p>
-            <p style={valueStyle}>Arrive 15 minutes early. Bring a change of clothes</p>
-          </div>
-        </div>
-      </div>
+            <div style={eventInfoStyle}>
+              <span>📅 {event.date} at {event.time}</span>
+              <span style={{ marginLeft: '16px' }}>📍 {event.location}</span>
+            </div>
 
-      {/* Requirements Section */}
-      <div style={cardStyle}>
-        <h3 style={sectionTitleStyle}>Requirements</h3>
-        <ul style={{ margin: '0', paddingLeft: '20px', color: '#333' }}>
-          <li style={{ marginBottom: '8px' }}>Have accepted Jesus Christ as your Savior</li>
-          <li style={{ marginBottom: '8px' }}>Have made a personal decision to follow Him</li>
-          <li style={{ marginBottom: '8px' }}>Be able to publicly declare your faith</li>
-          <li>Be physically capable of water baptism</li>
-        </ul>
-      </div>
+            {event.description && (
+              <p style={{ margin: '8px 0', color: '#555', fontSize: '0.9rem' }}>
+                {event.description}
+              </p>
+            )}
 
-      {/* Registration Section */}
-      <div style={{
-        ...cardStyle,
-        backgroundColor: isRegistered ? 'rgba(46, 107, 94, 0.08)' : 'white',
-        borderColor: isRegistered ? '#2E6B5E' : '#f0f0f0'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-          <div style={{ fontSize: '1.5rem', marginRight: '12px' }}>
-            {isRegistered ? '✅' : '📝'}
-          </div>
-          <h3 style={{ ...sectionTitleStyle, margin: 0 }}>
-            {isRegistered ? 'You are registered!' : 'Register for Baptism'}
-          </h3>
-        </div>
-
-        {isRegistered ? (
-          <>
-            <p style={{ color: '#2E6B5E', fontWeight: '600', marginBottom: '16px' }}>
-              Thank you for signing up! We're excited to see you at the baptism.
-            </p>
-            <button
-              onClick={handleUnregister}
-              style={{
-                width: '100%',
-                padding: '16px',
-                backgroundColor: '#FFF0F0',
-                color: '#D32F2F',
-                border: 'none',
-                borderRadius: '12px',
-                fontWeight: '700',
-                fontSize: '1rem',
-                cursor: 'pointer'
-              }}
-            >
-              Cancel Registration
-            </button>
-          </>
-        ) : (
-          <>
-            {loading ? (
-              <p style={{ color: '#999' }}>Loading...</p>
-            ) : (
-              <>
-                <p style={{ color: '#666', marginBottom: '16px', fontSize: '0.95rem' }}>
-                  Ready to take this step? Click below to register for water baptism.
-                </p>
+            <div style={{ marginTop: '12px' }}>
+              {registrations[event.id] ? (
                 <button
-                  onClick={handleRegister}
+                  onClick={() => handleUnregister(event.id)}
                   style={{
                     width: '100%',
-                    padding: '16px',
+                    padding: '12px',
+                    backgroundColor: '#ffebee',
+                    color: '#c62828',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    fontSize: '0.95rem'
+                  }}
+                >
+                  ✓ Registered - Click to Cancel
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleRegister(event.id)}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
                     backgroundColor: 'var(--accent)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '12px',
-                    fontWeight: '700',
-                    fontSize: '1rem',
-                    cursor: 'pointer'
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    fontSize: '0.95rem'
                   }}
                 >
                   Register for Baptism
                 </button>
-              </>
-            )}
-          </>
-        )}
-      </div>
+              )}
+            </div>
+          </div>
+        ))
+      )}
 
-      {/* Contact Section */}
-      <div style={cardStyle}>
-        <h3 style={sectionTitleStyle}>Questions?</h3>
-        <p style={{ color: '#666', fontSize: '0.95rem', margin: 0 }}>
-          Contact our pastoral team for more information about water baptism or to discuss any concerns.
-        </p>
-      </div>
+      {showAddModal && (
+        <AddBaptismModal
+          onClose={() => setShowAddModal(false)}
+          onEventAdded={handleEventAdded}
+          user={authUser}
+        />
+      )}
     </div>
   );
 };
 
-const cardStyle = {
+const infoCardStyle = {
+  backgroundColor: 'rgba(91, 63, 187, 0.08)',
+  borderRadius: '12px',
+  padding: '16px',
+  marginBottom: '24px',
+  border: '1px solid rgba(91, 63, 187, 0.1)'
+};
+
+const eventCardStyle = {
   backgroundColor: 'white',
-  borderRadius: '16px',
-  padding: '20px',
-  marginBottom: '32px',
+  borderRadius: '12px',
+  padding: '16px',
+  marginBottom: '16px',
   boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
   border: '1px solid #f0f0f0'
 };
 
-const sectionTitleStyle = {
-  fontSize: '1.1rem',
-  fontWeight: '700',
-  color: '#111',
-  margin: '0 0 16px 0',
-  borderBottom: '1px solid #eee',
-  paddingBottom: '8px'
-};
-
-const textStyle = {
-  color: '#555',
-  fontSize: '0.95rem',
-  lineHeight: '1.6',
-  margin: 0
-};
-
-const infoBoxStyle = {
+const eventInfoStyle = {
   display: 'flex',
-  marginBottom: '16px',
-  paddingBottom: '16px',
-  borderBottom: '1px solid #eee'
-};
-
-const labelStyle = {
+  flexWrap: 'wrap',
+  gap: '12px',
   color: '#666',
-  fontSize: '0.85rem',
-  fontWeight: '600',
-  margin: '0 0 4px 0'
-};
-
-const valueStyle = {
-  color: '#111',
-  fontSize: '0.95rem',
-  fontWeight: '500',
-  margin: 0
+  fontSize: '0.9rem',
+  fontWeight: '500'
 };
 
 export default BaptismScreen;
