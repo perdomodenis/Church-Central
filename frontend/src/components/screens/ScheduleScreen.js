@@ -1,69 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { getCalendarEvents, formatEventDate, formatEventTime, getCalendarUrl } from '../../services/calendarService';
-
-const MOCK_EVENTS = [
-  {
-    id: 1,
-    title: 'Sunday Morning Service',
-    startTime: '2024-10-22T10:00:00',
-    endTime: '2024-10-22T12:00:00',
-    location: 'Main Sanctuary',
-    category: 'Worship'
-  },
-  {
-    id: 2,
-    title: 'Mid-week Bible Study',
-    startTime: '2024-10-25T19:00:00',
-    endTime: '2024-10-25T20:30:00',
-    location: 'Room 302',
-    category: 'Study'
-  },
-  {
-    id: 3,
-    title: 'Youth Night',
-    startTime: '2024-10-27T18:30:00',
-    endTime: '2024-10-27T21:00:00',
-    location: 'Gymnasium',
-    category: 'Youth'
-  },
-  {
-    id: 4,
-    title: 'Community Outreach',
-    startTime: '2024-10-28T09:00:00',
-    endTime: '2024-10-28T13:00:00',
-    location: 'Downtown Center',
-    category: 'Community'
-  }
-];
+import { getAllEvents, deleteEvent } from '../../services/eventService';
+import { useAuth } from '../../context/AuthContext';
+import AddEventModal from './AddEventModal';
+import { formatEventDate, formatEventTime } from '../../services/calendarService';
 
 const ScheduleScreen = () => {
-  const [events, setEvents] = useState(MOCK_EVENTS);
+  const { user: authUser } = useAuth();
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [hasApiConfigured, setHasApiConfigured] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      setLoading(true);
-      const calendarEvents = await getCalendarEvents();
-
-      if (calendarEvents) {
-        setHasApiConfigured(true);
-        setEvents(calendarEvents);
-      } else {
-        setHasApiConfigured(false);
-        setEvents(MOCK_EVENTS);
-      }
-
-      setLoading(false);
-    };
-
     fetchEvents();
   }, []);
 
-  const handleViewCalendar = () => {
-    const url = getCalendarUrl();
-    if (url) {
-      window.open(url, '_blank');
+  const fetchEvents = async () => {
+    setLoading(true);
+    const allEvents = await getAllEvents();
+    setEvents(allEvents);
+    setLoading(false);
+  };
+
+  const handleAddEvent = (newEvent) => {
+    setEvents(prev => [...prev, newEvent].sort((a, b) => new Date(a.startTime) - new Date(b.startTime)));
+  };
+
+  const handleDeleteEvent = async (eventId, createdBy) => {
+    if (createdBy !== authUser?.uid) {
+      alert('You can only delete your own events');
+      return;
+    }
+
+    if (window.confirm('Delete this event?')) {
+      try {
+        await deleteEvent(eventId);
+        setEvents(prev => prev.filter(e => e.id !== eventId));
+      } catch (error) {
+        alert('Error deleting event: ' + error.message);
+      }
     }
   };
 
@@ -72,32 +46,18 @@ const ScheduleScreen = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#111' }}>Upcoming Events</h2>
         <button
-          onClick={handleViewCalendar}
+          onClick={() => setShowAddModal(true)}
           style={{
             background: 'none',
             border: 'none',
             color: 'var(--accent)',
             fontWeight: '600',
-            fontSize: '0.9rem',
+            fontSize: '1.2rem',
             cursor: 'pointer'
           }}>
-          View Calendar
+          +
         </button>
       </div>
-
-      {!hasApiConfigured && !loading && (
-        <div style={{
-          backgroundColor: '#fff3cd',
-          border: '1px solid #ffc107',
-          borderRadius: '8px',
-          padding: '12px',
-          marginBottom: '16px',
-          fontSize: '0.85rem',
-          color: '#856404'
-        }}>
-          📅 To display real church events, configure Google Calendar in your environment settings.
-        </div>
-      )}
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
@@ -105,12 +65,13 @@ const ScheduleScreen = () => {
         </div>
       ) : events.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
-          No upcoming events
+          No events yet. Click + to add one! 📅
         </div>
       ) : (
         events.map(event => {
           const dateInfo = formatEventDate(event.startTime);
           const timeInfo = formatEventTime(event.startTime, event.endTime);
+          const canDelete = authUser?.uid === event.createdBy;
 
           return (
             <div key={event.id} style={cardStyle}>
@@ -128,7 +89,10 @@ const ScheduleScreen = () => {
 
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '4px', color: '#111' }}>{event.title}</h3>
+                  <div>
+                    <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '4px', color: '#111' }}>{event.title}</h3>
+                    <span style={{ fontSize: '0.75rem', color: '#999' }}>by {event.createdByName}</span>
+                  </div>
                   <span style={tagStyle}>{event.category}</span>
                 </div>
 
@@ -143,10 +107,42 @@ const ScheduleScreen = () => {
                     <span style={infoTextStyle}>{event.location}</span>
                   </div>
                 )}
+
+                {event.description && (
+                  <div style={{ ...infoRowStyle, marginTop: '8px' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#555' }}>{event.description}</span>
+                  </div>
+                )}
+
+                {canDelete && (
+                  <button
+                    onClick={() => handleDeleteEvent(event.id, event.createdBy)}
+                    style={{
+                      marginTop: '8px',
+                      padding: '4px 8px',
+                      backgroundColor: '#ffebee',
+                      color: '#c62828',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      fontWeight: '600'
+                    }}>
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           );
         })
+      )}
+
+      {showAddModal && (
+        <AddEventModal
+          onClose={() => setShowAddModal(false)}
+          onEventAdded={handleAddEvent}
+          user={authUser}
+        />
       )}
     </div>
   );
