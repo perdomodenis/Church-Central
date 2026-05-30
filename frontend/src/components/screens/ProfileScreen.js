@@ -2,17 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { uploadPhoto, getUserPhotos, deletePhoto } from '../../services/photoService';
 import { updateProfilePhoto, updateUserProfile, getUserProfile } from '../../services/userService';
 
-const ProfileScreen = ({ user, onSettings, onLogout }) => {
+const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
   const initials = `${user.first?.[0] || ''}${user.last?.[0] || ''}`.toUpperCase() || '??';
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
     profilePhoto: null,
     bio: ''
   });
   const [editBio, setEditBio] = useState('');
+  const [editUser, setEditUser] = useState({
+    first: user.first || '',
+    last: user.last || '',
+    court: user.court || '',
+    dept: user.dept || '',
+    position: user.position || '',
+    interests: user.interests || []
+  });
+  const [newInterest, setNewInterest] = useState('');
 
   useEffect(() => {
     loadPhotos();
@@ -93,6 +103,32 @@ const ProfileScreen = ({ user, onSettings, onLogout }) => {
     }
   };
 
+  const handleSaveProfileInfo = async () => {
+    try {
+      onUpdateUser(editUser);
+      setIsEditingProfile(false);
+    } catch (error) {
+      console.error('Error saving profile info:', error);
+    }
+  };
+
+  const handleAddInterest = () => {
+    if (newInterest.trim() && !editUser.interests.includes(newInterest)) {
+      setEditUser(prev => ({
+        ...prev,
+        interests: [...prev.interests, newInterest]
+      }));
+      setNewInterest('');
+    }
+  };
+
+  const handleRemoveInterest = (interest) => {
+    setEditUser(prev => ({
+      ...prev,
+      interests: prev.interests.filter(i => i !== interest)
+    }));
+  };
+
   return (
     <div className="profile-screen" style={{ padding: '24px', paddingBottom: '100px' }}>
       {/* Header / Avatar Section */}
@@ -146,22 +182,100 @@ const ProfileScreen = ({ user, onSettings, onLogout }) => {
 
       {/* Church Details Card */}
       <div style={cardStyle}>
-        <h3 style={sectionTitleStyle}>Community Roles</h3>
-
-        <div style={infoRowStyle}>
-          <span style={labelStyle}>Location / Court</span>
-          <span style={valueStyle}>{user.court || 'Not specified'}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h3 style={{ ...sectionTitleStyle, margin: 0 }}>Community Info</h3>
+          <button
+            onClick={() => {
+              if (isEditingProfile) {
+                handleSaveProfileInfo();
+              } else {
+                setIsEditingProfile(true);
+              }
+            }}
+            style={{
+              backgroundColor: 'transparent',
+              border: 'none',
+              color: 'var(--accent)',
+              cursor: 'pointer',
+              fontWeight: '600',
+              fontSize: '0.85rem'
+            }}
+          >
+            {isEditingProfile ? 'Save' : 'Edit'}
+          </button>
         </div>
 
-        <div style={infoRowStyle}>
-          <span style={labelStyle}>Department</span>
-          <span style={valueStyle}>{user.dept || 'Not specified'}</span>
-        </div>
+        {isEditingProfile ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div>
+              <label style={labelStyle}>First Name</label>
+              <input
+                type="text"
+                value={editUser.first}
+                onChange={(e) => setEditUser(prev => ({ ...prev, first: e.target.value }))}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Last Name</label>
+              <input
+                type="text"
+                value={editUser.last}
+                onChange={(e) => setEditUser(prev => ({ ...prev, last: e.target.value }))}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Location / Court</label>
+              <input
+                type="text"
+                value={editUser.court}
+                onChange={(e) => setEditUser(prev => ({ ...prev, court: e.target.value }))}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Department</label>
+              <input
+                type="text"
+                value={editUser.dept}
+                onChange={(e) => setEditUser(prev => ({ ...prev, dept: e.target.value }))}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Position</label>
+              <input
+                type="text"
+                value={editUser.position}
+                onChange={(e) => setEditUser(prev => ({ ...prev, position: e.target.value }))}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+        ) : (
+          <>
+            <div style={infoRowStyle}>
+              <span style={labelStyle}>Name</span>
+              <span style={valueStyle}>{editUser.first} {editUser.last}</span>
+            </div>
 
-        <div style={infoRowStyle}>
-          <span style={labelStyle}>Position</span>
-          <span style={valueStyle}>{user.position || 'Not specified'}</span>
-        </div>
+            <div style={infoRowStyle}>
+              <span style={labelStyle}>Location / Court</span>
+              <span style={valueStyle}>{editUser.court || 'Not specified'}</span>
+            </div>
+
+            <div style={infoRowStyle}>
+              <span style={labelStyle}>Department</span>
+              <span style={valueStyle}>{editUser.dept || 'Not specified'}</span>
+            </div>
+
+            <div style={infoRowStyle}>
+              <span style={labelStyle}>Position</span>
+              <span style={valueStyle}>{editUser.position || 'Not specified'}</span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Bio Section */}
@@ -221,18 +335,87 @@ const ProfileScreen = ({ user, onSettings, onLogout }) => {
 
       {/* Interests Section */}
       <div style={{ marginBottom: '32px' }}>
-        <h3 style={sectionTitleStyle}>Interests</h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
-          {user.interests && user.interests.length > 0 ? (
-            user.interests.map((interest, idx) => (
-              <span key={idx} style={interestTagStyle}>
-                {interest}
-              </span>
-            ))
-          ) : (
-            <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>No interests added yet.</p>
-          )}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h3 style={sectionTitleStyle}>Interests</h3>
+          <button
+            onClick={() => setIsEditingProfile(isEditingProfile ? false : 'interests')}
+            style={{
+              backgroundColor: 'transparent',
+              border: 'none',
+              color: 'var(--accent)',
+              cursor: 'pointer',
+              fontWeight: '600',
+              fontSize: '0.85rem'
+            }}
+          >
+            {isEditingProfile ? 'Done' : 'Edit'}
+          </button>
         </div>
+
+        {isEditingProfile ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="text"
+                value={newInterest}
+                onChange={(e) => setNewInterest(e.target.value)}
+                placeholder="Add new interest"
+                onKeyPress={(e) => e.key === 'Enter' && handleAddInterest()}
+                style={{...inputStyle, flex: 1}}
+              />
+              <button
+                onClick={handleAddInterest}
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: 'var(--accent)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                +
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {editUser.interests.length > 0 ? (
+                editUser.interests.map((interest, idx) => (
+                  <div key={idx} style={{ ...interestTagStyle, display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '8px' }}>
+                    {interest}
+                    <button
+                      onClick={() => handleRemoveInterest(interest)}
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        color: 'var(--accent)',
+                        cursor: 'pointer',
+                        fontSize: '1rem',
+                        padding: 0
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>No interests added yet.</p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {editUser.interests && editUser.interests.length > 0 ? (
+              editUser.interests.map((interest, idx) => (
+                <span key={idx} style={interestTagStyle}>
+                  {interest}
+                </span>
+              ))
+            ) : (
+              <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>No interests added yet.</p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Photos Section */}
@@ -356,8 +539,18 @@ const infoRowStyle = {
   marginBottom: '12px'
 };
 
-const labelStyle = { color: '#666', fontSize: '0.9rem', fontWeight: '500' };
+const labelStyle = { color: '#666', fontSize: '0.9rem', fontWeight: '600', marginBottom: '6px', display: 'block' };
 const valueStyle = { color: '#111', fontSize: '0.9rem', fontWeight: '700' };
+
+const inputStyle = {
+  width: '100%',
+  padding: '10px 12px',
+  border: '1px solid #ddd',
+  borderRadius: '8px',
+  fontSize: '0.95rem',
+  fontFamily: 'inherit',
+  boxSizing: 'border-box'
+};
 
 const interestTagStyle = {
   backgroundColor: 'rgba(91, 63, 187, 0.08)',

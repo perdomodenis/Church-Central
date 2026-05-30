@@ -187,7 +187,7 @@ function App() {
   } else if (route === 'nls') {
     body = <SimpleScreen icon={<Icon.Spark />} title="New Life Steps" subtitle="Your discipleship journey" />;
   } else if (route === 'profile') {
-    body = <ProfileScreen user={user} onSettings={() => setRoute('settings')} onLogout={() => { auth.signOut(); setRoute('login'); }} />;
+    body = <ProfileScreen user={user} onUpdateUser={setUser} onSettings={() => setRoute('settings')} onLogout={() => { auth.signOut(); setRoute('login'); }} />;
   } else if (route === 'settings') {
     body = (
       <SettingsScreen 
