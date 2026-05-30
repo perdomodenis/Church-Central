@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const ACCENT_PRESETS = [
   ['#5B3FBB', '#EFE9FF'],
@@ -10,6 +11,8 @@ const ACCENT_PRESETS = [
 ];
 
 const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, setDarkMode }) => {
+  const { language, setLanguage, t } = useLanguage();
+
   return (
     <div className="settings-screen" style={{ padding: '24px', paddingBottom: '100px' }}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
@@ -63,6 +66,38 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
                   transform: accentColor === color ? 'scale(1.1)' : 'scale(1)'
                 }}
               />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Language Section */}
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}>Language / Idioma / Sprache / Langue</h3>
+        <div style={cardStyle}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            {[
+              { code: 'en', name: 'English' },
+              { code: 'es', name: 'Español' },
+              { code: 'de', name: 'Deutsch' },
+              { code: 'fr', name: 'Français' }
+            ].map(lang => (
+              <button
+                key={lang.code}
+                onClick={() => setLanguage(lang.code)}
+                style={{
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: language === lang.code ? '2px solid var(--accent)' : '1px solid #ddd',
+                  backgroundColor: language === lang.code ? 'rgba(91, 63, 187, 0.08)' : 'white',
+                  fontWeight: language === lang.code ? '700' : '500',
+                  color: '#111',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {lang.name}
+              </button>
             ))}
           </div>
         </div>
