@@ -290,7 +290,62 @@ const FeedScreen = ({ scope, onAction }) => {
   const commentCount = (postId) => getPostComments(postId).length;
 
   return (
-    <div className="feed-screen" style={{ padding: '12px' }}>
+    <div className="feed-screen" style={{ padding: '12px', paddingBottom: '100px' }}>
+      {/* Church Info Section */}
+      <div style={{
+        backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: '16px',
+        padding: '24px',
+        marginBottom: '20px',
+        color: 'white',
+        boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)'
+      }}>
+        <h2 style={{ margin: '0 0 12px 0', fontSize: '1.5rem', fontWeight: '800' }}>⛪ Grace Community Church</h2>
+        <p style={{ margin: '0 0 16px 0', opacity: 0.9, fontSize: '0.95rem' }}>
+          A vibrant community of believers dedicated to spiritual growth and serving our city.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.1)', padding: '12px', borderRadius: '8px' }}>
+            <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>Main Service</div>
+            <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>Sunday 10 AM</div>
+          </div>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.1)', padding: '12px', borderRadius: '8px' }}>
+            <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>Active Members</div>
+            <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>1,250+</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Upcoming Events Section */}
+      <div style={{ marginBottom: '24px' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '12px', color: '#111' }}>📅 Upcoming Events</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {[
+            { id: 1, emoji: '🕊️', title: 'Sunday Service', time: 'Tomorrow at 10:00 AM', location: 'Main Campus & Downtown Campus' },
+            { id: 2, emoji: '🎒', title: 'Youth Summer Camp', time: 'June 21-25, 2025', location: 'Registration closing soon' },
+            { id: 3, emoji: '📖', title: 'Bible Study', time: 'Every Wednesday at 7:00 PM', location: 'Psalms Deep Dive - All welcome' }
+          ].map(event => (
+            <div key={event.id} style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '16px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+              borderLeft: '4px solid ' + (event.id === 1 ? 'var(--accent)' : '#667eea')
+            }}>
+              <div style={{ fontWeight: '700', color: '#111', marginBottom: '4px' }}>{event.emoji} {event.title}</div>
+              <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px' }}>{event.time}</div>
+              <div style={{ fontSize: '0.8rem', color: '#999' }}>{event.location}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Posts Section */}
+      <div>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '12px', color: '#111' }}>📰 News & Updates</h3>
+      </div>
+
       {filteredPosts.length > 0 ? (
         filteredPosts.map(post => (
           <div
