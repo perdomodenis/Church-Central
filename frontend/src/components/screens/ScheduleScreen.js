@@ -41,6 +41,12 @@ const ScheduleScreen = () => {
     }
   };
 
+  const isValidEvent = (event) => {
+    return event.title && event.title !== 'TBD' && event.startTime && event.startTime !== 'TBD';
+  };
+
+  const validEvents = events.filter(isValidEvent);
+
   return (
     <div className="schedule-screen" style={{ padding: '16px', paddingBottom: '80px' }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px' }}>
@@ -62,52 +68,69 @@ const ScheduleScreen = () => {
         <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
           Loading events...
         </div>
-      ) : events.length === 0 ? (
+      ) : validEvents.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
           No events yet. Click + to add one! 📅
         </div>
       ) : (
-        events.map(event => {
+        validEvents.map(event => {
           const dateInfo = formatEventDate(event.startTime);
           const timeInfo = formatEventTime(event.startTime, event.endTime);
           const canDelete = authUser?.uid === event.createdBy;
 
+          const shouldShow = {
+            time: timeInfo && timeInfo !== 'TBD' && !timeInfo.includes('Invalid'),
+            location: event.location && event.location !== 'TBD',
+            description: event.description && event.description !== 'TBD',
+            category: event.category && event.category !== 'TBD'
+          };
+
           return (
             <div key={event.id} style={cardStyle}>
               <div style={dateColumnStyle}>
-                <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--accent)', textTransform: 'uppercase' }}>
-                  {dateInfo.day}
-                </span>
-                <span style={{ fontSize: '1.4rem', fontWeight: '800', lineHeight: '1' }}>
-                  {dateInfo.date}
-                </span>
-                <span style={{ fontSize: '0.6rem', color: '#666', fontWeight: '600' }}>
-                  {dateInfo.month}
-                </span>
+                {dateInfo.day && dateInfo.day !== 'TBD' && (
+                  <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--accent)', textTransform: 'uppercase' }}>
+                    {dateInfo.day}
+                  </span>
+                )}
+                {dateInfo.date && dateInfo.date !== 'TBD' && (
+                  <span style={{ fontSize: '1.4rem', fontWeight: '800', lineHeight: '1' }}>
+                    {dateInfo.date}
+                  </span>
+                )}
+                {dateInfo.month && dateInfo.month !== 'TBD' && (
+                  <span style={{ fontSize: '0.6rem', color: '#666', fontWeight: '600' }}>
+                    {dateInfo.month}
+                  </span>
+                )}
               </div>
 
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
                     <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '4px', color: '#111' }}>{event.title}</h3>
-                    <span style={{ fontSize: '0.75rem', color: '#999' }}>by {event.createdByName}</span>
+                    {event.createdByName && event.createdByName !== 'TBD' && (
+                      <span style={{ fontSize: '0.75rem', color: '#999' }}>by {event.createdByName}</span>
+                    )}
                   </div>
-                  <span style={tagStyle}>{event.category}</span>
+                  {shouldShow.category && <span style={tagStyle}>{event.category}</span>}
                 </div>
 
-                <div style={infoRowStyle}>
-                  <span style={{ fontSize: '0.9rem' }}>🕒</span>
-                  <span style={infoTextStyle}>{timeInfo}</span>
-                </div>
+                {shouldShow.time && (
+                  <div style={infoRowStyle}>
+                    <span style={{ fontSize: '0.9rem' }}>🕒</span>
+                    <span style={infoTextStyle}>{timeInfo}</span>
+                  </div>
+                )}
 
-                {event.location && (
+                {shouldShow.location && (
                   <div style={infoRowStyle}>
                     <span style={{ fontSize: '0.9rem' }}>📍</span>
                     <span style={infoTextStyle}>{event.location}</span>
                   </div>
                 )}
 
-                {event.description && (
+                {shouldShow.description && (
                   <div style={{ ...infoRowStyle, marginTop: '8px' }}>
                     <span style={{ fontSize: '0.85rem', color: '#555' }}>{event.description}</span>
                   </div>

@@ -326,9 +326,76 @@ const MessagesScreen = ({ user }) => {
         {loading && <p style={{ color: '#999' }}>Loading chats...</p>}
 
         {!loading && directChats.length === 0 && groupChats.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#999' }}>
-            <p style={{ fontSize: '2rem', marginBottom: '8px' }}>💬</p>
-            <p>No chats yet. Start a conversation or create a group!</p>
+          <div style={{
+            backgroundColor: '#f0f8ff',
+            borderRadius: '12px',
+            padding: '24px',
+            border: '1px solid #e0f0ff',
+            marginBottom: '24px'
+          }}>
+            <p style={{ fontSize: '1.5rem', marginBottom: '12px', color: '#667eea', fontWeight: 'bold' }}>👋 Bienvenido a Mensajes</p>
+            <p style={{ color: '#555', fontSize: '0.95rem', marginBottom: '12px', lineHeight: '1.5' }}>
+              Aquí puedes comunicarte con miembros de tu iglesia y crear grupos para discusiones.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
+              <button
+                onClick={() => setShowNewChat(!showNewChat)}
+                style={{
+                  backgroundColor: 'var(--accent)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontSize: '0.95rem'
+                }}
+              >
+                💬 Iniciar una conversación
+              </button>
+              <button
+                onClick={() => setShowNewGroup(!showNewGroup)}
+                style={{
+                  backgroundColor: '#667eea',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontSize: '0.95rem',
+                  opacity: 0.8
+                }}
+              >
+                👥 Crear un grupo
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!loading && (directChats.length > 0 || groupChats.length > 0) && (
+          <div style={{
+            backgroundColor: '#f0f8ff',
+            borderRadius: '12px',
+            padding: '16px',
+            border: '1px solid #e0f0ff',
+            marginBottom: '20px',
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center'
+          }}>
+            <span style={{ fontSize: '1.3rem' }}>💡</span>
+            <p style={{ margin: 0, color: '#555', fontSize: '0.9rem' }}>
+              Clic en un chat para abrir la conversación
+            </p>
           </div>
         )}
       </div>
