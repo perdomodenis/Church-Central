@@ -116,19 +116,19 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
             }}>
               {member.dept && (
                 <div style={{ fontSize: '0.9rem', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '600', color: '#111' }}>Departamento:</span>
+                  <span style={{ fontWeight: '600', color: '#111' }}>Department:</span>
                   <span style={{ color: '#666', marginLeft: '8px' }}>{member.dept}</span>
                 </div>
               )}
               {member.position && (
                 <div style={{ fontSize: '0.9rem', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '600', color: '#111' }}>Posición:</span>
+                  <span style={{ fontWeight: '600', color: '#111' }}>Position:</span>
                   <span style={{ color: '#666', marginLeft: '8px' }}>{member.position}</span>
                 </div>
               )}
               {member.court && (
                 <div style={{ fontSize: '0.9rem' }}>
-                  <span style={{ fontWeight: '600', color: '#111' }}>Iglesia:</span>
+                  <span style={{ fontWeight: '600', color: '#111' }}>Church:</span>
                   <span style={{ color: '#666', marginLeft: '8px' }}>{member.court}</span>
                 </div>
               )}
@@ -166,7 +166,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
               marginBottom: '12px'
             }}
           >
-            💬 Enviar Mensaje
+            💬 Send Message
           </button>
         </div>
       </div>
@@ -174,11 +174,11 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
       {/* Galería de fotos */}
       <div style={{ padding: '24px', paddingTop: '0' }}>
         <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '16px', color: '#111' }}>
-          Fotos
+          Photos
         </h3>
 
         {loading ? (
-          <p style={{ color: '#999', fontSize: '0.9rem' }}>Cargando fotos...</p>
+          <p style={{ color: '#999', fontSize: '0.9rem' }}>Loading photos...</p>
         ) : photos.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px' }}>
             {photos.map((photo, index) => (
@@ -208,7 +208,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
             ))}
           </div>
         ) : (
-          <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>Sin fotos aún.</p>
+          <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>No photos yet.</p>
         )}
       </div>
 

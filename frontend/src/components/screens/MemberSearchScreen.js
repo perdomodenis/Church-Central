@@ -28,13 +28,13 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
   return (
     <div style={{ padding: '24px', paddingBottom: '100px' }}>
       <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '24px', color: '#111' }}>
-        Miembros
+        Members
       </h2>
 
       <div style={{ marginBottom: '24px' }}>
         <input
           type="text"
-          placeholder="Buscar por nombre, email o departamento..."
+          placeholder="Search by name, email or department..."
           value={searchQuery}
           onChange={(e) => handleSearch(e.target.value)}
           style={{
@@ -51,7 +51,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
       </div>
 
       {loading ? (
-        <p style={{ textAlign: 'center', color: '#999' }}>Cargando miembros...</p>
+        <p style={{ textAlign: 'center', color: '#999' }}>Loading members...</p>
       ) : members.length > 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {members.map((member) => (
@@ -121,7 +121,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
         </div>
       ) : (
         <div style={{ textAlign: 'center', padding: '40px', opacity: 0.5 }}>
-          <p>No se encontraron miembros.</p>
+          <p>No members found.</p>
         </div>
       )}
     </div>
