@@ -20,7 +20,7 @@ export const createDirectChat = async (userId1, userId2, user1Name, user2Name) =
   return chatId;
 };
 
-export const createGroupChat = async (creatorId, groupName, memberIds) => {
+export const createGroupChat = async (creatorId, groupName, memberIds, isPublic = false) => {
   const groupRef = push(ref(rtdb, 'groups'));
   const groupId = groupRef.key;
 
@@ -37,6 +37,7 @@ export const createGroupChat = async (creatorId, groupName, memberIds) => {
     creatorId,
     members: memberIds,
     memberNames,
+    isPublic,
     createdAt: new Date().toISOString()
   });
 
@@ -151,4 +152,52 @@ export const deleteMessage = async (chatId, messageId) => {
 
 export const deleteGroupMessage = async (groupId, messageId) => {
   await remove(ref(rtdb, `groups/${groupId}/messages/${messageId}`));
+};
+
+export const getPublicGroups = async () => {
+  try {
+    const snapshot = await get(ref(rtdb, 'groups'));
+    const groups = [];
+
+    snapshot.forEach((child) => {
+      const group = child.val();
+      if (group.isPublic) {
+        groups.push({
+          id: child.key,
+          ...group
+        });
+      }
+    });
+
+    return groups;
+  } catch (error) {
+    console.error('Error getting public groups:', error);
+    return [];
+  }
+};
+
+export const joinGroup = async (groupId, userId, userName) => {
+  try {
+    const groupRef = ref(rtdb, `groups/${groupId}`);
+    const snapshot = await get(groupRef);
+
+    if (snapshot.exists()) {
+      const group = snapshot.val();
+      const members = group.members || [];
+      const memberNames = group.memberNames || {};
+
+      if (!members.includes(userId)) {
+        members.push(userId);
+        memberNames[userId] = userName;
+
+        await update(groupRef, {
+          members,
+          memberNames
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error joining group:', error);
+    throw error;
+  }
 };

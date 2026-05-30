@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../services/firebase';
+import { rtdb } from '../../services/firebase';
 import { get, ref } from 'firebase/database';
 import {
   getDirectChats,
@@ -41,7 +41,7 @@ const MessagesScreen = ({ user }) => {
 
   const loadAllUsers = async () => {
     try {
-      const snapshot = await get(ref(db, 'users'));
+      const snapshot = await get(ref(rtdb, 'users'));
       const users = [];
       snapshot.forEach((child) => {
         if (child.key !== user?.uid) {

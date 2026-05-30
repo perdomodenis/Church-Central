@@ -107,7 +107,16 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
   };
 
   const handleSaveProfileInfo = async () => {
+    if (!user?.uid) return;
     try {
+      await updateUserProfile(user.uid, {
+        first: editUser.first,
+        last: editUser.last,
+        court: editUser.court,
+        dept: editUser.dept,
+        position: editUser.position,
+        interests: editUser.interests
+      });
       onUpdateUser(editUser);
       setIsEditingProfile(false);
     } catch (error) {

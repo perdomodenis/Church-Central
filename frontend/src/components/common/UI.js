@@ -53,6 +53,7 @@ export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout }) => {
           <MenuItem icon={<Icon.Home />} label="Home" active={route === 'home'} onClick={() => handleNavigate('home')} />
           <MenuItem icon={<Icon.Inbox />} label="Inbox" active={route === 'inbox'} onClick={() => handleNavigate('inbox')} />
           <MenuItem icon="💬" label="Messages" active={route === 'messages'} onClick={() => handleNavigate('messages')} />
+          <MenuItem icon="👥" label="Miembros" active={route === 'members'} onClick={() => handleNavigate('members')} />
           <MenuItem icon={<Icon.Calendar />} label="Schedule" active={route === 'schedule'} onClick={() => handleNavigate('schedule')} />
           <MenuItem icon={<Icon.Appointment />} label="Appointments" active={route === 'appointment'} onClick={() => handleNavigate('appointment')} />
           <MenuItem icon={<Icon.Calendar />} label="Events" active={route === 'events'} onClick={() => handleNavigate('events')} />

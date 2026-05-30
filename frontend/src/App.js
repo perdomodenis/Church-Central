@@ -24,6 +24,8 @@ import SimpleScreen from './components/screens/SimpleScreen';
 import BaptismScreen from './components/screens/BaptismScreen';
 import EventsScreen from './components/screens/EventsScreen';
 import MessagesScreen from './components/screens/MessagesScreen';
+import MemberSearchScreen from './components/screens/MemberSearchScreen';
+import MemberProfileScreen from './components/screens/MemberProfileScreen';
 
 // UI Components
 import { TopBar, MenuDrawer, FabMenu, Sheet, useToast } from './components/common/UI';
@@ -46,6 +48,7 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [scope, setScope] = useState('News');
+  const [selectedMember, setSelectedMember] = useState(null);
   const toast = useToast();
 
   // Theme
@@ -191,13 +194,17 @@ function App() {
     body = <ProfileScreen user={user} onUpdateUser={setUser} onSettings={() => setRoute('settings')} onLogout={() => { auth.signOut(); setRoute('login'); }} />;
   } else if (route === 'settings') {
     body = (
-      <SettingsScreen 
-        user={user} 
-        onBack={() => setRoute('profile')} 
+      <SettingsScreen
+        user={user}
+        onBack={() => setRoute('profile')}
         accentColor={accentColor} setAccentColor={setAccentColor}
         darkMode={darkMode} setDarkMode={setDarkMode}
       />
     );
+  } else if (route === 'members') {
+    body = <MemberSearchScreen user={user} onSelectMember={(m) => { setSelectedMember(m); setRoute('member-profile'); }} onNavigate={setRoute} />;
+  } else if (route === 'member-profile') {
+    body = <MemberProfileScreen member={selectedMember} user={user} onBack={() => setRoute('members')} onMessage={() => setRoute('messages')} onNavigate={setRoute} />;
   } else {
     body = <FeedScreen scope={scope} onAction={onAction} />;
   }
