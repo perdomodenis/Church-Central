@@ -54,7 +54,16 @@ export const extractCategory = (title) => {
 };
 
 export const formatEventDate = (dateString) => {
+  if (!dateString) {
+    return { day: 'TBD', date: '-', month: 'TBD' };
+  }
+
   const date = new Date(dateString);
+
+  if (isNaN(date.getTime())) {
+    return { day: 'TBD', date: '-', month: 'TBD' };
+  }
+
   return {
     day: date.toLocaleDateString('en-US', { weekday: 'short' }).substring(0, 3),
     date: date.getDate(),
@@ -63,11 +72,19 @@ export const formatEventDate = (dateString) => {
 };
 
 export const formatEventTime = (startTime, endTime) => {
+  if (!startTime || !endTime) {
+    return 'TBD';
+  }
+
   const start = new Date(startTime);
   const end = new Date(endTime);
 
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return 'TBD';
+  }
+
   // Check if it's an all-day event
-  if (startTime.length === 10) {
+  if (typeof startTime === 'string' && startTime.length === 10) {
     return 'All Day';
   }
 
