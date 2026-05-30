@@ -127,6 +127,7 @@ const AppointmentScreen = () => {
             </div>
           </div>
         ))}
+      </div>
     </div>
   );
 };
