@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: church-central-app
+    ports:
+      - "3000:3000"
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost:5000
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm start
+    depends_on:
+      - db
+    networks:
+      - church-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: church-central-db
+    environment:
+      - POSTGRES_USER=churchadmin
+      - POSTGRES_PASSWORD=churchpass123
+      - POSTGRES_DB=church_central
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - church-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U churchadmin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: church-central-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - church-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  church-network:
+    driver: bridge
