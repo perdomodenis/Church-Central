@@ -1,0 +1,163 @@
+mutation UpsertUserProfile(
+  $uid: String!
+  $email: String!
+  $first: String!
+  $last: String!
+  $zip: String
+  $city: String
+  $court: String
+  $dept: String
+  $position: String
+  $bio: String
+  $profilePhoto: String
+  $joined: String
+  $lastActive: String
+  $status: String
+  $recentActivity: String
+  $interests: [String!]
+) @auth(level: USER) {
+  user_upsert(data: {
+    uid: $uid
+    email: $email
+    first: $first
+    last: $last
+    zip: $zip
+    city: $city
+    court: $court
+    dept: $dept
+    position: $position
+    bio: $bio
+    profilePhoto: $profilePhoto
+    joined: $joined
+    lastActive: $lastActive
+    status: $status
+    recentActivity: $recentActivity
+    interests: $interests
+  })
+}
+
+mutation CreateAnnouncement(
+  $content: String!
+  $scope: String!
+  $category: String!
+  $imageUrl: String
+  $authorUid: String!
+) @auth(level: USER) {
+  announcement_insert(data: {
+    content: $content
+    scope: $scope
+    category: $category
+    imageUrl: $imageUrl
+    author: { uid: $authorUid }
+  })
+}
+
+mutation CreateEvent(
+  $title: String!
+  $date: String!
+  $time: String!
+  $endTime: String!
+  $location: String!
+  $description: String!
+  $type: String!
+  $capacity: Int!
+  $createdByUid: String!
+) @auth(level: USER) {
+  event_insert(data: {
+    title: $title
+    date: $date
+    time: $time
+    endTime: $endTime
+    location: $location
+    description: $description
+    type: $type
+    capacity: $capacity
+    createdBy: { uid: $createdByUid }
+  })
+}
+
+mutation RegisterForEvent($eventId: UUID!, $userUid: String!) @auth(level: USER) @transaction {
+  eventRegistration_insert(data: {
+    event: { id: $eventId },
+    user: { uid: $userUid }
+  })
+  event_update(id: $eventId, data: {
+    registered_update: { inc: 1 }
+  })
+}
+
+mutation CancelEventRegistration($eventId: UUID!, $userUid: String!) @auth(level: USER) @transaction {
+  eventRegistration_delete(key: { eventId: $eventId, userUid: $userUid })
+  event_update(id: $eventId, data: {
+    registered_update: { dec: 1 }
+  })
+}
+
+mutation CreateBaptism(
+  $title: String!
+  $date: String!
+  $time: String!
+  $location: String!
+  $description: String!
+  $capacity: Int!
+  $createdByUid: String!
+) @auth(level: USER) {
+  baptismEvent_insert(data: {
+    title: $title
+    date: $date
+    time: $time
+    location: $location
+    description: $description
+    capacity: $capacity
+    createdBy: { uid: $createdByUid }
+  })
+}
+
+mutation RegisterForBaptism($baptismEventId: UUID!, $userUid: String!) @auth(level: USER) @transaction {
+  baptismRegistration_insert(data: {
+    baptismEvent: { id: $baptismEventId },
+    user: { uid: $userUid }
+  })
+  baptismEvent_update(id: $baptismEventId, data: {
+    registeredCount_update: { inc: 1 }
+  })
+}
+
+mutation CancelBaptismRegistration($baptismEventId: UUID!, $userUid: String!) @auth(level: USER) @transaction {
+  baptismRegistration_delete(key: { baptismEventId: $baptismEventId, userUid: $userUid })
+  baptismEvent_update(id: $baptismEventId, data: {
+    registeredCount_update: { dec: 1 }
+  })
+}
+
+mutation DeleteEvent($id: UUID!) @auth(level: USER) {
+  event_delete(id: $id)
+}
+
+mutation DeleteBaptismEvent($id: UUID!) @auth(level: USER) {
+  baptismEvent_delete(id: $id)
+}
+
+mutation UpdateEvent(
+  $id: UUID!
+  $title: String
+  $date: String
+  $time: String
+  $endTime: String
+  $location: String
+  $description: String
+  $type: String
+  $capacity: Int
+) @auth(level: USER) {
+  event_update(id: $id, data: {
+    title: $title
+    date: $date
+    time: $time
+    endTime: $endTime
+    location: $location
+    description: $description
+    type: $type
+    capacity: $capacity
+  })
+}
+

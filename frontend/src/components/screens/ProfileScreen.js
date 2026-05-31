@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { uploadPhoto, getUserPhotos, deletePhoto } from '../../services/photoService';
 import { updateProfilePhoto, updateUserProfile, getUserProfile } from '../../services/userService';
+import { COURTS, DEPARTMENTS, ROLES } from '../../services/churchConstants';
 
 const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
   const initials = `${user.first?.[0] || ''}${user.last?.[0] || ''}`.toUpperCase() || '??';
@@ -239,30 +240,42 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
             </div>
             <div>
               <label style={labelStyle}>Location / Court</label>
-              <input
-                type="text"
+              <select
                 value={editUser.court}
                 onChange={(e) => setEditUser(prev => ({ ...prev, court: e.target.value }))}
-                style={inputStyle}
-              />
+                style={selectStyle}
+              >
+                <option value="" disabled>Select Location / Court</option>
+                {COURTS.map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label style={labelStyle}>Department</label>
-              <input
-                type="text"
+              <select
                 value={editUser.dept}
                 onChange={(e) => setEditUser(prev => ({ ...prev, dept: e.target.value }))}
-                style={inputStyle}
-              />
+                style={selectStyle}
+              >
+                <option value="" disabled>Select Department</option>
+                {DEPARTMENTS.map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label style={labelStyle}>Position</label>
-              <input
-                type="text"
+              <select
                 value={editUser.position}
                 onChange={(e) => setEditUser(prev => ({ ...prev, position: e.target.value }))}
-                style={inputStyle}
-              />
+                style={selectStyle}
+              >
+                <option value="" disabled>Select Position</option>
+                {ROLES.map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
             </div>
           </div>
         ) : (
@@ -706,6 +719,18 @@ const inputStyle = {
   fontSize: '0.95rem',
   fontFamily: 'inherit',
   boxSizing: 'border-box'
+};
+
+const selectStyle = {
+  width: '100%',
+  padding: '10px 12px',
+  border: '1px solid #ddd',
+  borderRadius: '8px',
+  fontSize: '0.95rem',
+  fontFamily: 'inherit',
+  boxSizing: 'border-box',
+  backgroundColor: 'white',
+  color: '#333'
 };
 
 const interestTagStyle = {

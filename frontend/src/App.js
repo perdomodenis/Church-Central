@@ -71,20 +71,65 @@ function App() {
     court: '', position: '', dept: '', interests: [],
   });
 
-  // Update user on authUser change
+  // Update user on authUser change and sync with PostgreSQL
   useEffect(() => {
-    if (authUser) {
-      setUser(u => ({
-        ...u,
-        uid: authUser.uid,
-        email: authUser.email || authUser.displayName || 'User',
-        first: authUser.displayName?.split(' ')[0] || 'User',
-        last: authUser.displayName?.split(' ')[1] || '',
-      }));
-      setRoute('home');
-    } else if (!authLoading) {
-      setRoute('login');
-    }
+    const syncProfile = async () => {
+      if (authUser) {
+        const email = authUser.email || '';
+        const displayName = authUser.displayName || '';
+        const first = displayName.split(' ')[0] || email.split('@')[0] || 'User';
+        const last = displayName.split(' ').slice(1).join(' ') || '';
+
+        try {
+          const { getUserProfile, updateUserProfile } = await import('./services/userService');
+          
+          // Fetch current profile in PostgreSQL
+          const currentProfile = await getUserProfile(authUser.uid);
+          
+          const userData = {
+            uid: authUser.uid,
+            email: currentProfile.email || email,
+            first: currentProfile.first || first,
+            last: currentProfile.last || last,
+            zip: currentProfile.zip || '',
+            city: currentProfile.city || '',
+            court: currentProfile.court || 'Main Campus',
+            dept: currentProfile.dept || 'General',
+            position: currentProfile.position || 'Member',
+            bio: currentProfile.bio || '',
+            profilePhoto: currentProfile.profilePhoto || '',
+            joined: currentProfile.joined || new Date().toISOString().split('T')[0],
+            status: currentProfile.status || 'online',
+            lastActive: new Date().toISOString(),
+            recentActivity: currentProfile.recentActivity || '',
+            interests: currentProfile.interests || []
+          };
+
+          setUser(userData);
+
+          // Guarantee user exists in PostgreSQL to satisfy foreign key constraints
+          await updateUserProfile(authUser.uid, userData);
+        } catch (err) {
+          console.error('Error syncing user profile to PostgreSQL:', err);
+          // Fallback local state if DB connection fails
+          setUser({
+            uid: authUser.uid,
+            email,
+            first,
+            last,
+            court: 'Main Campus',
+            dept: 'General',
+            position: 'Member',
+            interests: []
+          });
+        }
+        setRoute('home');
+      } else if (!authLoading) {
+        setRoute('login');
+      }
+    };
+
+    syncProfile();
   }, [authUser, authLoading]);
 
   // Apply theme
@@ -123,8 +168,30 @@ function App() {
         toast.show('Passwords do not match');
         return;
       }
-      await createUserWithEmailAndPassword(auth, signupData.email, signupData.pw);
-      setUser(u => ({ ...u, ...signupData }));
+      const credential = await createUserWithEmailAndPassword(auth, signupData.email, signupData.pw);
+      const newUser = credential.user;
+
+      // Save custom signup fields to PostgreSQL immediately
+      const profileData = {
+        uid: newUser.uid,
+        email: signupData.email,
+        first: signupData.first,
+        last: signupData.last,
+        zip: signupData.zip || '',
+        city: signupData.city || '',
+        court: signupData.court || 'Main Campus',
+        dept: signupData.dept || 'General',
+        position: signupData.position || 'Member',
+        joined: new Date().toISOString().split('T')[0],
+        status: 'online',
+        lastActive: new Date().toISOString(),
+        interests: signupData.interests || []
+      };
+
+      const { updateUserProfile } = await import('./services/userService');
+      await updateUserProfile(newUser.uid, profileData);
+
+      setUser(profileData);
       setRoute('welcome');
       toast.show('Account created!');
     } catch (error) {

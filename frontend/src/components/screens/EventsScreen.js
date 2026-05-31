@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../services/firebase';
-import { ref, push, set, get, remove } from 'firebase/database';
+import { addEvent, getAllEvents, deleteEvent } from '../../services/eventService';
 
 const EventsScreen = ({ user }) => {
   const [events, setEvents] = useState([]);
@@ -22,15 +21,8 @@ const EventsScreen = ({ user }) => {
 
   const loadEvents = async () => {
     try {
-      const snapshot = await get(ref(db, 'events'));
-      const eventsList = [];
-      snapshot.forEach((child) => {
-        eventsList.push({
-          id: child.key,
-          ...child.val()
-        });
-      });
-      setEvents(eventsList.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
+      const eventsList = await getAllEvents();
+      setEvents(eventsList);
     } catch (error) {
       console.error('Error loading events:', error);
     }
@@ -42,14 +34,10 @@ const EventsScreen = ({ user }) => {
 
     setCreating(true);
     try {
-      const eventRef = push(ref(db, 'events'));
-      await set(eventRef, {
+      await addEvent({
         ...formData,
-        createdBy: `${user.first} ${user.last}`,
-        userId: user.uid,
-        timestamp: new Date().toISOString(),
-        attendees: 0
-      });
+        createdByName: `${user.first} ${user.last}`
+      }, user.uid);
 
       setFormData({
         title: '',
@@ -69,7 +57,7 @@ const EventsScreen = ({ user }) => {
 
   const handleDeleteEvent = async (eventId) => {
     try {
-      await remove(ref(db, `events/${eventId}`));
+      await deleteEvent(eventId);
       await loadEvents();
     } catch (error) {
       console.error('Error deleting event:', error);
