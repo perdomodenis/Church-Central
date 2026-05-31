@@ -1,0 +1,13 @@
+connectorId: default
+generate:
+  javascriptSdk:
+    - outputDir: ..\..\frontend\src\lib\dataconnect
+      package: "@church-central/dataconnect"
+      packageJsonDir: ..\..\frontend
+      react: false
+      angular: false
+      clientCache: {}
+  adminNodeSdk:
+    outputDir: "../../backend/src/lib/dataconnect"
+    package: "@church-central/dataconnect-admin"
+    packageJsonDir: "../../backend"

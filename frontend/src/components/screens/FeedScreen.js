@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { rtdb } from '../../services/firebase';
-import { ref, onValue } from 'firebase/database';
 import * as Icon from '../common/Icons';
+import { listFeedPosts } from '../../lib/dataconnect';
 
 // Fallback mock posts if no data in Firebase
 const FALLBACK_POSTS = [
@@ -236,25 +235,32 @@ const FeedScreen = ({ scope, onAction }) => {
   const [commentText, setCommentText] = useState({});
   const [selectedPost, setSelectedPost] = useState(null);
 
-  // Load posts from Firebase
+  // Load posts from SQL Connect
   useEffect(() => {
-    const feedRef = ref(rtdb, 'feed');
-    const unsubscribe = onValue(feedRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const postsArray = Object.values(data).sort((a, b) =>
-          new Date(b.timestamp) - new Date(a.timestamp)
-        );
-        setPosts(postsArray);
-      } else {
+    const loadPosts = async () => {
+      try {
+        const response = await listFeedPosts();
+        const announcements = response.data?.announcements || [];
+        const mapped = announcements.map(post => ({
+          id: post.id,
+          author: post.author ? `${post.author.first} ${post.author.last}` : 'Anonymous',
+          authorId: post.author?.uid || 'unknown',
+          time: new Date(post.createdAt).toLocaleDateString('de-CH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+          timestamp: post.createdAt,
+          content: post.content,
+          scope: post.scope,
+          category: post.category,
+          image: post.imageUrl || null,
+          prayers: post.likes || 0,
+          comments: []
+        }));
+        setPosts(mapped);
+      } catch (error) {
+        console.error('Error loading feed:', error);
         setPosts(FALLBACK_POSTS);
       }
-    }, (error) => {
-      console.error('Error loading feed:', error);
-      setPosts(FALLBACK_POSTS);
-    });
-
-    return () => unsubscribe();
+    };
+    loadPosts();
   }, []);
 
   const filteredPosts = scope === 'All' || scope === 'Todos'

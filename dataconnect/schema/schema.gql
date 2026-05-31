@@ -1,0 +1,69 @@
+type User @table(key: "uid") {
+  uid: String!
+  email: String! @unique
+  first: String!
+  last: String!
+  zip: String
+  city: String
+  court: String
+  dept: String
+  position: String
+  bio: String
+  profilePhoto: String
+  joined: String
+  lastActive: String
+  status: String
+  recentActivity: String
+  interests: [String!]
+}
+
+type Event @table {
+  id: UUID! @default(expr: "uuidV4()")
+  title: String!
+  date: String!
+  time: String!
+  endTime: String!
+  location: String!
+  description: String!
+  type: String!
+  capacity: Int!
+  registered: Int! @default(value: 0)
+  createdBy: User!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type Announcement @table {
+  id: UUID! @default(expr: "uuidV4()")
+  author: User!
+  content: String!
+  scope: String!
+  category: String!
+  imageUrl: String
+  likes: Int! @default(value: 0)
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type BaptismEvent @table {
+  id: UUID! @default(expr: "uuidV4()")
+  title: String!
+  date: String!
+  time: String!
+  location: String!
+  description: String!
+  capacity: Int!
+  registeredCount: Int! @default(value: 0)
+  createdBy: User!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type EventRegistration @table(key: ["event", "user"]) {
+  event: Event!
+  user: User!
+  registeredAt: Timestamp! @default(expr: "request.time")
+}
+
+type BaptismRegistration @table(key: ["baptismEvent", "user"]) {
+  baptismEvent: BaptismEvent!
+  user: User!
+  registeredAt: Timestamp! @default(expr: "request.time")
+}

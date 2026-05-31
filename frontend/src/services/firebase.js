@@ -38,5 +38,10 @@ export const firestore = getFirestore(app);
 // Initialize Storage
 export const storage = getStorage(app);
 
+// Initialize Data Connect (SQL Connect)
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig } from '../lib/dataconnect';
+export const dataConnect = getDataConnect(app, connectorConfig);
+
 export { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged };
 export default app;

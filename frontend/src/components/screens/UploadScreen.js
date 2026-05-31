@@ -1,4 +1,8 @@
 import React, { useState, useRef } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { createAnnouncement } from '../../lib/dataconnect';
+import { storage } from '../../services/firebase';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const SCOPE_OPTIONS = ['News', 'Department', 'District', 'Court', 'Leaders', 'All'];
 
@@ -51,18 +55,39 @@ const UploadScreen = ({ onCancel, onDone }) => {
     setAttachments(attachments.filter(att => att.id !== id));
   };
 
-  const handleSubmit = (e) => {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim() && attachments.length === 0) return;
+    if (!user) return;
 
-    console.log('Publishing post:', {
-      content,
-      scope,
-      attachments: attachments.map(a => ({ type: a.type, name: a.name })),
-      timestamp: new Date()
-    });
+    setLoading(true);
+    try {
+      let imageUrl = '';
+      const photoAttachment = attachments.find(a => a.type === 'photo');
+      if (photoAttachment && photoAttachment.file) {
+        const file = photoAttachment.file;
+        const fileRef = storageRef(storage, `announcements/${Date.now()}_${file.name}`);
+        await uploadBytes(fileRef, file);
+        imageUrl = await getDownloadURL(fileRef);
+      }
 
-    onDone();
+      await createAnnouncement({
+        content,
+        scope,
+        category: 'Update',
+        imageUrl: imageUrl || null,
+        authorUid: user.uid
+      });
+
+      onDone();
+    } catch (err) {
+      console.error('Error creating post:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -249,8 +274,8 @@ const UploadScreen = ({ onCancel, onDone }) => {
           </div>
         )}
 
-        <button type="submit" style={submitButtonStyle}>
-          Post to {scope}
+        <button type="submit" disabled={loading} style={submitButtonStyle}>
+          {loading ? 'Posting...' : `Post to ${scope}`}
         </button>
       </form>
     </div>

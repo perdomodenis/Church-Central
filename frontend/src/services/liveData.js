@@ -1,5 +1,11 @@
 import { rtdb } from './firebase';
 import { ref, set } from 'firebase/database';
+import { 
+  upsertUserProfile, 
+  createAnnouncement, 
+  createEvent, 
+  createBaptism 
+} from '../lib/dataconnect';
 
 // Get current date/time for realistic timestamps
 const now = new Date();
@@ -611,43 +617,93 @@ export const LIVE_GROUP_CHATS = {
 // SEED LIVE DATA TO FIREBASE
 export const seedLiveData = async () => {
   try {
-    console.log('🚀 Agregando datos VIVOS a Firebase...\n');
+    console.log('🚀 Agregando datos VIVOS a Firebase & PostgreSQL...\n');
+
+    // Helper to convert time from 12-hour (e.g. "09:00 AM") to 24-hour HH:MM
+    const convertTimeToHHMM = (t) => {
+      if (!t) return '00:00';
+      const cleanTime = t.trim().toUpperCase();
+      if (cleanTime.includes('AM') || cleanTime.includes('PM')) {
+        const [timePart, modifier] = cleanTime.split(' ');
+        let [hours, minutes] = timePart.split(':');
+        if (hours === '12') {
+          hours = '00';
+        }
+        if (modifier === 'PM') {
+          hours = String(parseInt(hours, 10) + 12);
+        }
+        return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+      }
+      return t;
+    };
 
     // Church Info
     const churchRef = ref(rtdb, 'churchInfo');
     await set(churchRef, LIVE_CHURCH_INFO);
     console.log('✅ Información de iglesia (EN VIVO)');
 
-    // Members
+    // PostgreSQL Members (Users)
     for (const member of LIVE_MEMBERS) {
-      const memberRef = ref(rtdb, `users/${member.uid}`);
-      await set(memberRef, {
-        ...member,
-        createdAt: member.joined
+      await upsertUserProfile({
+        uid: member.uid,
+        email: member.email,
+        first: member.first,
+        last: member.last,
+        court: member.campus || 'Main Campus',
+        dept: member.dept || 'General',
+        position: member.position || 'Member',
+        bio: member.bio || '',
+        profilePhoto: member.profilePhoto || '',
+        joined: member.joined,
+        lastActive: member.lastActive,
+        status: member.status,
+        recentActivity: member.recentActivity || '',
+        interests: member.interests || []
       });
     }
-    console.log(`✅ ${LIVE_MEMBERS.length} miembros activos (EN VIVO)`);
+    console.log(`✅ ${LIVE_MEMBERS.length} miembros activos inyectados en PostgreSQL`);
 
-    // Feed Posts
+    // PostgreSQL Announcements
     for (const post of LIVE_FEED_POSTS) {
-      const postRef = ref(rtdb, `feed/${post.id}`);
-      await set(postRef, post);
+      await createAnnouncement({
+        content: post.content,
+        scope: post.scope,
+        category: post.category,
+        imageUrl: post.image || '',
+        authorUid: post.authorId
+      });
     }
-    console.log(`✅ ${LIVE_FEED_POSTS.length} posts recientes (EN VIVO)`);
+    console.log(`✅ ${LIVE_FEED_POSTS.length} posts recientes inyectados en PostgreSQL`);
 
-    // Events
+    // PostgreSQL Events
     for (const event of LIVE_CHURCH_EVENTS) {
-      const eventRef = ref(rtdb, `events/${event.id}`);
-      await set(eventRef, event);
+      await createEvent({
+        title: event.title,
+        date: event.date,
+        time: convertTimeToHHMM(event.time),
+        endTime: convertTimeToHHMM(event.endTime || '23:59'),
+        location: event.location,
+        description: event.description,
+        type: event.type,
+        capacity: event.capacity || 100,
+        createdByUid: event.createdBy || 'pastor_001'
+      });
     }
-    console.log(`✅ ${LIVE_CHURCH_EVENTS.length} eventos (HOY & PRÓXIMAMENTE)`);
+    console.log(`✅ ${LIVE_CHURCH_EVENTS.length} eventos inyectados en PostgreSQL`);
 
-    // Baptism Events
+    // PostgreSQL Baptism Events
     for (const baptism of LIVE_BAPTISM_EVENTS) {
-      const baptismRef = ref(rtdb, `baptisms/events/${baptism.id}`);
-      await set(baptismRef, baptism);
+      await createBaptism({
+        title: baptism.title,
+        date: baptism.date,
+        time: convertTimeToHHMM(baptism.time),
+        location: baptism.location,
+        description: baptism.description,
+        capacity: baptism.capacity || 100,
+        createdByUid: baptism.createdBy || 'pastor_001'
+      });
     }
-    console.log(`✅ ${LIVE_BAPTISM_EVENTS.length} eventos de bautismo (EN VIVO)`);
+    console.log(`✅ ${LIVE_BAPTISM_EVENTS.length} eventos de bautismo inyectados en PostgreSQL`);
 
     // Chat Messages
     for (const [chatId, chatData] of Object.entries(LIVE_CHAT_MESSAGES)) {

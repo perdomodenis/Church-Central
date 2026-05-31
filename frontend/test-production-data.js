@@ -89,11 +89,11 @@ try {
   const feedContent = fs.readFileSync(feedScreenPath, 'utf8');
 
   console.log('✅ Test 8: FeedScreen Firebase Integration');
-  if (feedContent.includes('onValue') && feedContent.includes('ref(rtdb')) {
-    console.log('   ✓ FeedScreen loads from Firebase');
-    console.log('   ✓ Real-time updates configured\n');
+  if (feedContent.includes('listFeedPosts') && feedContent.includes('lib/dataconnect')) {
+    console.log('   ✓ FeedScreen loads from SQL Connect (PostgreSQL)');
+    console.log('   ✓ Relational query configured\n');
   } else {
-    throw new Error('FeedScreen does not load from Firebase');
+    throw new Error('FeedScreen does not load from SQL Connect');
   }
 
   // Count data items
