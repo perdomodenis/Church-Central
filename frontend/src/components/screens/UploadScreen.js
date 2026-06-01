@@ -4,11 +4,12 @@ import { createAnnouncement } from '../../lib/dataconnect';
 import { storage } from '../../services/firebase';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const SCOPE_OPTIONS = ['News', 'Department', 'District', 'Court', 'Leaders', 'All'];
+const SCOPE_OPTIONS = ['News', 'Department', 'District', 'Court', 'Leaders', 'Reverends', 'Admins', 'All'];
 
 const UploadScreen = ({ onCancel, onDone }) => {
   const [content, setContent] = useState('');
   const [scope, setScope] = useState('News');
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const fileInputRef = useRef(null);
 
@@ -61,11 +62,16 @@ const UploadScreen = ({ onCancel, onDone }) => {
 
     setLoading(true);
     try {
-      // 1. Create a FormData object instead of a JSON object
       const formData = new FormData();
       formData.append('content', content);
       formData.append('targetGroup', scope); // Maps to 'targetGroup' in your backend req.body
-      formData.append('authorUid', user.uid);
+      
+      if (isAnonymous) {
+        formData.append('authorUid', 'anonymous');
+        // Let backend handle 'anonymous' authorUid properly, or pass explicit name if supported.
+      } else {
+        formData.append('authorUid', user.uid);
+      }
 
       // 2. Attach the file if it exists
       const firstAttachment = attachments[0];
@@ -265,6 +271,19 @@ const UploadScreen = ({ onCancel, onDone }) => {
             </div>
           </div>
         )}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <input
+            type="checkbox"
+            id="anonymousToggle"
+            checked={isAnonymous}
+            onChange={(e) => setIsAnonymous(e.target.checked)}
+            style={{ transform: 'scale(1.2)', accentColor: 'var(--accent)', cursor: 'pointer' }}
+          />
+          <label htmlFor="anonymousToggle" style={{ fontSize: '0.9rem', fontWeight: '600', color: '#555', cursor: 'pointer' }}>
+            Post Anonymously
+          </label>
+        </div>
 
         <button type="submit" disabled={loading} style={submitButtonStyle}>
           {loading ? 'Posting...' : `Post to ${scope}`}

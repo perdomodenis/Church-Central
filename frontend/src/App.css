@@ -19,3 +19,15 @@
   color: var(--ink-3);
   background-color: var(--bg);
 }
+
+@media (max-width: 1160px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1161px) {
+  .mobile-only {
+    display: none !important;
+  }
+}

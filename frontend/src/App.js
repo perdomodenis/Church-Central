@@ -25,11 +25,14 @@ import {
   MessagesScreen,
   MemberSearchScreen,
   MemberProfileScreen,
-  DebugScreen
+  DebugScreen,
+  DocumentsScreen,
+  NLSScreen
 } from './components/screens';
 
 // UI Components
 import { TopBar, MenuDrawer, FabMenu, Sheet, useToast } from './components/common/UI';
+import { getAccessLevel } from './services/churchConstants';
 import * as Icon from './components/common/Icons';
 
 const ACCENT_PRESETS = [
@@ -84,7 +87,7 @@ function App() {
           // Fetch current profile in PostgreSQL
           const currentProfile = await getUserProfile(authUser.uid);
           
-          const userData = {
+          const dbUserData = {
             uid: authUser.uid,
             email: currentProfile.email || email,
             first: currentProfile.first || first,
@@ -103,10 +106,15 @@ function App() {
             interests: currentProfile.interests || []
           };
 
+          const userData = {
+            ...dbUserData,
+            accessLevel: getAccessLevel(currentProfile.position || 'Member')
+          };
+
           setUser(userData);
 
           // Guarantee user exists in PostgreSQL to satisfy foreign key constraints
-          await updateUserProfile(authUser.uid, userData);
+          await updateUserProfile(authUser.uid, dbUserData);
         } catch (err) {
           console.error('Error syncing user profile to PostgreSQL:', err);
           // Fallback local state if DB connection fails
@@ -118,7 +126,8 @@ function App() {
             court: 'Main Campus',
             dept: 'General',
             position: 'Member',
-            interests: []
+            interests: [],
+            accessLevel: getAccessLevel('Member')
           });
         }
         setRoute('home');
@@ -239,7 +248,19 @@ function App() {
     else if (kind === 'share') toast.show('Link copied');
   };
 
-  const scopeOptions = ['News', 'Department', 'District', 'Court', 'Leaders', 'All'];
+  const level = user?.accessLevel || 1;
+
+  let scopeOptions = ['News', 'District', 'Court'];
+  if (level >= 2) {
+    scopeOptions = ['News', 'Department', 'District', 'Court', 'All'];
+  }
+  if (level >= 3) {
+    scopeOptions.push('Leaders', 'Admins');
+  }
+  if (level >= 4) {
+    scopeOptions.push('Reverends');
+  }
+
   const inAuth = ['login', 'signup', 'welcome', 'forgot', 'forgot-sent'].includes(route);
 
   // Render screen
@@ -247,6 +268,14 @@ function App() {
   if (authLoading) {
     return <div className="loading">Loading...</div>;
   }
+
+  const AccessDenied = ({ requiredLevel }) => (
+    <div style={{ padding: '60px 20px', textAlign: 'center', color: '#666' }}>
+      <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔒</div>
+      <h2 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Access Denied</h2>
+      <p>This feature requires Access Level {requiredLevel}.<br/>Your current level is {level}.</p>
+    </div>
+  );
 
   if (route === 'login') {
     body = (
@@ -277,19 +306,21 @@ function App() {
   } else if (route === 'welcome') {
     body = <WelcomeScreen name={signupData.first || 'friend'} onContinue={() => setRoute('home')} />;
   } else if (route === 'home') {
-    body = <FeedScreen scope={scope} onAction={onAction} />;
+    body = <FeedScreen scope={scope} onAction={onAction} user={user} />;
   } else if (route === 'inbox') {
     body = <InboxScreen />;
   } else if (route === 'messages') {
     body = <MessagesScreen user={user} />;
+  } else if (route === 'documents') {
+    body = level >= 2 ? <DocumentsScreen user={user} /> : <AccessDenied requiredLevel={2} />;
   } else if (route === 'schedule') {
-    body = <ScheduleScreen />;
+    body = level >= 2 ? <ScheduleScreen /> : <AccessDenied requiredLevel={2} />;
   } else if (route === 'appointment') {
     body = <AppointmentScreen />;
   } else if (route === 'events') {
     body = <EventsScreen user={user} />;
   } else if (route === 'mgmt') {
-    body = <ManagementScreen />;
+    body = level >= 3 ? <ManagementScreen /> : <AccessDenied requiredLevel={3} />;
   } else if (route === 'upload') {
     body = <UploadScreen onCancel={() => setRoute('home')} onDone={() => setRoute('home')} />;
   } else if (route === 'feedback') {
@@ -297,6 +328,8 @@ function App() {
   } else if (route === 'baptism') {
     body = <BaptismScreen user={user} />;
   } else if (route === 'nls') {
+    body = <NLSScreen user={user} />;
+  } else if (route === 'group') {
     body = <SimpleScreen icon={<Icon.Spark />} title="New Life Steps" subtitle="Your discipleship journey" />;
   } else if (route === 'profile') {
     body = <ProfileScreen user={user} onUpdateUser={setUser} onSettings={() => setRoute('settings')} onLogout={() => { auth.signOut(); setRoute('login'); }} />;
@@ -310,21 +343,24 @@ function App() {
       />
     );
   } else if (route === 'members') {
-    body = <MemberSearchScreen user={user} onSelectMember={(m) => { setSelectedMember(m); setRoute('member-profile'); }} onNavigate={setRoute} />;
+    body = level >= 3 ? <MemberSearchScreen user={user} onSelectMember={(m) => { setSelectedMember(m); setRoute('member-profile'); }} onNavigate={setRoute} /> : <AccessDenied requiredLevel={3} />;
   } else if (route === 'member-profile') {
-    body = <MemberProfileScreen member={selectedMember} user={user} onBack={() => setRoute('members')} onMessage={() => setRoute('messages')} onNavigate={setRoute} />;
+    body = level >= 3 ? <MemberProfileScreen member={selectedMember} user={user} onBack={() => setRoute('members')} onMessage={() => setRoute('messages')} onNavigate={setRoute} /> : <AccessDenied requiredLevel={3} />;
   } else if (route === 'debug') {
-    body = <DebugScreen onBack={() => setRoute('home')} />;
+    body = level >= 4 ? <DebugScreen onBack={() => setRoute('home')} /> : <AccessDenied requiredLevel={4} />;
   } else {
-    body = <FeedScreen scope={scope} onAction={onAction} />;
+    body = <FeedScreen scope={scope} onAction={onAction} user={user} />;
   }
 
   return (
     <div className="App app-root" style={{ position: 'relative', height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {!inAuth && (
         <TopBar
+          route={route}
+          onNavigate={setRoute}
           scope={scope}
           scopeOptions={route === 'home' ? scopeOptions : null}
+          user={user}
           title={
             route === 'inbox' ? 'Inbox' :
             route === 'messages' ? 'Messages' :
@@ -357,6 +393,7 @@ function App() {
         route={route}
         onNavigate={setRoute}
         onLogout={() => { setMenuOpen(false); auth.signOut(); setRoute('login'); }}
+        user={user}
       />
 
       <Sheet open={uploadOpen} onClose={() => setUploadOpen(false)} height="92%">

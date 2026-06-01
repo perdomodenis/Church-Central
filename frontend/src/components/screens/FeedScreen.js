@@ -12,7 +12,7 @@ const isPdfUrl = (url) => {
   }
 };
 
-const FeedScreen = ({ scope, onAction }) => {
+const FeedScreen = ({ scope, onAction, user }) => {
   const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
   const [posts, setPosts] = useState([]);
   const [postComments, setPostComments] = useState({});
@@ -48,9 +48,21 @@ const FeedScreen = ({ scope, onAction }) => {
     loadPosts();
   }, []);
 
-  const filteredPosts = scope === 'All' || scope === 'Todos'
-    ? posts
-    : posts.filter(post => post.scope === scope);
+  const filteredPosts = posts.filter(post => {
+    // 1. Check Role-Based Access Control (RBAC)
+    const isAuthor = post.authorId === user?.uid;
+    const isReverend = user?.position === 'Reverend';
+    const isAdmin = user?.position === 'Admin';
+    const isLeader = user?.position === 'Leader';
+
+    if (post.scope === 'Leaders' && !isLeader && !isAdmin && !isReverend && !isAuthor) return false;
+    if (post.scope === 'Reverends' && !isReverend && !isAdmin && !isAuthor) return false;
+    if (post.scope === 'Admins' && !isAdmin && !isAuthor) return false;
+
+    // 2. Apply active UI tab filter
+    if (scope === 'All' || scope === 'Todos') return true;
+    return post.scope === scope;
+  });
 
   const handleAddComment = (postId) => {
     const text = commentText[postId] || '';
@@ -108,34 +120,9 @@ const FeedScreen = ({ scope, onAction }) => {
         </div>
       </div>
 
-      {/* Upcoming Events Section */}
-      <div style={{ marginBottom: '24px' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '12px', color: '#111' }}>📅 Upcoming Events</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {[
-            { id: 1, emoji: '🕊️', title: 'Sunday Service', time: 'Tomorrow at 10:00 AM', location: 'Main Campus & Downtown Campus' },
-            { id: 2, emoji: '🎒', title: 'Youth Summer Camp', time: 'June 21-25, 2025', location: 'Registration closing soon' },
-            { id: 3, emoji: '📖', title: 'Bible Study', time: 'Every Wednesday at 7:00 PM', location: 'Psalms Deep Dive - All welcome' }
-          ].map(event => (
-            <div key={event.id} style={{
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              padding: '16px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-              borderLeft: '4px solid ' + (event.id === 1 ? 'var(--accent)' : '#667eea')
-            }}>
-              <div style={{ fontWeight: '700', color: '#111', marginBottom: '4px' }}>{event.emoji} {event.title}</div>
-              <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px' }}>{event.time}</div>
-              <div style={{ fontSize: '0.8rem', color: '#999' }}>{event.location}</div>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Posts Section */}
-      <div>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '12px', color: '#111' }}>📰 News & Updates</h3>
-      </div>
+
+
 
       {filteredPosts.length > 0 ? (
         filteredPosts.map(post => (
@@ -200,9 +187,6 @@ const FeedScreen = ({ scope, onAction }) => {
             )}
 
             <div style={{ display: 'flex', borderTop: '1px solid #eee', paddingTop: '12px', gap: '16px' }}>
-              <button onClick={() => onAction('pray')} style={actionButtonStyle}>
-                <span style={{ marginRight: '4px' }}>🙏</span> {post.prayers}
-              </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -399,12 +383,6 @@ const FeedScreen = ({ scope, onAction }) => {
                 borderBottom: '1px solid #eee',
                 marginBottom: '24px'
               }}>
-                <div style={{ textAlign: 'center', flex: 1 }}>
-                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--accent)' }}>
-                    {selectedPost.prayers}
-                  </div>
-                  <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>Prayers</div>
-                </div>
                 <div style={{ textAlign: 'center', flex: 1 }}>
                   <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--accent)' }}>
                     {getPostComments(selectedPost.id).length}

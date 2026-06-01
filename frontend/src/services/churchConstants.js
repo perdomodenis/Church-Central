@@ -17,14 +17,20 @@ export const DEPARTMENTS = [
 ];
 
 export const ROLES = [
+  'Visitor',
   'Member',
-  'Volunteer',
+  'Co-Leader',
   'Leader',
-  'Youth Leader',
   'Deacon',
-  'Elder',
   'Pastor',
-  'Staff',
-  'IT Support',
-  'Church Administrator'
+  'Admin',
+  'Reverend',
+  'Bishop'
 ];
+
+export const getAccessLevel = (role) => {
+  if (['Bishop', 'Reverend', 'Admin'].includes(role)) return 4;
+  if (['Pastor', 'Deacon', 'Leader'].includes(role)) return 3;
+  if (['Member', 'Co-Leader'].includes(role)) return 2;
+  return 1; // Visitor
+};
