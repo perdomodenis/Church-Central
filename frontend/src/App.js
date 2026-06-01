@@ -48,7 +48,12 @@ function App() {
   const { user: authUser, loading: authLoading } = useAuth();
 
   // Route state machine
-  const [route, setRoute] = useState('login');
+  const [route, setRoute] = useState(() => localStorage.getItem('lastRoute') || 'login');
+
+  useEffect(() => {
+    localStorage.setItem('lastRoute', route);
+  }, [route]);
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [scope, setScope] = useState('News');
@@ -130,7 +135,7 @@ function App() {
             accessLevel: getAccessLevel('Member')
           });
         }
-        setRoute('home');
+        setRoute(prev => ['login', 'signup', 'welcome', 'forgot', 'forgot-sent'].includes(prev) ? 'home' : prev);
       } else if (!authLoading) {
         setRoute('login');
       }

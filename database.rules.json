@@ -8,6 +8,11 @@
       ".read": "auth != null",
       ".write": "auth != null"
     },
+    "documents": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": "department"
+    },
     "users": {
       "$uid": {
         ".read": "auth != null",
