@@ -74,8 +74,9 @@ const UploadScreen = ({ onCancel, onDone }) => {
       }
 
       // 3. Send it to your Node.js Express server instead of Firebase directly
-      // Replace 'http://localhost:8080' with your actual backend URL if different
-      const response = await fetch('http://localhost:8080/api/announcements', {
+      // Determine the backend URL dynamically (defaults to port 5000)
+      const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${backendUrl}/api/announcements`, {
         method: 'POST',
         body: formData,
         // Note: Do NOT manually set Content-Type header when using FormData with fetch.

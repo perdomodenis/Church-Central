@@ -16,6 +16,20 @@ export interface Announcement_Key {
   __typename?: 'Announcement_Key';
 }
 
+export interface AppointmentRequest_Key {
+  id: UUIDString;
+  __typename?: 'AppointmentRequest_Key';
+}
+
+export interface ApproveAppointmentData {
+  appointmentRequest_update?: AppointmentRequest_Key | null;
+}
+
+export interface ApproveAppointmentVariables {
+  id: UUIDString;
+  approvedBy: string;
+}
+
 export interface BaptismEvent_Key {
   id: UUIDString;
   __typename?: 'BaptismEvent_Key';
@@ -57,6 +71,20 @@ export interface CreateAnnouncementVariables {
   category: string;
   imageUrl?: string | null;
   authorUid: string;
+}
+
+export interface CreateAppointmentRequestData {
+  appointmentRequest_insert: AppointmentRequest_Key;
+}
+
+export interface CreateAppointmentRequestVariables {
+  requester: string;
+  requesterEmail: string;
+  staff: string;
+  date: string;
+  time: string;
+  reason: string;
+  type: string;
 }
 
 export interface CreateBaptismData {
@@ -187,6 +215,23 @@ export interface GetUserProfileVariables {
   uid: string;
 }
 
+export interface ListApprovedAppointmentsData {
+  appointmentRequests: ({
+    id: UUIDString;
+    requester: string;
+    requesterEmail: string;
+    staff: string;
+    date: string;
+    time: string;
+    reason: string;
+    type: string;
+    status: string;
+    createdAt: TimestampString;
+    approvedBy?: string | null;
+    decidedAt?: TimestampString | null;
+  } & AppointmentRequest_Key)[];
+}
+
 export interface ListBaptismsData {
   baptismEvents: ({
     id: UUIDString;
@@ -279,6 +324,39 @@ export interface ListMembersData {
   } & User_Key)[];
 }
 
+export interface ListPendingAppointmentsData {
+  appointmentRequests: ({
+    id: UUIDString;
+    requester: string;
+    requesterEmail: string;
+    staff: string;
+    date: string;
+    time: string;
+    reason: string;
+    type: string;
+    status: string;
+    createdAt: TimestampString;
+  } & AppointmentRequest_Key)[];
+}
+
+export interface ListRejectedAppointmentsData {
+  appointmentRequests: ({
+    id: UUIDString;
+    requester: string;
+    requesterEmail: string;
+    staff: string;
+    date: string;
+    time: string;
+    reason: string;
+    type: string;
+    status: string;
+    createdAt: TimestampString;
+    rejectedBy?: string | null;
+    rejectionReason?: string | null;
+    decidedAt?: TimestampString | null;
+  } & AppointmentRequest_Key)[];
+}
+
 export interface RegisterForBaptismData {
   baptismRegistration_insert: BaptismRegistration_Key;
   baptismEvent_update?: BaptismEvent_Key | null;
@@ -297,6 +375,16 @@ export interface RegisterForEventData {
 export interface RegisterForEventVariables {
   eventId: UUIDString;
   userUid: string;
+}
+
+export interface RejectAppointmentData {
+  appointmentRequest_update?: AppointmentRequest_Key | null;
+}
+
+export interface RejectAppointmentVariables {
+  id: UUIDString;
+  rejectedBy: string;
+  rejectionReason: string;
 }
 
 export interface SearchMembersData {
@@ -500,6 +588,42 @@ export const updateEventRef: UpdateEventRef;
 export function updateEvent(vars: UpdateEventVariables): MutationPromise<UpdateEventData, UpdateEventVariables>;
 export function updateEvent(dc: DataConnect, vars: UpdateEventVariables): MutationPromise<UpdateEventData, UpdateEventVariables>;
 
+interface CreateAppointmentRequestRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreateAppointmentRequestVariables): MutationRef<CreateAppointmentRequestData, CreateAppointmentRequestVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: CreateAppointmentRequestVariables): MutationRef<CreateAppointmentRequestData, CreateAppointmentRequestVariables>;
+  operationName: string;
+}
+export const createAppointmentRequestRef: CreateAppointmentRequestRef;
+
+export function createAppointmentRequest(vars: CreateAppointmentRequestVariables): MutationPromise<CreateAppointmentRequestData, CreateAppointmentRequestVariables>;
+export function createAppointmentRequest(dc: DataConnect, vars: CreateAppointmentRequestVariables): MutationPromise<CreateAppointmentRequestData, CreateAppointmentRequestVariables>;
+
+interface ApproveAppointmentRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ApproveAppointmentVariables): MutationRef<ApproveAppointmentData, ApproveAppointmentVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: ApproveAppointmentVariables): MutationRef<ApproveAppointmentData, ApproveAppointmentVariables>;
+  operationName: string;
+}
+export const approveAppointmentRef: ApproveAppointmentRef;
+
+export function approveAppointment(vars: ApproveAppointmentVariables): MutationPromise<ApproveAppointmentData, ApproveAppointmentVariables>;
+export function approveAppointment(dc: DataConnect, vars: ApproveAppointmentVariables): MutationPromise<ApproveAppointmentData, ApproveAppointmentVariables>;
+
+interface RejectAppointmentRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: RejectAppointmentVariables): MutationRef<RejectAppointmentData, RejectAppointmentVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: RejectAppointmentVariables): MutationRef<RejectAppointmentData, RejectAppointmentVariables>;
+  operationName: string;
+}
+export const rejectAppointmentRef: RejectAppointmentRef;
+
+export function rejectAppointment(vars: RejectAppointmentVariables): MutationPromise<RejectAppointmentData, RejectAppointmentVariables>;
+export function rejectAppointment(dc: DataConnect, vars: RejectAppointmentVariables): MutationPromise<RejectAppointmentData, RejectAppointmentVariables>;
+
 interface GetUserContextRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: GetUserContextVariables): QueryRef<GetUserContextData, GetUserContextVariables>;
@@ -595,4 +719,40 @@ export const listBaptismsRef: ListBaptismsRef;
 
 export function listBaptisms(options?: ExecuteQueryOptions): QueryPromise<ListBaptismsData, undefined>;
 export function listBaptisms(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListBaptismsData, undefined>;
+
+interface ListPendingAppointmentsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListPendingAppointmentsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListPendingAppointmentsData, undefined>;
+  operationName: string;
+}
+export const listPendingAppointmentsRef: ListPendingAppointmentsRef;
+
+export function listPendingAppointments(options?: ExecuteQueryOptions): QueryPromise<ListPendingAppointmentsData, undefined>;
+export function listPendingAppointments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListPendingAppointmentsData, undefined>;
+
+interface ListApprovedAppointmentsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListApprovedAppointmentsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListApprovedAppointmentsData, undefined>;
+  operationName: string;
+}
+export const listApprovedAppointmentsRef: ListApprovedAppointmentsRef;
+
+export function listApprovedAppointments(options?: ExecuteQueryOptions): QueryPromise<ListApprovedAppointmentsData, undefined>;
+export function listApprovedAppointments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListApprovedAppointmentsData, undefined>;
+
+interface ListRejectedAppointmentsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListRejectedAppointmentsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListRejectedAppointmentsData, undefined>;
+  operationName: string;
+}
+export const listRejectedAppointmentsRef: ListRejectedAppointmentsRef;
+
+export function listRejectedAppointments(options?: ExecuteQueryOptions): QueryPromise<ListRejectedAppointmentsData, undefined>;
+export function listRejectedAppointments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListRejectedAppointmentsData, undefined>;
 

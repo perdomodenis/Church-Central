@@ -67,3 +67,22 @@ type BaptismRegistration @table(key: ["baptismEvent", "user"]) {
   user: User!
   registeredAt: Timestamp! @default(expr: "request.time")
 }
+
+type AppointmentRequest @table {
+  id: UUID! @default(expr: "uuidV4()")
+  requester: String!
+  requesterEmail: String!
+  staff: String!
+  date: String!
+  time: String!
+  reason: String!
+  type: String!
+  status: String! @default(value: "pending")
+  createdAt: Timestamp! @default(expr: "request.time")
+  
+  # Approval/Rejection fields
+  approvedBy: String
+  rejectedBy: String
+  rejectionReason: String
+  decidedAt: Timestamp
+}

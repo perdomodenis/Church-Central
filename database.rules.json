@@ -4,6 +4,10 @@
       ".read": true,
       ".write": "auth != null"
     },
+    "appointmentRequests": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
     "users": {
       "$uid": {
         ".read": "auth != null",

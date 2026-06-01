@@ -177,3 +177,53 @@ query ListBaptisms @auth(level: USER) {
     }
   }
 }
+
+query ListPendingAppointments @auth(level: USER) {
+  appointmentRequests(where: { status: { eq: "pending" } }, orderBy: [{ createdAt: DESC }]) {
+    id
+    requester
+    requesterEmail
+    staff
+    date
+    time
+    reason
+    type
+    status
+    createdAt
+  }
+}
+
+query ListApprovedAppointments @auth(level: USER) {
+  appointmentRequests(where: { status: { eq: "approved" } }, orderBy: [{ decidedAt: DESC }]) {
+    id
+    requester
+    requesterEmail
+    staff
+    date
+    time
+    reason
+    type
+    status
+    createdAt
+    approvedBy
+    decidedAt
+  }
+}
+
+query ListRejectedAppointments @auth(level: USER) {
+  appointmentRequests(where: { status: { eq: "rejected" } }, orderBy: [{ decidedAt: DESC }]) {
+    id
+    requester
+    requesterEmail
+    staff
+    date
+    time
+    reason
+    type
+    status
+    createdAt
+    rejectedBy
+    rejectionReason
+    decidedAt
+  }
+}

@@ -16,6 +16,9 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListEvents*](#listevents)
   - [*GetEventDetails*](#geteventdetails)
   - [*ListBaptisms*](#listbaptisms)
+  - [*ListPendingAppointments*](#listpendingappointments)
+  - [*ListApprovedAppointments*](#listapprovedappointments)
+  - [*ListRejectedAppointments*](#listrejectedappointments)
 - [**Mutations**](#mutations)
   - [*UpsertUserProfile*](#upsertuserprofile)
   - [*CreateAnnouncement*](#createannouncement)
@@ -28,6 +31,9 @@ This README will guide you through the process of using the generated JavaScript
   - [*DeleteEvent*](#deleteevent)
   - [*DeleteBaptismEvent*](#deletebaptismevent)
   - [*UpdateEvent*](#updateevent)
+  - [*CreateAppointmentRequest*](#createappointmentrequest)
+  - [*ApproveAppointment*](#approveappointment)
+  - [*RejectAppointment*](#rejectappointment)
 
 # Accessing the connector
 A connector is a collection of Queries and Mutations. One SDK is generated for each connector - this SDK is generated for the connector `default`. You can find more information about connectors in the [Data Connect documentation](https://firebase.google.com/docs/data-connect#how-does).
@@ -1011,6 +1017,317 @@ console.log(data.baptismEvents);
 executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.baptismEvents);
+});
+```
+
+## ListPendingAppointments
+You can execute the `ListPendingAppointments` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+listPendingAppointments(options?: ExecuteQueryOptions): QueryPromise<ListPendingAppointmentsData, undefined>;
+
+interface ListPendingAppointmentsRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListPendingAppointmentsData, undefined>;
+}
+export const listPendingAppointmentsRef: ListPendingAppointmentsRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listPendingAppointments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListPendingAppointmentsData, undefined>;
+
+interface ListPendingAppointmentsRef {
+  ...
+  (dc: DataConnect): QueryRef<ListPendingAppointmentsData, undefined>;
+}
+export const listPendingAppointmentsRef: ListPendingAppointmentsRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listPendingAppointmentsRef:
+```typescript
+const name = listPendingAppointmentsRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListPendingAppointments` query has no variables.
+### Return Type
+Recall that executing the `ListPendingAppointments` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListPendingAppointmentsData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListPendingAppointmentsData {
+  appointmentRequests: ({
+    id: UUIDString;
+    requester: string;
+    requesterEmail: string;
+    staff: string;
+    date: string;
+    time: string;
+    reason: string;
+    type: string;
+    status: string;
+    createdAt: TimestampString;
+  } & AppointmentRequest_Key)[];
+}
+```
+### Using `ListPendingAppointments`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listPendingAppointments } from '@church-central/dataconnect';
+
+
+// Call the `listPendingAppointments()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listPendingAppointments();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listPendingAppointments(dataConnect);
+
+console.log(data.appointmentRequests);
+
+// Or, you can use the `Promise` API.
+listPendingAppointments().then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequests);
+});
+```
+
+### Using `ListPendingAppointments`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listPendingAppointmentsRef } from '@church-central/dataconnect';
+
+
+// Call the `listPendingAppointmentsRef()` function to get a reference to the query.
+const ref = listPendingAppointmentsRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listPendingAppointmentsRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.appointmentRequests);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequests);
+});
+```
+
+## ListApprovedAppointments
+You can execute the `ListApprovedAppointments` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+listApprovedAppointments(options?: ExecuteQueryOptions): QueryPromise<ListApprovedAppointmentsData, undefined>;
+
+interface ListApprovedAppointmentsRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListApprovedAppointmentsData, undefined>;
+}
+export const listApprovedAppointmentsRef: ListApprovedAppointmentsRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listApprovedAppointments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListApprovedAppointmentsData, undefined>;
+
+interface ListApprovedAppointmentsRef {
+  ...
+  (dc: DataConnect): QueryRef<ListApprovedAppointmentsData, undefined>;
+}
+export const listApprovedAppointmentsRef: ListApprovedAppointmentsRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listApprovedAppointmentsRef:
+```typescript
+const name = listApprovedAppointmentsRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListApprovedAppointments` query has no variables.
+### Return Type
+Recall that executing the `ListApprovedAppointments` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListApprovedAppointmentsData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListApprovedAppointmentsData {
+  appointmentRequests: ({
+    id: UUIDString;
+    requester: string;
+    requesterEmail: string;
+    staff: string;
+    date: string;
+    time: string;
+    reason: string;
+    type: string;
+    status: string;
+    createdAt: TimestampString;
+    approvedBy?: string | null;
+    decidedAt?: TimestampString | null;
+  } & AppointmentRequest_Key)[];
+}
+```
+### Using `ListApprovedAppointments`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listApprovedAppointments } from '@church-central/dataconnect';
+
+
+// Call the `listApprovedAppointments()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listApprovedAppointments();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listApprovedAppointments(dataConnect);
+
+console.log(data.appointmentRequests);
+
+// Or, you can use the `Promise` API.
+listApprovedAppointments().then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequests);
+});
+```
+
+### Using `ListApprovedAppointments`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listApprovedAppointmentsRef } from '@church-central/dataconnect';
+
+
+// Call the `listApprovedAppointmentsRef()` function to get a reference to the query.
+const ref = listApprovedAppointmentsRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listApprovedAppointmentsRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.appointmentRequests);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequests);
+});
+```
+
+## ListRejectedAppointments
+You can execute the `ListRejectedAppointments` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+listRejectedAppointments(options?: ExecuteQueryOptions): QueryPromise<ListRejectedAppointmentsData, undefined>;
+
+interface ListRejectedAppointmentsRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListRejectedAppointmentsData, undefined>;
+}
+export const listRejectedAppointmentsRef: ListRejectedAppointmentsRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listRejectedAppointments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListRejectedAppointmentsData, undefined>;
+
+interface ListRejectedAppointmentsRef {
+  ...
+  (dc: DataConnect): QueryRef<ListRejectedAppointmentsData, undefined>;
+}
+export const listRejectedAppointmentsRef: ListRejectedAppointmentsRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listRejectedAppointmentsRef:
+```typescript
+const name = listRejectedAppointmentsRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListRejectedAppointments` query has no variables.
+### Return Type
+Recall that executing the `ListRejectedAppointments` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListRejectedAppointmentsData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListRejectedAppointmentsData {
+  appointmentRequests: ({
+    id: UUIDString;
+    requester: string;
+    requesterEmail: string;
+    staff: string;
+    date: string;
+    time: string;
+    reason: string;
+    type: string;
+    status: string;
+    createdAt: TimestampString;
+    rejectedBy?: string | null;
+    rejectionReason?: string | null;
+    decidedAt?: TimestampString | null;
+  } & AppointmentRequest_Key)[];
+}
+```
+### Using `ListRejectedAppointments`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listRejectedAppointments } from '@church-central/dataconnect';
+
+
+// Call the `listRejectedAppointments()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listRejectedAppointments();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listRejectedAppointments(dataConnect);
+
+console.log(data.appointmentRequests);
+
+// Or, you can use the `Promise` API.
+listRejectedAppointments().then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequests);
+});
+```
+
+### Using `ListRejectedAppointments`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listRejectedAppointmentsRef } from '@church-central/dataconnect';
+
+
+// Call the `listRejectedAppointmentsRef()` function to get a reference to the query.
+const ref = listRejectedAppointmentsRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listRejectedAppointmentsRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.appointmentRequests);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequests);
 });
 ```
 
@@ -2380,6 +2697,360 @@ console.log(data.event_update);
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.event_update);
+});
+```
+
+## CreateAppointmentRequest
+You can execute the `CreateAppointmentRequest` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+createAppointmentRequest(vars: CreateAppointmentRequestVariables): MutationPromise<CreateAppointmentRequestData, CreateAppointmentRequestVariables>;
+
+interface CreateAppointmentRequestRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreateAppointmentRequestVariables): MutationRef<CreateAppointmentRequestData, CreateAppointmentRequestVariables>;
+}
+export const createAppointmentRequestRef: CreateAppointmentRequestRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+createAppointmentRequest(dc: DataConnect, vars: CreateAppointmentRequestVariables): MutationPromise<CreateAppointmentRequestData, CreateAppointmentRequestVariables>;
+
+interface CreateAppointmentRequestRef {
+  ...
+  (dc: DataConnect, vars: CreateAppointmentRequestVariables): MutationRef<CreateAppointmentRequestData, CreateAppointmentRequestVariables>;
+}
+export const createAppointmentRequestRef: CreateAppointmentRequestRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createAppointmentRequestRef:
+```typescript
+const name = createAppointmentRequestRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `CreateAppointmentRequest` mutation requires an argument of type `CreateAppointmentRequestVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface CreateAppointmentRequestVariables {
+  requester: string;
+  requesterEmail: string;
+  staff: string;
+  date: string;
+  time: string;
+  reason: string;
+  type: string;
+}
+```
+### Return Type
+Recall that executing the `CreateAppointmentRequest` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `CreateAppointmentRequestData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface CreateAppointmentRequestData {
+  appointmentRequest_insert: AppointmentRequest_Key;
+}
+```
+### Using `CreateAppointmentRequest`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, createAppointmentRequest, CreateAppointmentRequestVariables } from '@church-central/dataconnect';
+
+// The `CreateAppointmentRequest` mutation requires an argument of type `CreateAppointmentRequestVariables`:
+const createAppointmentRequestVars: CreateAppointmentRequestVariables = {
+  requester: ..., 
+  requesterEmail: ..., 
+  staff: ..., 
+  date: ..., 
+  time: ..., 
+  reason: ..., 
+  type: ..., 
+};
+
+// Call the `createAppointmentRequest()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await createAppointmentRequest(createAppointmentRequestVars);
+// Variables can be defined inline as well.
+const { data } = await createAppointmentRequest({ requester: ..., requesterEmail: ..., staff: ..., date: ..., time: ..., reason: ..., type: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await createAppointmentRequest(dataConnect, createAppointmentRequestVars);
+
+console.log(data.appointmentRequest_insert);
+
+// Or, you can use the `Promise` API.
+createAppointmentRequest(createAppointmentRequestVars).then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequest_insert);
+});
+```
+
+### Using `CreateAppointmentRequest`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, createAppointmentRequestRef, CreateAppointmentRequestVariables } from '@church-central/dataconnect';
+
+// The `CreateAppointmentRequest` mutation requires an argument of type `CreateAppointmentRequestVariables`:
+const createAppointmentRequestVars: CreateAppointmentRequestVariables = {
+  requester: ..., 
+  requesterEmail: ..., 
+  staff: ..., 
+  date: ..., 
+  time: ..., 
+  reason: ..., 
+  type: ..., 
+};
+
+// Call the `createAppointmentRequestRef()` function to get a reference to the mutation.
+const ref = createAppointmentRequestRef(createAppointmentRequestVars);
+// Variables can be defined inline as well.
+const ref = createAppointmentRequestRef({ requester: ..., requesterEmail: ..., staff: ..., date: ..., time: ..., reason: ..., type: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = createAppointmentRequestRef(dataConnect, createAppointmentRequestVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.appointmentRequest_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequest_insert);
+});
+```
+
+## ApproveAppointment
+You can execute the `ApproveAppointment` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+approveAppointment(vars: ApproveAppointmentVariables): MutationPromise<ApproveAppointmentData, ApproveAppointmentVariables>;
+
+interface ApproveAppointmentRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ApproveAppointmentVariables): MutationRef<ApproveAppointmentData, ApproveAppointmentVariables>;
+}
+export const approveAppointmentRef: ApproveAppointmentRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+approveAppointment(dc: DataConnect, vars: ApproveAppointmentVariables): MutationPromise<ApproveAppointmentData, ApproveAppointmentVariables>;
+
+interface ApproveAppointmentRef {
+  ...
+  (dc: DataConnect, vars: ApproveAppointmentVariables): MutationRef<ApproveAppointmentData, ApproveAppointmentVariables>;
+}
+export const approveAppointmentRef: ApproveAppointmentRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the approveAppointmentRef:
+```typescript
+const name = approveAppointmentRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ApproveAppointment` mutation requires an argument of type `ApproveAppointmentVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ApproveAppointmentVariables {
+  id: UUIDString;
+  approvedBy: string;
+}
+```
+### Return Type
+Recall that executing the `ApproveAppointment` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ApproveAppointmentData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ApproveAppointmentData {
+  appointmentRequest_update?: AppointmentRequest_Key | null;
+}
+```
+### Using `ApproveAppointment`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, approveAppointment, ApproveAppointmentVariables } from '@church-central/dataconnect';
+
+// The `ApproveAppointment` mutation requires an argument of type `ApproveAppointmentVariables`:
+const approveAppointmentVars: ApproveAppointmentVariables = {
+  id: ..., 
+  approvedBy: ..., 
+};
+
+// Call the `approveAppointment()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await approveAppointment(approveAppointmentVars);
+// Variables can be defined inline as well.
+const { data } = await approveAppointment({ id: ..., approvedBy: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await approveAppointment(dataConnect, approveAppointmentVars);
+
+console.log(data.appointmentRequest_update);
+
+// Or, you can use the `Promise` API.
+approveAppointment(approveAppointmentVars).then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequest_update);
+});
+```
+
+### Using `ApproveAppointment`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, approveAppointmentRef, ApproveAppointmentVariables } from '@church-central/dataconnect';
+
+// The `ApproveAppointment` mutation requires an argument of type `ApproveAppointmentVariables`:
+const approveAppointmentVars: ApproveAppointmentVariables = {
+  id: ..., 
+  approvedBy: ..., 
+};
+
+// Call the `approveAppointmentRef()` function to get a reference to the mutation.
+const ref = approveAppointmentRef(approveAppointmentVars);
+// Variables can be defined inline as well.
+const ref = approveAppointmentRef({ id: ..., approvedBy: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = approveAppointmentRef(dataConnect, approveAppointmentVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.appointmentRequest_update);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequest_update);
+});
+```
+
+## RejectAppointment
+You can execute the `RejectAppointment` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+rejectAppointment(vars: RejectAppointmentVariables): MutationPromise<RejectAppointmentData, RejectAppointmentVariables>;
+
+interface RejectAppointmentRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: RejectAppointmentVariables): MutationRef<RejectAppointmentData, RejectAppointmentVariables>;
+}
+export const rejectAppointmentRef: RejectAppointmentRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+rejectAppointment(dc: DataConnect, vars: RejectAppointmentVariables): MutationPromise<RejectAppointmentData, RejectAppointmentVariables>;
+
+interface RejectAppointmentRef {
+  ...
+  (dc: DataConnect, vars: RejectAppointmentVariables): MutationRef<RejectAppointmentData, RejectAppointmentVariables>;
+}
+export const rejectAppointmentRef: RejectAppointmentRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the rejectAppointmentRef:
+```typescript
+const name = rejectAppointmentRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `RejectAppointment` mutation requires an argument of type `RejectAppointmentVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface RejectAppointmentVariables {
+  id: UUIDString;
+  rejectedBy: string;
+  rejectionReason: string;
+}
+```
+### Return Type
+Recall that executing the `RejectAppointment` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `RejectAppointmentData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface RejectAppointmentData {
+  appointmentRequest_update?: AppointmentRequest_Key | null;
+}
+```
+### Using `RejectAppointment`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, rejectAppointment, RejectAppointmentVariables } from '@church-central/dataconnect';
+
+// The `RejectAppointment` mutation requires an argument of type `RejectAppointmentVariables`:
+const rejectAppointmentVars: RejectAppointmentVariables = {
+  id: ..., 
+  rejectedBy: ..., 
+  rejectionReason: ..., 
+};
+
+// Call the `rejectAppointment()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await rejectAppointment(rejectAppointmentVars);
+// Variables can be defined inline as well.
+const { data } = await rejectAppointment({ id: ..., rejectedBy: ..., rejectionReason: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await rejectAppointment(dataConnect, rejectAppointmentVars);
+
+console.log(data.appointmentRequest_update);
+
+// Or, you can use the `Promise` API.
+rejectAppointment(rejectAppointmentVars).then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequest_update);
+});
+```
+
+### Using `RejectAppointment`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, rejectAppointmentRef, RejectAppointmentVariables } from '@church-central/dataconnect';
+
+// The `RejectAppointment` mutation requires an argument of type `RejectAppointmentVariables`:
+const rejectAppointmentVars: RejectAppointmentVariables = {
+  id: ..., 
+  rejectedBy: ..., 
+  rejectionReason: ..., 
+};
+
+// Call the `rejectAppointmentRef()` function to get a reference to the mutation.
+const ref = rejectAppointmentRef(rejectAppointmentVars);
+// Variables can be defined inline as well.
+const ref = rejectAppointmentRef({ id: ..., rejectedBy: ..., rejectionReason: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = rejectAppointmentRef(dataConnect, rejectAppointmentVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.appointmentRequest_update);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.appointmentRequest_update);
 });
 ```
 

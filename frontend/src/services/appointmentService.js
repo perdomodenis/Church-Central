@@ -1,21 +1,18 @@
-import { rtdb } from './firebase';
-import { ref, push, get, set, update } from 'firebase/database';
+import { dataConnect } from './firebase';
+import { 
+  listPendingAppointments, 
+  listApprovedAppointments, 
+  listRejectedAppointments,
+  createAppointmentRequest as dbCreateAppointment,
+  approveAppointment as dbApproveAppointment,
+  rejectAppointment as dbRejectAppointment
+} from '../lib/dataconnect';
 
 // Get all pending appointment requests
 export const getPendingAppointments = async () => {
   try {
-    const snapshot = await get(ref(rtdb, 'appointmentRequests'));
-    if (!snapshot.exists()) {
-      return [];
-    }
-    const data = snapshot.val();
-    return Object.keys(data)
-      .map(id => ({
-        id,
-        ...data[id]
-      }))
-      .filter(app => app.status === 'pending')
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const response = await listPendingAppointments(dataConnect);
+    return response.data.appointmentRequests || [];
   } catch (error) {
     console.error('Error fetching appointments:', error);
     return [];
@@ -25,18 +22,8 @@ export const getPendingAppointments = async () => {
 // Get approved appointments
 export const getApprovedAppointments = async () => {
   try {
-    const snapshot = await get(ref(rtdb, 'appointmentRequests'));
-    if (!snapshot.exists()) {
-      return [];
-    }
-    const data = snapshot.val();
-    return Object.keys(data)
-      .map(id => ({
-        id,
-        ...data[id]
-      }))
-      .filter(app => app.status === 'approved')
-      .sort((a, b) => new Date(b.decidedAt) - new Date(a.decidedAt));
+    const response = await listApprovedAppointments(dataConnect);
+    return response.data.appointmentRequests || [];
   } catch (error) {
     console.error('Error fetching approved appointments:', error);
     return [];
@@ -46,18 +33,8 @@ export const getApprovedAppointments = async () => {
 // Get rejected appointments
 export const getRejectedAppointments = async () => {
   try {
-    const snapshot = await get(ref(rtdb, 'appointmentRequests'));
-    if (!snapshot.exists()) {
-      return [];
-    }
-    const data = snapshot.val();
-    return Object.keys(data)
-      .map(id => ({
-        id,
-        ...data[id]
-      }))
-      .filter(app => app.status === 'rejected')
-      .sort((a, b) => new Date(b.decidedAt) - new Date(a.decidedAt));
+    const response = await listRejectedAppointments(dataConnect);
+    return response.data.appointmentRequests || [];
   } catch (error) {
     console.error('Error fetching rejected appointments:', error);
     return [];
@@ -67,19 +44,16 @@ export const getRejectedAppointments = async () => {
 // Create a new appointment request
 export const createAppointmentRequest = async (requesterName, requesterEmail, staff, date, time, reason) => {
   try {
-    const appointmentRef = ref(rtdb, 'appointmentRequests');
-    const newAppointment = await push(appointmentRef, {
+    const response = await dbCreateAppointment(dataConnect, {
       requester: requesterName,
       requesterEmail,
       staff,
       date,
       time,
       reason,
-      type: 'Consultation',
-      status: 'pending',
-      createdAt: new Date().toISOString()
+      type: 'Consultation'
     });
-    return newAppointment.key;
+    return response.data.appointmentRequest_insert.id;
   } catch (error) {
     console.error('Error creating appointment:', error);
     throw error;
@@ -89,10 +63,9 @@ export const createAppointmentRequest = async (requesterName, requesterEmail, st
 // Approve an appointment
 export const approveAppointment = async (appointmentId, approvedBy) => {
   try {
-    await update(ref(rtdb, `appointmentRequests/${appointmentId}`), {
-      status: 'approved',
-      approvedBy,
-      decidedAt: new Date().toISOString()
+    await dbApproveAppointment(dataConnect, {
+      id: appointmentId,
+      approvedBy
     });
     return true;
   } catch (error) {
@@ -104,11 +77,10 @@ export const approveAppointment = async (appointmentId, approvedBy) => {
 // Reject an appointment
 export const rejectAppointment = async (appointmentId, rejectedBy, reason) => {
   try {
-    await update(ref(rtdb, `appointmentRequests/${appointmentId}`), {
-      status: 'rejected',
+    await dbRejectAppointment(dataConnect, {
+      id: appointmentId,
       rejectedBy,
-      rejectionReason: reason,
-      decidedAt: new Date().toISOString()
+      rejectionReason: reason
     });
     return true;
   } catch (error) {

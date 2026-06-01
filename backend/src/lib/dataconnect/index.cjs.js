@@ -84,6 +84,27 @@ function updateEvent(dcOrVarsOrOptions, varsOrOptions, options) {
 }
 exports.updateEvent = updateEvent;
 
+function createAppointmentRequest(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateAppointmentRequest', inputVars, inputOpts);
+}
+exports.createAppointmentRequest = createAppointmentRequest;
+
+function approveAppointment(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ApproveAppointment', inputVars, inputOpts);
+}
+exports.approveAppointment = approveAppointment;
+
+function rejectAppointment(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('RejectAppointment', inputVars, inputOpts);
+}
+exports.rejectAppointment = rejectAppointment;
+
 function getUserContext(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
@@ -139,4 +160,25 @@ function listBaptisms(dcOrOptions, options) {
   return dcInstance.executeQuery('ListBaptisms', undefined, inputOpts);
 }
 exports.listBaptisms = listBaptisms;
+
+function listPendingAppointments(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListPendingAppointments', undefined, inputOpts);
+}
+exports.listPendingAppointments = listPendingAppointments;
+
+function listApprovedAppointments(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListApprovedAppointments', undefined, inputOpts);
+}
+exports.listApprovedAppointments = listApprovedAppointments;
+
+function listRejectedAppointments(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListRejectedAppointments', undefined, inputOpts);
+}
+exports.listRejectedAppointments = listRejectedAppointments;
 
