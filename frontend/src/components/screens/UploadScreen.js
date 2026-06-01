@@ -10,43 +10,39 @@ const UploadScreen = ({ onCancel, onDone }) => {
   const [content, setContent] = useState('');
   const [scope, setScope] = useState('News');
   const [attachments, setAttachments] = useState([]);
-  const photoInputRef = useRef(null);
-  const videoInputRef = useRef(null);
+  const fileInputRef = useRef(null);
 
-  const handlePhotoSelect = (e) => {
+  const handleFileSelect = (e) => {
     const files = e.target.files;
     if (files) {
       Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setAttachments(prev => [...prev, {
-            id: Date.now() + Math.random(),
-            type: 'photo',
-            name: file.name,
-            data: event.target.result,
-            file: file
-          }]);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  };
+        const type = file.type.startsWith('image/')
+          ? 'photo'
+          : file.type.startsWith('video/')
+            ? 'video'
+            : 'document';
 
-  const handleVideoSelect = (e) => {
-    const files = e.target.files;
-    if (files) {
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
+        if (type === 'photo') {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            setAttachments(prev => [...prev, {
+              id: Date.now() + Math.random(),
+              type: 'photo',
+              name: file.name,
+              data: event.target.result,
+              file: file
+            }]);
+          };
+          reader.readAsDataURL(file);
+        } else {
           setAttachments(prev => [...prev, {
             id: Date.now() + Math.random(),
-            type: 'video',
+            type: type,
             name: file.name,
-            data: event.target.result,
+            data: null,
             file: file
           }]);
-        };
-        reader.readAsDataURL(file);
+        }
       });
     }
   };
@@ -65,22 +61,33 @@ const UploadScreen = ({ onCancel, onDone }) => {
 
     setLoading(true);
     try {
-      let imageUrl = '';
-      const photoAttachment = attachments.find(a => a.type === 'photo');
-      if (photoAttachment && photoAttachment.file) {
-        const file = photoAttachment.file;
-        const fileRef = storageRef(storage, `announcements/${Date.now()}_${file.name}`);
-        await uploadBytes(fileRef, file);
-        imageUrl = await getDownloadURL(fileRef);
+      // 1. Create a FormData object instead of a JSON object
+      const formData = new FormData();
+      formData.append('content', content);
+      formData.append('targetGroup', scope); // Maps to 'targetGroup' in your backend req.body
+      formData.append('authorUid', user.uid);
+
+      // 2. Attach the file if it exists
+      const firstAttachment = attachments[0];
+      if (firstAttachment && firstAttachment.file) {
+        formData.append('file', firstAttachment.file); // Maps to upload.single('file') in backend
       }
 
-      await createAnnouncement({
-        content,
-        scope,
-        category: 'Update',
-        imageUrl: imageUrl || null,
-        authorUid: user.uid
+      // 3. Send it to your Node.js Express server instead of Firebase directly
+      // Replace 'http://localhost:8080' with your actual backend URL if different
+      const response = await fetch('http://localhost:8080/api/announcements', {
+        method: 'POST',
+        body: formData,
+        // Note: Do NOT manually set Content-Type header when using FormData with fetch.
+        // The browser will automatically set it and add the correct boundary string.
       });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
 
       onDone();
     } catch (err) {
@@ -181,19 +188,10 @@ const UploadScreen = ({ onCancel, onDone }) => {
         </div>
 
         <input
-          ref={photoInputRef}
+          ref={fileInputRef}
           type="file"
-          accept="image/*"
           multiple
-          onChange={handlePhotoSelect}
-          style={{ display: 'none' }}
-        />
-        <input
-          ref={videoInputRef}
-          type="file"
-          accept="video/*"
-          multiple
-          onChange={handleVideoSelect}
+          onChange={handleFileSelect}
           style={{ display: 'none' }}
         />
 
@@ -201,16 +199,9 @@ const UploadScreen = ({ onCancel, onDone }) => {
           <button
             type="button"
             style={secondaryButtonStyle}
-            onClick={() => photoInputRef.current?.click()}
+            onClick={() => fileInputRef.current?.click()}
           >
-            📷 Photo
-          </button>
-          <button
-            type="button"
-            style={secondaryButtonStyle}
-            onClick={() => videoInputRef.current?.click()}
-          >
-            🎥 Video
+            Add Document
           </button>
         </div>
 
@@ -242,7 +233,7 @@ const UploadScreen = ({ onCancel, onDone }) => {
                       justifyContent: 'center',
                       fontSize: '2rem'
                     }}>
-                      🎥
+                      {att.type === 'video' ? '🎥' : '📄'}
                     </div>
                   )}
                   <button
