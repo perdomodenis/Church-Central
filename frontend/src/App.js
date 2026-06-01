@@ -6,29 +6,27 @@ import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { seedLiveData } from './services/liveData';
 
 // Auth Screens
-import LoginScreen from './components/auth/LoginScreen';
-import SignupScreen from './components/auth/SignupScreen';
-import WelcomeScreen from './components/auth/WelcomeScreen';
-import ForgotScreen from './components/auth/ForgotScreen';
-import ForgotSent from './components/auth/ForgotSent';
+import { LoginScreen, SignupScreen, WelcomeScreen, ForgotScreen, ForgotSent } from './components/auth';
 
 // Main Screens
-import FeedScreen from './components/screens/FeedScreen';
-import InboxScreen from './components/screens/InboxScreen';
-import ScheduleScreen from './components/screens/ScheduleScreen';
-import AppointmentScreen from './components/screens/AppointmentScreen';
-import ManagementScreen from './components/screens/ManagementScreen';
-import UploadScreen from './components/screens/UploadScreen';
-import ProfileScreen from './components/screens/ProfileScreen';
-import SettingsScreen from './components/screens/SettingsScreen';
-import FeedbackScreen from './components/screens/FeedbackScreen';
-import SimpleScreen from './components/screens/SimpleScreen';
-import BaptismScreen from './components/screens/BaptismScreen';
-import EventsScreen from './components/screens/EventsScreen';
-import MessagesScreen from './components/screens/MessagesScreen';
-import MemberSearchScreen from './components/screens/MemberSearchScreen';
-import MemberProfileScreen from './components/screens/MemberProfileScreen';
-import DebugScreen from './components/screens/DebugScreen';
+import {
+  FeedScreen,
+  InboxScreen,
+  ScheduleScreen,
+  AppointmentScreen,
+  ManagementScreen,
+  UploadScreen,
+  ProfileScreen,
+  SettingsScreen,
+  FeedbackScreen,
+  SimpleScreen,
+  BaptismScreen,
+  EventsScreen,
+  MessagesScreen,
+  MemberSearchScreen,
+  MemberProfileScreen,
+  DebugScreen
+} from './components/screens';
 
 // UI Components
 import { TopBar, MenuDrawer, FabMenu, Sheet, useToast } from './components/common/UI';

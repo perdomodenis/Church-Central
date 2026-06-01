@@ -1,16 +1,22 @@
 const express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors');
+const multer = require('multer');
 const { getDataConnect } = require('firebase-admin/data-connect');
 const { connectorConfig, getUserProfile, createAnnouncement } = require('./lib/dataconnect');
 
 // Initialize Firebase Admin
-admin.initializeApp();
+admin.initializeApp({
+  storageBucket: 'church-central-992a7.firebasestorage.app'
+});
 const adminDc = getDataConnect(connectorConfig);
 
 const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
+
+// Configure multer to hold files in memory temporarily
+const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * Milestone 5 Logic: User Categorization
@@ -42,21 +48,50 @@ app.get('/api/user/:uid/context', async (req, res) => {
 /**
  * Document Upload & Notification Logic (Milestone 6/7)
  */
-app.post('/api/announcements', async (req, res) => {
+app.post('/api/announcements', upload.single('file'), async (req, res) => {
   const { title, content, targetGroup, authorUid } = req.body;
-  
+  const file = req.file;
+
   try {
+    let uploadedImageUrlOrPdf = '';
+
+    if (file) {
+      // 1. Upload the file to Firebase Storage from the backend
+      const bucket = admin.storage().bucket();
+      const blob = bucket.file(`announcements/${Date.now()}_${file.originalname}`);
+      const blobStream = blob.createWriteStream({ metadata: { contentType: file.mimetype } });
+
+      // Wait for upload to finish
+      await new Promise((resolve, reject) => {
+        blobStream.on('error', reject);
+        blobStream.on('finish', resolve);
+        blobStream.end(file.buffer);
+      });
+
+      // 2. Make the file public or get the download URL
+      const [url] = await blob.getSignedUrl({
+        action: 'read',
+        expires: '03-09-2476' // Far future date
+      });
+      uploadedImageUrlOrPdf = url;
+    }
+
+    // 3. Save everything to your database
     const response = await createAnnouncement(adminDc, {
       content: content || title || '',
       scope: targetGroup || 'News',
       category: 'Announcement',
-      imageUrl: '',
+      imageUrl: uploadedImageUrlOrPdf || '',
       authorUid: authorUid || 'pastor_001'
     });
 
-    res.status(201).json({ id: response.data?.announcement_insert?.id, message: 'Announcement logic initialized' });
+    res.status(201).json({
+      id: response?.data?.announcement_insert?.id || response?.id,
+      message: 'Announcement successfully created with file!'
+    });
+
   } catch (error) {
-    console.error('Error creating announcement:', error);
+    console.error('Backend Crash Error:', error);
     res.status(500).json({ error: error.message });
   }
 });
