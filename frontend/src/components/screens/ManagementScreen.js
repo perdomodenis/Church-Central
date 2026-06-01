@@ -2,48 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { approveAppointment, rejectAppointment, getPendingAppointments, getApprovedAppointments, getRejectedAppointments } from '../../services/appointmentService';
 import { useAuth } from '../../context/AuthContext';
 
-const PENDING_APPOINTMENTS = [
-  {
-    id: 1,
-    requester: 'Alice Smith',
-    staff: 'James Peterson',
-    date: 'Jun 10, 2025',
-    time: '11:00 AM',
-    reason: 'Spiritual guidance regarding career changes.',
-    type: 'Guidance'
-  },
-  {
-    id: 2,
-    requester: 'Bob Johnson',
-    staff: 'Rachel Thompson',
-    date: 'Jun 15, 2025',
-    time: '4:00 PM',
-    reason: 'Worship planning discussion.',
-    type: 'Discussion'
-  }
-];
-
-const PENDING_POSTS = [
-  {
-    id: 101,
-    author: 'Sarah Parker',
-    scope: 'News',
-    content: 'Does anyone have a contact for a reliable local plumber? The church kitchen sink is acting up again.',
-    time: '1 hour ago'
-  },
-  {
-    id: 102,
-    author: 'Tom Brown',
-    scope: 'Department',
-    content: 'Reminder: Worship team rehearsal moved to Thursday night this week!',
-    time: '3 hours ago'
-  }
-];
-
 const ManagementScreen = () => {
   const { user: authUser } = useAuth();
   const [activeTab, setActiveTab] = useState('pending');
-  const [pendingAppointments, setPendingAppointments] = useState(PENDING_APPOINTMENTS);
+  const [pendingAppointments, setPendingAppointments] = useState([]);
   const [approvedAppointments, setApprovedAppointments] = useState([]);
   const [rejectedAppointments, setRejectedAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -59,9 +21,9 @@ const ManagementScreen = () => {
       const approved = await getApprovedAppointments();
       const rejected = await getRejectedAppointments();
 
-      if (pending.length > 0) setPendingAppointments(pending);
-      if (approved.length > 0) setApprovedAppointments(approved);
-      if (rejected.length > 0) setRejectedAppointments(rejected);
+      setPendingAppointments(pending);
+      setApprovedAppointments(approved);
+      setRejectedAppointments(rejected);
     } catch (error) {
       console.error('Error loading appointments:', error);
     }

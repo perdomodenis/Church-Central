@@ -167,6 +167,48 @@ exports.updateEvent = function updateEvent(dcOrVars, vars) {
 }
 ;
 
+const createAppointmentRequestRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'CreateAppointmentRequest', inputVars);
+}
+createAppointmentRequestRef.operationName = 'CreateAppointmentRequest';
+exports.createAppointmentRequestRef = createAppointmentRequestRef;
+
+exports.createAppointmentRequest = function createAppointmentRequest(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(createAppointmentRequestRef(dcInstance, inputVars));
+}
+;
+
+const approveAppointmentRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'ApproveAppointment', inputVars);
+}
+approveAppointmentRef.operationName = 'ApproveAppointment';
+exports.approveAppointmentRef = approveAppointmentRef;
+
+exports.approveAppointment = function approveAppointment(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(approveAppointmentRef(dcInstance, inputVars));
+}
+;
+
+const rejectAppointmentRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'RejectAppointment', inputVars);
+}
+rejectAppointmentRef.operationName = 'RejectAppointment';
+exports.rejectAppointmentRef = rejectAppointmentRef;
+
+exports.rejectAppointment = function rejectAppointment(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(rejectAppointmentRef(dcInstance, inputVars));
+}
+;
+
 const getUserContextRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -284,5 +326,50 @@ exports.listBaptisms = function listBaptisms(dcOrOptions, options) {
   
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listBaptismsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const listPendingAppointmentsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListPendingAppointments');
+}
+listPendingAppointmentsRef.operationName = 'ListPendingAppointments';
+exports.listPendingAppointmentsRef = listPendingAppointmentsRef;
+
+exports.listPendingAppointments = function listPendingAppointments(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listPendingAppointmentsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const listApprovedAppointmentsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListApprovedAppointments');
+}
+listApprovedAppointmentsRef.operationName = 'ListApprovedAppointments';
+exports.listApprovedAppointmentsRef = listApprovedAppointmentsRef;
+
+exports.listApprovedAppointments = function listApprovedAppointments(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listApprovedAppointmentsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const listRejectedAppointmentsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListRejectedAppointments');
+}
+listRejectedAppointmentsRef.operationName = 'ListRejectedAppointments';
+exports.listRejectedAppointmentsRef = listRejectedAppointmentsRef;
+
+exports.listRejectedAppointments = function listRejectedAppointments(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listRejectedAppointmentsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 ;

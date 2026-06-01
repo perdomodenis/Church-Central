@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { rtdb } from '../../services/firebase';
-import { get, ref } from 'firebase/database';
+import { listMembers } from '../../lib/dataconnect';
 import {
   getDirectChats,
   getGroupChats,
@@ -41,17 +40,15 @@ const MessagesScreen = ({ user }) => {
 
   const loadAllUsers = async () => {
     try {
-      const snapshot = await get(ref(rtdb, 'users'));
-      const users = [];
-      snapshot.forEach((child) => {
-        if (child.key !== user?.uid) {
-          users.push({
-            uid: child.key,
-            name: child.val()?.displayName || 'Unknown'
-          });
-        }
-      });
-      setAllUsers(users);
+      const response = await listMembers();
+      const members = response.data?.users || [];
+      const mapped = members
+        .filter(m => m.uid !== user?.uid)
+        .map(m => ({
+          uid: m.uid,
+          name: `${m.first} ${m.last}`.trim() || m.email || 'Unknown'
+        }));
+      setAllUsers(mapped);
     } catch (error) {
       console.error('Error loading users:', error);
     }

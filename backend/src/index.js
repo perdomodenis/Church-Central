@@ -109,7 +109,56 @@ app.post('/api/announcements', upload.single('file'), async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8080;
+/**
+ * File Download Proxy (forces direct download using Content-Disposition header)
+ */
+app.get('/api/download', async (req, res) => {
+  const { url } = req.query;
+  if (!url) {
+    return res.status(400).json({ error: 'URL query parameter is required' });
+  }
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch file: ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+    
+    // Attempt to extract clean filename
+    let filename = 'document.pdf';
+    try {
+      const parsedUrl = new URL(url);
+      const pathname = parsedUrl.pathname;
+      const decodedPath = decodeURIComponent(pathname);
+      const filenameMatch = decodedPath.match(/\/([^\/]+)$/);
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1];
+        // Strip firebase storage timestamp prefix if present
+        if (filename.includes('_')) {
+          filename = filename.substring(filename.indexOf('_') + 1);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not parse filename from URL, using default');
+    }
+
+    // Set headers to force direct download
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', contentType);
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error in download proxy:', error);
+    res.status(500).json({ error: 'Failed to download the file directly' });
+  }
+});
+
+
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Church-Central Backend listening on port ${PORT}`);
 });

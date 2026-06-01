@@ -1,17 +1,9 @@
-import { rtdb } from './firebase';
-import { ref, get } from 'firebase/database';
+import { listMembers, getUserProfile } from '../lib/dataconnect';
 
 export const getAllMembers = async () => {
   try {
-    const snapshot = await get(ref(rtdb, 'users'));
-    if (!snapshot.exists()) {
-      return [];
-    }
-    const data = snapshot.val();
-    return Object.keys(data).map(uid => ({
-      uid,
-      ...data[uid]
-    }));
+    const response = await listMembers();
+    return response.data?.users || [];
   } catch (error) {
     console.error('Error fetching members:', error);
     return [];
@@ -47,14 +39,8 @@ export const searchMembers = async (query) => {
 
 export const getMemberProfile = async (userId) => {
   try {
-    const snapshot = await get(ref(rtdb, `users/${userId}`));
-    if (snapshot.exists()) {
-      return {
-        uid: userId,
-        ...snapshot.val()
-      };
-    }
-    return null;
+    const response = await getUserProfile({ uid: userId });
+    return response.data?.user || null;
   } catch (error) {
     console.error('Error fetching member profile:', error);
     return null;

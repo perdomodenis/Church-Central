@@ -161,3 +161,40 @@ mutation UpdateEvent(
   })
 }
 
+mutation CreateAppointmentRequest(
+  $requester: String!
+  $requesterEmail: String!
+  $staff: String!
+  $date: String!
+  $time: String!
+  $reason: String!
+  $type: String!
+) @auth(level: USER) {
+  appointmentRequest_insert(data: {
+    requester: $requester
+    requesterEmail: $requesterEmail
+    staff: $staff
+    date: $date
+    time: $time
+    reason: $reason
+    type: $type
+  })
+}
+
+mutation ApproveAppointment($id: UUID!, $approvedBy: String!) @auth(level: USER) {
+  appointmentRequest_update(id: $id, data: {
+    status: "approved"
+    approvedBy: $approvedBy
+    decidedAt_expr: "request.time"
+  })
+}
+
+mutation RejectAppointment($id: UUID!, $rejectedBy: String!, $rejectionReason: String!) @auth(level: USER) {
+  appointmentRequest_update(id: $id, data: {
+    status: "rejected"
+    rejectedBy: $rejectedBy
+    rejectionReason: $rejectionReason
+    decidedAt_expr: "request.time"
+  })
+}
+

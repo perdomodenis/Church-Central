@@ -138,15 +138,18 @@ function App() {
     root.setAttribute('data-theme', darkMode ? 'dark' : 'light');
   }, [accentColor, darkMode]);
 
-  // Auto-load live data on first mount (only once)
+  // Auto-load live data on first mount (only once per device)
   useEffect(() => {
-    const hasLoadedData = sessionStorage.getItem('liveDataLoaded');
+    const hasLoadedData = localStorage.getItem('liveDataLoaded');
     if (!hasLoadedData && authUser) {
+      // Set the flag synchronously *before* the async call to prevent
+      // React 18 StrictMode or rapid refreshes from triggering it twice.
+      localStorage.setItem('liveDataLoaded', 'true');
+      
       seedLiveData().then(() => {
-        sessionStorage.setItem('liveDataLoaded', 'true');
         console.log('✅ Live data loaded automatically');
       }).catch(err => {
-        console.log('Note: Live data already exists or will be loaded from Firebase');
+        console.error('Error loading live data:', err);
       });
     }
   }, [authUser]);

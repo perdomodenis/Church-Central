@@ -13,6 +13,20 @@ export interface Announcement_Key {
   __typename?: 'Announcement_Key';
 }
 
+export interface AppointmentRequest_Key {
+  id: UUIDString;
+  __typename?: 'AppointmentRequest_Key';
+}
+
+export interface ApproveAppointmentData {
+  appointmentRequest_update?: AppointmentRequest_Key | null;
+}
+
+export interface ApproveAppointmentVariables {
+  id: UUIDString;
+  approvedBy: string;
+}
+
 export interface BaptismEvent_Key {
   id: UUIDString;
   __typename?: 'BaptismEvent_Key';
@@ -54,6 +68,20 @@ export interface CreateAnnouncementVariables {
   category: string;
   imageUrl?: string | null;
   authorUid: string;
+}
+
+export interface CreateAppointmentRequestData {
+  appointmentRequest_insert: AppointmentRequest_Key;
+}
+
+export interface CreateAppointmentRequestVariables {
+  requester: string;
+  requesterEmail: string;
+  staff: string;
+  date: string;
+  time: string;
+  reason: string;
+  type: string;
 }
 
 export interface CreateBaptismData {
@@ -184,6 +212,23 @@ export interface GetUserProfileVariables {
   uid: string;
 }
 
+export interface ListApprovedAppointmentsData {
+  appointmentRequests: ({
+    id: UUIDString;
+    requester: string;
+    requesterEmail: string;
+    staff: string;
+    date: string;
+    time: string;
+    reason: string;
+    type: string;
+    status: string;
+    createdAt: TimestampString;
+    approvedBy?: string | null;
+    decidedAt?: TimestampString | null;
+  } & AppointmentRequest_Key)[];
+}
+
 export interface ListBaptismsData {
   baptismEvents: ({
     id: UUIDString;
@@ -276,6 +321,39 @@ export interface ListMembersData {
   } & User_Key)[];
 }
 
+export interface ListPendingAppointmentsData {
+  appointmentRequests: ({
+    id: UUIDString;
+    requester: string;
+    requesterEmail: string;
+    staff: string;
+    date: string;
+    time: string;
+    reason: string;
+    type: string;
+    status: string;
+    createdAt: TimestampString;
+  } & AppointmentRequest_Key)[];
+}
+
+export interface ListRejectedAppointmentsData {
+  appointmentRequests: ({
+    id: UUIDString;
+    requester: string;
+    requesterEmail: string;
+    staff: string;
+    date: string;
+    time: string;
+    reason: string;
+    type: string;
+    status: string;
+    createdAt: TimestampString;
+    rejectedBy?: string | null;
+    rejectionReason?: string | null;
+    decidedAt?: TimestampString | null;
+  } & AppointmentRequest_Key)[];
+}
+
 export interface RegisterForBaptismData {
   baptismRegistration_insert: BaptismRegistration_Key;
   baptismEvent_update?: BaptismEvent_Key | null;
@@ -294,6 +372,16 @@ export interface RegisterForEventData {
 export interface RegisterForEventVariables {
   eventId: UUIDString;
   userUid: string;
+}
+
+export interface RejectAppointmentData {
+  appointmentRequest_update?: AppointmentRequest_Key | null;
+}
+
+export interface RejectAppointmentVariables {
+  id: UUIDString;
+  rejectedBy: string;
+  rejectionReason: string;
 }
 
 export interface SearchMembersData {
@@ -420,6 +508,21 @@ export function updateEvent(dc: DataConnect, vars: UpdateEventVariables, options
 /** Generated Node Admin SDK operation action function for the 'UpdateEvent' Mutation. Allow users to pass in custom DataConnect instances. */
 export function updateEvent(vars: UpdateEventVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateEventData>>;
 
+/** Generated Node Admin SDK operation action function for the 'CreateAppointmentRequest' Mutation. Allow users to execute without passing in DataConnect. */
+export function createAppointmentRequest(dc: DataConnect, vars: CreateAppointmentRequestVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateAppointmentRequestData>>;
+/** Generated Node Admin SDK operation action function for the 'CreateAppointmentRequest' Mutation. Allow users to pass in custom DataConnect instances. */
+export function createAppointmentRequest(vars: CreateAppointmentRequestVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateAppointmentRequestData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ApproveAppointment' Mutation. Allow users to execute without passing in DataConnect. */
+export function approveAppointment(dc: DataConnect, vars: ApproveAppointmentVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ApproveAppointmentData>>;
+/** Generated Node Admin SDK operation action function for the 'ApproveAppointment' Mutation. Allow users to pass in custom DataConnect instances. */
+export function approveAppointment(vars: ApproveAppointmentVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ApproveAppointmentData>>;
+
+/** Generated Node Admin SDK operation action function for the 'RejectAppointment' Mutation. Allow users to execute without passing in DataConnect. */
+export function rejectAppointment(dc: DataConnect, vars: RejectAppointmentVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RejectAppointmentData>>;
+/** Generated Node Admin SDK operation action function for the 'RejectAppointment' Mutation. Allow users to pass in custom DataConnect instances. */
+export function rejectAppointment(vars: RejectAppointmentVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RejectAppointmentData>>;
+
 /** Generated Node Admin SDK operation action function for the 'GetUserContext' Query. Allow users to execute without passing in DataConnect. */
 export function getUserContext(dc: DataConnect, vars: GetUserContextVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetUserContextData>>;
 /** Generated Node Admin SDK operation action function for the 'GetUserContext' Query. Allow users to pass in custom DataConnect instances. */
@@ -459,4 +562,19 @@ export function getEventDetails(vars: GetEventDetailsVariables, options?: Operat
 export function listBaptisms(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListBaptismsData>>;
 /** Generated Node Admin SDK operation action function for the 'ListBaptisms' Query. Allow users to pass in custom DataConnect instances. */
 export function listBaptisms(options?: OperationOptions): Promise<ExecuteOperationResponse<ListBaptismsData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListPendingAppointments' Query. Allow users to execute without passing in DataConnect. */
+export function listPendingAppointments(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListPendingAppointmentsData>>;
+/** Generated Node Admin SDK operation action function for the 'ListPendingAppointments' Query. Allow users to pass in custom DataConnect instances. */
+export function listPendingAppointments(options?: OperationOptions): Promise<ExecuteOperationResponse<ListPendingAppointmentsData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListApprovedAppointments' Query. Allow users to execute without passing in DataConnect. */
+export function listApprovedAppointments(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListApprovedAppointmentsData>>;
+/** Generated Node Admin SDK operation action function for the 'ListApprovedAppointments' Query. Allow users to pass in custom DataConnect instances. */
+export function listApprovedAppointments(options?: OperationOptions): Promise<ExecuteOperationResponse<ListApprovedAppointmentsData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListRejectedAppointments' Query. Allow users to execute without passing in DataConnect. */
+export function listRejectedAppointments(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListRejectedAppointmentsData>>;
+/** Generated Node Admin SDK operation action function for the 'ListRejectedAppointments' Query. Allow users to pass in custom DataConnect instances. */
+export function listRejectedAppointments(options?: OperationOptions): Promise<ExecuteOperationResponse<ListRejectedAppointmentsData>>;
 
