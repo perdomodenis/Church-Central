@@ -5,10 +5,23 @@ const multer = require('multer');
 const { getDataConnect } = require('firebase-admin/data-connect');
 const { connectorConfig, getUserProfile, createAnnouncement } = require('./lib/dataconnect');
 
-// Initialize Firebase Admin
-admin.initializeApp({
+// Load environment variables
+require('dotenv').config();
+
+// Initialize Firebase Admin with credentials if available
+const firebaseAdminConfig = {
   storageBucket: 'church-central-992a7.firebasestorage.app'
-});
+};
+
+if (process.env.FIREBASE_ADMIN_PROJECT_ID && process.env.FIREBASE_ADMIN_CLIENT_EMAIL && process.env.FIREBASE_ADMIN_PRIVATE_KEY) {
+  firebaseAdminConfig.credential = admin.credential.cert({
+    projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, '\n')
+  });
+}
+
+admin.initializeApp(firebaseAdminConfig);
 const adminDc = getDataConnect(connectorConfig);
 
 const app = express();
