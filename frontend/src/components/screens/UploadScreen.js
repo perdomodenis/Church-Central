@@ -1,4 +1,8 @@
 import React, { useState, useRef } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { createAnnouncement } from '../../lib/dataconnect';
+import { storage } from '../../services/firebase';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const SCOPE_OPTIONS = ['News', 'Department', 'District', 'Court', 'Leaders', 'All'];
 
@@ -6,43 +10,39 @@ const UploadScreen = ({ onCancel, onDone }) => {
   const [content, setContent] = useState('');
   const [scope, setScope] = useState('News');
   const [attachments, setAttachments] = useState([]);
-  const photoInputRef = useRef(null);
-  const videoInputRef = useRef(null);
+  const fileInputRef = useRef(null);
 
-  const handlePhotoSelect = (e) => {
+  const handleFileSelect = (e) => {
     const files = e.target.files;
     if (files) {
       Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setAttachments(prev => [...prev, {
-            id: Date.now() + Math.random(),
-            type: 'photo',
-            name: file.name,
-            data: event.target.result,
-            file: file
-          }]);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  };
+        const type = file.type.startsWith('image/')
+          ? 'photo'
+          : file.type.startsWith('video/')
+            ? 'video'
+            : 'document';
 
-  const handleVideoSelect = (e) => {
-    const files = e.target.files;
-    if (files) {
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
+        if (type === 'photo') {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            setAttachments(prev => [...prev, {
+              id: Date.now() + Math.random(),
+              type: 'photo',
+              name: file.name,
+              data: event.target.result,
+              file: file
+            }]);
+          };
+          reader.readAsDataURL(file);
+        } else {
           setAttachments(prev => [...prev, {
             id: Date.now() + Math.random(),
-            type: 'video',
+            type: type,
             name: file.name,
-            data: event.target.result,
+            data: null,
             file: file
           }]);
-        };
-        reader.readAsDataURL(file);
+        }
       });
     }
   };
@@ -51,18 +51,50 @@ const UploadScreen = ({ onCancel, onDone }) => {
     setAttachments(attachments.filter(att => att.id !== id));
   };
 
-  const handleSubmit = (e) => {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim() && attachments.length === 0) return;
+    if (!user) return;
 
-    console.log('Publishing post:', {
-      content,
-      scope,
-      attachments: attachments.map(a => ({ type: a.type, name: a.name })),
-      timestamp: new Date()
-    });
+    setLoading(true);
+    try {
+      // 1. Create a FormData object instead of a JSON object
+      const formData = new FormData();
+      formData.append('content', content);
+      formData.append('targetGroup', scope); // Maps to 'targetGroup' in your backend req.body
+      formData.append('authorUid', user.uid);
 
-    onDone();
+      // 2. Attach the file if it exists
+      const firstAttachment = attachments[0];
+      if (firstAttachment && firstAttachment.file) {
+        formData.append('file', firstAttachment.file); // Maps to upload.single('file') in backend
+      }
+
+      // 3. Send it to your Node.js Express server instead of Firebase directly
+      // Replace 'http://localhost:8080' with your actual backend URL if different
+      const response = await fetch('http://localhost:8080/api/announcements', {
+        method: 'POST',
+        body: formData,
+        // Note: Do NOT manually set Content-Type header when using FormData with fetch.
+        // The browser will automatically set it and add the correct boundary string.
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+
+      onDone();
+    } catch (err) {
+      console.error('Error creating post:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -156,19 +188,10 @@ const UploadScreen = ({ onCancel, onDone }) => {
         </div>
 
         <input
-          ref={photoInputRef}
+          ref={fileInputRef}
           type="file"
-          accept="image/*"
           multiple
-          onChange={handlePhotoSelect}
-          style={{ display: 'none' }}
-        />
-        <input
-          ref={videoInputRef}
-          type="file"
-          accept="video/*"
-          multiple
-          onChange={handleVideoSelect}
+          onChange={handleFileSelect}
           style={{ display: 'none' }}
         />
 
@@ -176,16 +199,9 @@ const UploadScreen = ({ onCancel, onDone }) => {
           <button
             type="button"
             style={secondaryButtonStyle}
-            onClick={() => photoInputRef.current?.click()}
+            onClick={() => fileInputRef.current?.click()}
           >
-            📷 Photo
-          </button>
-          <button
-            type="button"
-            style={secondaryButtonStyle}
-            onClick={() => videoInputRef.current?.click()}
-          >
-            🎥 Video
+            Add Document
           </button>
         </div>
 
@@ -217,7 +233,7 @@ const UploadScreen = ({ onCancel, onDone }) => {
                       justifyContent: 'center',
                       fontSize: '2rem'
                     }}>
-                      🎥
+                      {att.type === 'video' ? '🎥' : '📄'}
                     </div>
                   )}
                   <button
@@ -249,8 +265,8 @@ const UploadScreen = ({ onCancel, onDone }) => {
           </div>
         )}
 
-        <button type="submit" style={submitButtonStyle}>
-          Post to {scope}
+        <button type="submit" disabled={loading} style={submitButtonStyle}>
+          {loading ? 'Posting...' : `Post to ${scope}`}
         </button>
       </form>
     </div>

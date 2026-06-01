@@ -1,25 +1,37 @@
-import { rtdb } from './firebase';
-import { ref, push, set, get, update, remove, query, orderByChild } from 'firebase/database';
+import { 
+  createBaptism as createBaptismInDb,
+  listBaptisms as fetchAllBaptismsFromDb,
+  registerForBaptism as registerForBaptismInDb,
+  cancelBaptismRegistration as cancelBaptismRegistrationInDb,
+  deleteBaptismEvent as deleteBaptismEventInDb
+} from '../lib/dataconnect';
 
 export const createBaptismEvent = async (eventData, userId, userName) => {
   try {
-    const eventsRef = ref(rtdb, 'baptisms/events');
-    const newEventRef = push(eventsRef);
-
-    const event = {
+    const variables = {
       title: eventData.title || 'Water Baptism',
       date: eventData.date,
       time: eventData.time,
       location: eventData.location || 'Church Baptismal Pool',
       description: eventData.description || '',
+      capacity: eventData.capacity ? parseInt(eventData.capacity, 10) : 100,
+      createdByUid: userId
+    };
+
+    const response = await createBaptismInDb(variables);
+    
+    return {
+      id: response.data?.baptismEvent_insert?.id,
+      title: variables.title,
+      date: variables.date,
+      time: variables.time,
+      location: variables.location,
+      description: variables.description,
       createdBy: userId,
       createdByName: userName,
       createdAt: new Date().toISOString(),
       attendees: 0
     };
-
-    await set(newEventRef, event);
-    return { id: newEventRef.key, ...event };
   } catch (error) {
     console.error('Error creating baptism event:', error);
     throw error;
@@ -28,22 +40,29 @@ export const createBaptismEvent = async (eventData, userId, userName) => {
 
 export const getAllBaptismEvents = async () => {
   try {
-    const eventsRef = ref(rtdb, 'baptisms/events');
-    const snapshot = await get(eventsRef);
+    const response = await fetchAllBaptismsFromDb();
+    const events = response.data?.baptismEvents || [];
 
-    if (!snapshot.exists()) {
-      return [];
-    }
+    const mapped = events.map(e => ({
+      id: e.id,
+      title: e.title,
+      date: e.date,
+      time: e.time,
+      location: e.location,
+      description: e.description,
+      createdBy: e.createdBy?.uid || 'unknown',
+      createdByName: e.createdBy ? `${e.createdBy.first} ${e.createdBy.last}` : 'Unknown',
+      createdAt: e.createdAt,
+      attendees: e.registeredCount || 0,
+      attendeesList: (e.baptismRegistrations_on_baptismEvent || []).map(reg => ({
+        userId: reg.user.uid,
+        name: `${reg.user.first} ${reg.user.last}`,
+        email: reg.user.email,
+        profilePhoto: reg.user.profilePhoto
+      }))
+    }));
 
-    const events = [];
-    snapshot.forEach((childSnapshot) => {
-      events.push({
-        id: childSnapshot.key,
-        ...childSnapshot.val()
-      });
-    });
-
-    return events.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+    return mapped.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
   } catch (error) {
     console.error('Error fetching baptism events:', error);
     return [];
@@ -52,17 +71,10 @@ export const getAllBaptismEvents = async () => {
 
 export const registerForBaptism = async (eventId, userId, userName, userEmail) => {
   try {
-    const registrationRef = ref(rtdb, `baptisms/registrations/${eventId}/${userId}`);
-    
-    await set(registrationRef, {
-      name: userName,
-      email: userEmail,
-      registeredAt: new Date().toISOString(),
-      status: 'registered'
+    await registerForBaptismInDb({
+      baptismEventId: eventId,
+      userUid: userId
     });
-
-    await updateBaptismEventAttendees(eventId, 1);
-    
     return true;
   } catch (error) {
     console.error('Error registering for baptism:', error);
@@ -72,11 +84,10 @@ export const registerForBaptism = async (eventId, userId, userName, userEmail) =
 
 export const unregisterFromBaptism = async (eventId, userId) => {
   try {
-    const registrationRef = ref(rtdb, `baptisms/registrations/${eventId}/${userId}`);
-    
-    await remove(registrationRef);
-    await updateBaptismEventAttendees(eventId, -1);
-    
+    await cancelBaptismRegistrationInDb({
+      baptismEventId: eventId,
+      userUid: userId
+    });
     return true;
   } catch (error) {
     console.error('Error unregistering from baptism:', error);
@@ -84,28 +95,11 @@ export const unregisterFromBaptism = async (eventId, userId) => {
   }
 };
 
-const updateBaptismEventAttendees = async (eventId, change) => {
-  try {
-    const eventRef = ref(rtdb, `baptisms/events/${eventId}`);
-    const snapshot = await get(eventRef);
-    
-    if (snapshot.exists()) {
-      const currentAttendees = snapshot.val().attendees || 0;
-      await update(eventRef, {
-        attendees: Math.max(0, currentAttendees + change)
-      });
-    }
-  } catch (error) {
-    console.error('Error updating attendees:', error);
-  }
-};
-
 export const checkBaptismRegistration = async (eventId, userId) => {
   try {
-    const registrationRef = ref(rtdb, `baptisms/registrations/${eventId}/${userId}`);
-    const snapshot = await get(registrationRef);
-    
-    return !!snapshot.val();
+    const events = await getAllBaptismEvents();
+    const event = events.find(e => e.id === eventId);
+    return event ? event.attendeesList.some(a => a.userId === userId) : false;
   } catch (error) {
     console.error('Error checking registration:', error);
     return false;
@@ -114,22 +108,9 @@ export const checkBaptismRegistration = async (eventId, userId) => {
 
 export const getBaptismEventAttendees = async (eventId) => {
   try {
-    const attendeesRef = ref(rtdb, `baptisms/registrations/${eventId}`);
-    const snapshot = await get(attendeesRef);
-
-    if (!snapshot.exists()) {
-      return [];
-    }
-
-    const attendees = [];
-    snapshot.forEach((childSnapshot) => {
-      attendees.push({
-        userId: childSnapshot.key,
-        ...childSnapshot.val()
-      });
-    });
-
-    return attendees;
+    const events = await getAllBaptismEvents();
+    const event = events.find(e => e.id === eventId);
+    return event ? event.attendeesList : [];
   } catch (error) {
     console.error('Error fetching attendees:', error);
     return [];
@@ -138,12 +119,7 @@ export const getBaptismEventAttendees = async (eventId) => {
 
 export const deleteBaptismEvent = async (eventId) => {
   try {
-    const eventRef = ref(rtdb, `baptisms/events/${eventId}`);
-    const registrationsRef = ref(rtdb, `baptisms/registrations/${eventId}`);
-    
-    await remove(eventRef);
-    await remove(registrationsRef);
-    
+    await deleteBaptismEventInDb({ id: eventId });
     return true;
   } catch (error) {
     console.error('Error deleting baptism event:', error);

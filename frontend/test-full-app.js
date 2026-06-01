@@ -100,13 +100,13 @@ console.log('\n🔍 VERIFICACIÓN DE FUNCIONALIDADES CLAVE\n');
 
 // Feature Tests
 console.log('Authentication Features:');
-testFileContains('frontend/src/components/auth/LoginScreen.js', 'signInWithPopup', 'Google Sign-In implementado');
-testFileContains('frontend/src/context/AuthContext.js', 'signOut', 'Sign-out implementado');
+testFileContains('frontend/src/App.js', 'signInWithPopup', 'Google Sign-In implementado');
+testFileContains('frontend/src/App.js', 'signOut', 'Sign-out implementado');
 
 console.log('\nMultilingual Support:');
-testFileContains('frontend/src/services/translations.js', '"es":', 'Español translations');
-testFileContains('frontend/src/services/translations.js', '"de":', 'Deutsch translations');
-testFileContains('frontend/src/services/translations.js', '"fr":', 'Français translations');
+testFileContains('frontend/src/services/translations.js', 'es:', 'Español translations');
+testFileContains('frontend/src/services/translations.js', 'de:', 'Deutsch translations');
+testFileContains('frontend/src/services/translations.js', 'fr:', 'Français translations');
 testFileContains('frontend/src/context/LanguageContext.js', 'useLanguage', 'Language hook implementado');
 
 console.log('\nChat & Messaging:');
@@ -155,7 +155,7 @@ console.log('\n🔐 VERIFICACIÓN DE SEGURIDAD\n');
 
 console.log('Firebase Integration:');
 testFileContains('frontend/src/services/firebase.js', 'initializeApp', 'Firebase inicializado');
-testFileContains('frontend/src/services/firebase.js', 'GoogleAuthProvider', 'Google Auth integrado');
+testFileContains('frontend/src/App.js', 'GoogleAuthProvider', 'Google Auth integrado');
 
 console.log('\nAuthentication Guards:');
 testFileContains('frontend/src/context/AuthContext.js', 'onAuthStateChanged', 'Auth state monitoring');

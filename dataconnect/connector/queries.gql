@@ -1,0 +1,179 @@
+query GetUserContext($uid: String!) @auth(level: USER) {
+  user(key: { uid: $uid }) {
+    uid
+    court
+    dept
+    position
+  }
+}
+
+query GetUserProfile($uid: String!) @auth(level: USER) {
+  user(key: { uid: $uid }) {
+    uid
+    email
+    first
+    last
+    zip
+    city
+    court
+    dept
+    position
+    bio
+    profilePhoto
+    joined
+    lastActive
+    status
+    recentActivity
+    interests
+  }
+}
+
+query ListMembers @auth(level: USER) {
+  users(orderBy: [{ first: ASC }]) {
+    uid
+    email
+    first
+    last
+    zip
+    city
+    court
+    dept
+    position
+    bio
+    profilePhoto
+    joined
+    lastActive
+    status
+    recentActivity
+    interests
+  }
+}
+
+query SearchMembers($query: String!) @auth(level: USER) {
+  users(
+    where: {
+      _or: [
+        { first: { contains: $query } },
+        { last: { contains: $query } },
+        { dept: { contains: $query } }
+      ]
+    }
+  ) {
+    uid
+    email
+    first
+    last
+    zip
+    city
+    court
+    dept
+    position
+    bio
+    profilePhoto
+    joined
+    lastActive
+    status
+    recentActivity
+    interests
+  }
+}
+
+query ListFeedPosts @auth(level: USER) {
+  announcements(orderBy: [{ createdAt: DESC }]) {
+    id
+    content
+    scope
+    category
+    imageUrl
+    likes
+    createdAt
+    author {
+      uid
+      first
+      last
+      profilePhoto
+    }
+  }
+}
+
+query ListEvents @auth(level: USER) {
+  events(orderBy: [{ date: ASC }]) {
+    id
+    title
+    date
+    time
+    endTime
+    location
+    description
+    type
+    capacity
+    registered
+    createdAt
+    createdBy {
+      uid
+      first
+      last
+    }
+    eventRegistrations_on_event {
+      user {
+        uid
+      }
+    }
+  }
+}
+
+query GetEventDetails($id: UUID!) @auth(level: USER) {
+  event(key: { id: $id }) {
+    id
+    title
+    date
+    time
+    endTime
+    location
+    description
+    type
+    capacity
+    registered
+    createdAt
+    createdBy {
+      uid
+      first
+      last
+    }
+    eventRegistrations_on_event {
+      user {
+        uid
+        first
+        last
+        profilePhoto
+      }
+    }
+  }
+}
+
+query ListBaptisms @auth(level: USER) {
+  baptismEvents(orderBy: [{ date: ASC }]) {
+    id
+    title
+    date
+    time
+    location
+    description
+    capacity
+    registeredCount
+    createdAt
+    createdBy {
+      uid
+      first
+      last
+    }
+    baptismRegistrations_on_baptismEvent {
+      user {
+        uid
+        first
+        last
+        profilePhoto
+      }
+    }
+  }
+}
