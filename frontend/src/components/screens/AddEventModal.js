@@ -8,7 +8,12 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
     endTime: '',
     location: '',
     description: '',
-    category: 'Event'
+    category: 'Event',
+    streamUrl: '',
+    videoConferenceUrl: '',
+    type: 'Personal',
+    hours: '',
+    dressCode: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -75,6 +80,31 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
         </div>
 
         <form onSubmit={handleSubmit} style={formStyle}>
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '8px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '600' }}>
+              <input
+                type="radio"
+                name="type"
+                value="Personal"
+                checked={formData.type === 'Personal'}
+                onChange={handleChange}
+                style={{ accentColor: 'var(--accent)' }}
+              />
+              Personal Event
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '600' }}>
+              <input
+                type="radio"
+                name="type"
+                value="Work Shift"
+                checked={formData.type === 'Work Shift'}
+                onChange={handleChange}
+                style={{ accentColor: 'var(--accent)' }}
+              />
+              Work Shift
+            </label>
+          </div>
+
           <div style={formGroupStyle}>
             <label style={labelStyle}>Event Title *</label>
             <input
@@ -110,6 +140,22 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
               />
             </div>
           </div>
+
+          {formData.type === 'Work Shift' && (
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Hours Logged</label>
+              <input
+                type="number"
+                name="hours"
+                value={formData.hours}
+                onChange={handleChange}
+                placeholder="e.g., 4.5"
+                step="0.5"
+                min="0"
+                style={inputStyle}
+              />
+            </div>
+          )}
 
           <div style={formGroupStyle}>
             <label style={labelStyle}>Location</label>
@@ -149,6 +195,42 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
               <option>Baptism</option>
               <option>Event</option>
             </select>
+          </div>
+
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>Dress Code (optional)</label>
+            <input
+              type="text"
+              name="dressCode"
+              value={formData.dressCode}
+              onChange={handleChange}
+              placeholder="e.g., Casual, Formal, Choir Robes"
+              style={inputStyle}
+            />
+          </div>
+
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>Live Stream URL (optional)</label>
+            <input
+              type="url"
+              name="streamUrl"
+              value={formData.streamUrl}
+              onChange={handleChange}
+              placeholder="e.g., https://youtube.com/..."
+              style={inputStyle}
+            />
+          </div>
+
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>Video Conference Link (optional)</label>
+            <input
+              type="url"
+              name="videoConferenceUrl"
+              value={formData.videoConferenceUrl}
+              onChange={handleChange}
+              placeholder="e.g., https://zoom.us/j/..."
+              style={inputStyle}
+            />
           </div>
 
           {error && (

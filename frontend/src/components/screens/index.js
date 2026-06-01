@@ -14,3 +14,5 @@ export { default as MessagesScreen } from './MessagesScreen';
 export { default as MemberSearchScreen } from './MemberSearchScreen';
 export { default as MemberProfileScreen } from './MemberProfileScreen';
 export { default as DebugScreen } from './DebugScreen';
+export { default as DocumentsScreen } from './DocumentsScreen';
+export { default as NLSScreen } from './NLSScreen';

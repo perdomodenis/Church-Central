@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { uploadPhoto, getUserPhotos, deletePhoto } from '../../services/photoService';
 import { updateProfilePhoto, updateUserProfile, getUserProfile } from '../../services/userService';
-import { COURTS, DEPARTMENTS, ROLES } from '../../services/churchConstants';
+import { COURTS, DEPARTMENTS, ROLES, getAccessLevel } from '../../services/churchConstants';
+import { requestDepartmentJoin } from '../../services/departmentService';
 
 const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
   const initials = `${user.first?.[0] || ''}${user.last?.[0] || ''}`.toUpperCase() || '??';
@@ -25,6 +26,12 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
     interests: user.interests || []
   });
   const [newInterest, setNewInterest] = useState('');
+  const [notifications, setNotifications] = useState({
+    events: true,
+    videoCalls: true,
+    news: false,
+    documents: true
+  });
 
   useEffect(() => {
     loadPhotos();
@@ -110,15 +117,30 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
   const handleSaveProfileInfo = async () => {
     if (!user?.uid) return;
     try {
-      await updateUserProfile(user.uid, {
+      const updates = {
         first: editUser.first,
         last: editUser.last,
         court: editUser.court,
-        dept: editUser.dept,
         position: editUser.position,
         interests: editUser.interests
-      });
-      onUpdateUser(editUser);
+      };
+
+      if (editUser.dept !== user.dept) {
+        await requestDepartmentJoin(user.uid, `${editUser.first} ${editUser.last}`, editUser.dept);
+        alert(`A request to join the ${editUser.dept} department has been sent for approval.`);
+        setEditUser(prev => ({ ...prev, dept: user.dept }));
+      } else {
+        updates.dept = editUser.dept;
+      }
+
+      await updateUserProfile(user.uid, updates);
+      
+      const updatedUser = { 
+        ...editUser, 
+        dept: editUser.dept !== user.dept ? user.dept : editUser.dept,
+        accessLevel: getAccessLevel(editUser.position || 'Member')
+      };
+      onUpdateUser(updatedUser);
       setIsEditingProfile(false);
     } catch (error) {
       console.error('Error saving profile info:', error);
@@ -441,6 +463,49 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
             )}
           </div>
         )}
+      </div>
+
+      {/* Notifications Section */}
+      <div style={cardStyle}>
+        <h3 style={sectionTitleStyle}>Notification Preferences</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <span style={labelStyle}>Specific Events</span>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>Get notified about special events in your area</p>
+            </div>
+            <input 
+              type="checkbox" 
+              checked={notifications.events} 
+              onChange={() => setNotifications(prev => ({...prev, events: !prev.events}))}
+              style={{ transform: 'scale(1.2)', accentColor: 'var(--accent)', cursor: 'pointer' }}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <span style={labelStyle}>Video Conferences</span>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>Get links for upcoming video meetings</p>
+            </div>
+            <input 
+              type="checkbox" 
+              checked={notifications.videoCalls} 
+              onChange={() => setNotifications(prev => ({...prev, videoCalls: !prev.videoCalls}))}
+              style={{ transform: 'scale(1.2)', accentColor: 'var(--accent)', cursor: 'pointer' }}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <span style={labelStyle}>General News</span>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>Updates on the news feed</p>
+            </div>
+            <input 
+              type="checkbox" 
+              checked={notifications.news} 
+              onChange={() => setNotifications(prev => ({...prev, news: !prev.news}))}
+              style={{ transform: 'scale(1.2)', accentColor: 'var(--accent)', cursor: 'pointer' }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Photos Section */}
