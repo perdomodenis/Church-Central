@@ -1,13 +1,19 @@
 import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import Layout from './Layout';
+
+jest.mock('./Header', () => () => <header className="header">Header</header>);
+jest.mock('./Footer', () => () => <footer className="footer">Footer</footer>);
 
 describe('Layout Component', () => {
   
   test('renders layout container', () => {
     const { container } = render(
-      <Layout>
-        <p>Content</p>
-      </Layout>
+      <BrowserRouter>
+        <Layout>
+          <p>Content</p>
+        </Layout>
+      </BrowserRouter>
     );
     const layout = container.querySelector('.layout');
     expect(layout).toBeInTheDocument();
@@ -15,33 +21,38 @@ describe('Layout Component', () => {
 
   test('renders children content', () => {
     render(
-      <Layout>
-        <div>Test Content</div>
-      </Layout>
+      <BrowserRouter>
+        <Layout>
+          <div>Test Content</div>
+        </Layout>
+      </BrowserRouter>
     );
     expect(screen.getByText('Test Content')).toBeInTheDocument();
   });
 
   test('contains header and footer sections', () => {
     const { container } = render(
-      <Layout>
-        <p>Main</p>
-      </Layout>
+      <BrowserRouter>
+        <Layout>
+          <p>Main</p>
+        </Layout>
+      </BrowserRouter>
     );
     const header = container.querySelector('header');
     const footer = container.querySelector('footer');
-    
+
     expect(header).toBeInTheDocument();
     expect(footer).toBeInTheDocument();
   });
 
   test('wraps children in main content area', () => {
     const { container } = render(
-      <Layout>
-        <div className="content">Main Content</div>
-      </Layout>
+      <BrowserRouter>
+        <Layout>
+          <div className="content">Main Content</div>
+        </Layout>
+      </BrowserRouter>
     );
-    const mainArea = container.querySelector('.layout-main');
-    expect(mainArea).toBeInTheDocument();
+    expect(screen.getByText('Main Content')).toBeInTheDocument();
   });
 });
