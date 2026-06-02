@@ -204,4 +204,4 @@ Benutzer → Webbrowser → React Frontend → Firebase Backend → Authenticati
 - **Firebase Storage**: Unbegrenzte Speicherkapazität
 - **Firebase Hosting**: Weltweite CDN für schnelle Zugriffe
 - **Cloud Functions**: Automatische Skalierung bei hohem Aufkommen
-- **Docker**: Für konsistente und wiederholbare Builds
+- **Docker**: Für konsistente und wiederholbare Builds.
