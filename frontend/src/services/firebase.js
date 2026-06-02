@@ -1,11 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
-import { getStorage } from "firebase/storage";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   onAuthStateChanged
 } from "firebase/auth";
@@ -28,20 +26,8 @@ const analytics = getAnalytics(app);
 // Initialize Auth and export functions used in App.js
 export const auth = getAuth(app);
 
-// Initialize Realtime Database (primary database)
+// Initialize Realtime Database
 export const db = getDatabase(app);
-export const rtdb = getDatabase(app);
-
-// Initialize Firestore (optional, not currently in use)
-export const firestore = getFirestore(app);
-
-// Initialize Storage
-export const storage = getStorage(app);
-
-// Initialize Data Connect (SQL Connect)
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig } from '../lib/dataconnect';
-export const dataConnect = getDataConnect(app, connectorConfig);
 
 export { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged };
 export default app;

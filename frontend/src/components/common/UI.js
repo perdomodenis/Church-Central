@@ -3,135 +3,36 @@ import ReactDOM from 'react-dom';
 import * as Icon from './Icons';
 
 // --- TopBar Component ---
-export const TopBar = ({ route, onNavigate, scope, scopeOptions, title, onScope, onMenu, onProfile, user, hasNewInbox = false, hasNewMessages = false }) => {
-  const level = user?.accessLevel || 1;
-  const navItems = [
-    { id: 'home', label: 'Home' },
-    ...(level >= 3 ? [{ id: 'members', label: 'Members' }] : []),
-    ...(level >= 2 ? [{ id: 'documents', label: 'Documents' }] : []),
-    ...(level >= 2 ? [{ id: 'schedule', label: 'Schedule' }] : []),
-    { id: 'appointment', label: 'Appointments' },
-    { id: 'events', label: 'Events' },
-    ...(level >= 3 ? [{ id: 'mgmt', label: 'Management' }] : []),
-    { id: 'baptism', label: 'Baptism' },
-  ];
-
-  const redDotStyle = {
-    position: 'absolute',
-    top: '4px',
-    right: '4px',
-    width: '10px',
-    height: '10px',
-    backgroundColor: '#ff3b30',
-    borderRadius: '50%',
-    border: '2px solid white',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-  };
-
+export const TopBar = ({ scope, scopeOptions, title, onScope, onMenu, onProfile }) => {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white', borderBottom: '1px solid #eee', zIndex: 1000, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-      {/* Main TopBar */}
-      <div style={{ ...topBarStyle, borderBottom: 'none', boxShadow: 'none' }}>
-        {/* Mobile Hamburger */}
-        <button onClick={onMenu} style={iconButtonStyle} className="mobile-only">
-          <Icon.Menu />
-        </button>
-
-        {/* Desktop Logo / Title */}
-        <div className="desktop-only" style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--accent)', marginRight: '20px' }}>
-          Church Central
-        </div>
-
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-          {/* Mobile title / dropdown */}
-          <div className="mobile-only" style={{ flex: 1, textAlign: 'center' }}>
-            {scopeOptions ? (
-              <select
-                value={scope}
-                onChange={(e) => onScope(e.target.value)}
-                style={scopeSelectStyle}
-              >
-                {scopeOptions.map(option => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            ) : (
-              <span style={titleStyle}>{title || 'Home'}</span>
-            )}
-          </div>
-          
-          {/* Desktop Navbar */}
-          <div className="desktop-only" style={{ display: 'flex', gap: '15px', overflowX: 'auto', flex: 1, alignItems: 'center' }}>
-            {navItems.map(item => (
-              <button
-                key={item.id}
-                onClick={() => onNavigate && onNavigate(item.id)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: route === item.id ? 'bold' : 'normal',
-                  color: route === item.id ? 'var(--accent)' : '#333',
-                  fontSize: '0.95rem',
-                  padding: '5px 10px',
-                  borderRadius: '8px',
-                  backgroundColor: route === item.id ? 'var(--accent-light, #EFE9FF)' : 'transparent',
-                  transition: 'background-color 0.2s'
-                }}
-              >
-                {item.label}
-              </button>
+    <div style={topBarStyle}>
+      <button onClick={onMenu} style={iconButtonStyle}>
+        <Icon.Menu />
+      </button>
+      <div style={{ flex: 1, textAlign: 'center' }}>
+        {scopeOptions ? (
+          <select
+            value={scope}
+            onChange={(e) => onScope(e.target.value)}
+            style={scopeSelectStyle}
+          >
+            {scopeOptions.map(option => (
+              <option key={option} value={option}>{option}</option>
             ))}
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', marginRight: '8px' }}>
-          <button onClick={() => onNavigate && onNavigate('inbox')} style={{...iconButtonStyle, position: 'relative'}} title="Inbox">
-            <Icon.Inbox />
-            {hasNewInbox && <div style={redDotStyle} />}
-          </button>
-          <button onClick={() => onNavigate && onNavigate('messages')} style={{ ...iconButtonStyle, marginLeft: '4px', position: 'relative' }} title="Messages">
-            <Icon.Feedback />
-            {hasNewMessages && <div style={redDotStyle} />}
-          </button>
-        </div>
-        <button onClick={onProfile} style={iconButtonStyle} title="Profile">
-          <Icon.User />
-        </button>
+          </select>
+        ) : (
+          <span style={titleStyle}>{title}</span>
+        )}
       </div>
-
-      {/* Secondary Navbar for Channels / Scope (Desktop Only) */}
-      {scopeOptions && (
-        <div className="desktop-only" style={{ display: 'flex', overflowX: 'auto', padding: '8px 16px', gap: '10px', backgroundColor: '#f9f9f9', borderTop: '1px solid #eee' }}>
-          {scopeOptions.map(option => (
-            <button
-              key={option}
-              onClick={() => onScope(option)}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: scope === option ? 'bold' : 'normal',
-                color: scope === option ? 'var(--accent)' : '#666',
-                fontSize: '0.95rem',
-                padding: '6px 12px',
-                borderRadius: '20px',
-                backgroundColor: scope === option ? 'var(--accent-light, #EFE9FF)' : 'transparent',
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-      )}
+      <button onClick={onProfile} style={iconButtonStyle}>
+        <Icon.User />
+      </button>
     </div>
   );
 };
 
 // --- MenuDrawer Component ---
-export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout, user }) => {
+export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout }) => {
   const handleNavigate = (newRoute) => {
     onNavigate(newRoute);
     onClose();
@@ -142,8 +43,6 @@ export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout, user })
     onClose();
   };
 
-  const level = user?.accessLevel || 1;
-
   return (
     <div style={drawerOverlayStyle(open)} onClick={onClose}>
       <div style={drawerContentStyle(open)} onClick={(e) => e.stopPropagation()}>
@@ -151,18 +50,13 @@ export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout, user })
           <h3 style={{ margin: 0, color: 'var(--accent)' }}>Church Central</h3>
         </div>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '0 20px' }}>
-          <MenuItem label="Home" active={route === 'home'} onClick={() => handleNavigate('home')} />
-          {level >= 3 && <MenuItem label="Members" active={route === 'members'} onClick={() => handleNavigate('members')} />}
-          {level >= 2 && <MenuItem label="Documents" active={route === 'documents'} onClick={() => handleNavigate('documents')} />}
-          {level >= 2 && <MenuItem label="Schedule" active={route === 'schedule'} onClick={() => handleNavigate('schedule')} />}
-          <MenuItem label="Appointments" active={route === 'appointment'} onClick={() => handleNavigate('appointment')} />
-          <MenuItem label="Events" active={route === 'events'} onClick={() => handleNavigate('events')} />
-          {level >= 3 && <MenuItem label="Management" active={route === 'mgmt'} onClick={() => handleNavigate('mgmt')} />}
-          <MenuItem label="Baptism" active={route === 'baptism'} onClick={() => handleNavigate('baptism')} />
-          <MenuItem label="New Life School" active={route === 'nls'} onClick={() => handleNavigate('nls')} />
-          <MenuItem label="Profile" active={route === 'profile'} onClick={() => handleNavigate('profile')} />
-          <MenuItem label="Feedback" active={route === 'feedback'} onClick={() => handleNavigate('feedback')} />
-          {level >= 4 && <MenuItem label="Debug" active={route === 'debug'} onClick={() => handleNavigate('debug')} />}
+          <MenuItem icon={<Icon.Home />} label="Home" active={route === 'home'} onClick={() => handleNavigate('home')} />
+          <MenuItem icon={<Icon.Inbox />} label="Inbox" active={route === 'inbox'} onClick={() => handleNavigate('inbox')} />
+          <MenuItem icon={<Icon.Calendar />} label="Schedule" active={route === 'schedule'} onClick={() => handleNavigate('schedule')} />
+          <MenuItem icon={<Icon.Appointment />} label="Appointments" active={route === 'appointment'} onClick={() => handleNavigate('appointment')} />
+          <MenuItem icon={<Icon.Management />} label="Management" active={route === 'mgmt'} onClick={() => handleNavigate('mgmt')} />
+          <MenuItem icon={<Icon.Profile />} label="Profile" active={route === 'profile'} onClick={() => handleNavigate('profile')} />
+          <MenuItem icon={<Icon.Feedback />} label="Feedback" active={route === 'feedback'} onClick={() => handleNavigate('feedback')} />
           <div style={{ borderTop: '1px solid #eee', marginTop: '20px', paddingTop: '20px' }}>
             <MenuItem label="Sign Out" onClick={handleLogout} />
           </div>
@@ -319,6 +213,7 @@ const scopeSelectStyle = {
   color: 'var(--accent)',
   backgroundColor: 'transparent',
   textAlign: 'center',
+  appearance: 'none', // Remove default arrow
   cursor: 'pointer',
   padding: '5px 10px',
   borderRadius: '5px',

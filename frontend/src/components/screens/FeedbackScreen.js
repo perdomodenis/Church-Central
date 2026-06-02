@@ -4,7 +4,6 @@ const CATEGORIES = ['Suggestion', 'Bug Report', 'Praise', 'Other'];
 
 const FeedbackScreen = () => {
   const [category, setCategory] = useState('Suggestion');
-  const [rating, setRating] = useState(0);
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
@@ -13,7 +12,7 @@ const FeedbackScreen = () => {
     if (!message.trim()) return;
 
     // Logic for sending feedback to a backend or service would go here
-    console.log('Feedback submitted:', { category, rating, message });
+    console.log('Feedback submitted:', { category, message });
     setSubmitted(true);
   };
 
@@ -34,11 +33,7 @@ const FeedbackScreen = () => {
           Your feedback helps us make Church Central better for everyone in our community.
         </p>
         <button 
-          onClick={() => {
-            setSubmitted(false);
-            setRating(0);
-            setMessage('');
-          }}
+          onClick={() => setSubmitted(false)}
           style={{ 
             marginTop: '32px',
             backgroundColor: 'var(--accent)',
@@ -64,26 +59,6 @@ const FeedbackScreen = () => {
       </div>
 
       <form onSubmit={handleSubmit} style={cardStyle}>
-        <div style={{ marginBottom: '20px' }}>
-          <label style={labelStyle}>Rate your Experience</label>
-          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span
-                key={star}
-                onClick={() => setRating(star)}
-                style={{
-                  fontSize: '2rem',
-                  cursor: 'pointer',
-                  color: rating >= star ? '#FFD700' : '#ddd',
-                  transition: 'color 0.2s'
-                }}
-              >
-                ★
-              </span>
-            ))}
-          </div>
-        </div>
-
         <div style={{ marginBottom: '20px' }}>
           <label style={labelStyle}>Category</label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>

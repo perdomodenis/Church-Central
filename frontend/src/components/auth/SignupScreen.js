@@ -1,5 +1,4 @@
 import React from 'react';
-import { COURTS, DEPARTMENTS, ROLES } from '../../services/churchConstants';
 
 const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
   const renderStep = () => {
@@ -25,15 +24,15 @@ const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
               <InputField label="Zip Code" value={data.zip} onChange={(v) => onChange({ zip: v })} placeholder="12345" />
               <InputField label="City" value={data.city} onChange={(v) => onChange({ city: v })} placeholder="City" />
             </div>
-            <SelectField label="Court / Church" value={data.court} onChange={(v) => onChange({ court: v })} options={COURTS} />
+            <InputField label="Court / Church" value={data.court} onChange={(v) => onChange({ court: v })} placeholder="Name of your church" />
           </>
         );
       case 3:
         return (
           <>
             <h2 style={{ marginBottom: '20px', fontSize: '1.5rem' }}>Your Role</h2>
-            <SelectField label="Position / Role" value={data.position} onChange={(v) => onChange({ position: v })} options={ROLES} />
-            <SelectField label="Department" value={data.dept} onChange={(v) => onChange({ dept: v })} options={DEPARTMENTS} />
+            <InputField label="Position" value={data.position} onChange={(v) => onChange({ position: v })} placeholder="Ex: Volunteer, Member" />
+            <InputField label="Department" value={data.dept} onChange={(v) => onChange({ dept: v })} placeholder="Ex: Worship, Youth" />
             <div className="input-group">
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>Interests</label>
               <input
@@ -135,25 +134,6 @@ const InputField = ({ label, type = 'text', value, onChange, placeholder }) => (
   </div>
 );
 
-const SelectField = ({ label, value, onChange, options }) => (
-  <div className="input-group" style={{ marginBottom: '16px', flex: 1 }}>
-    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
-      {label}
-    </label>
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      required
-      style={selectStyle}
-    >
-      <option value="" disabled>Select {label}</option>
-      {options.map(opt => (
-        <option key={opt} value={opt}>{opt}</option>
-      ))}
-    </select>
-  </div>
-);
-
 const inputStyle = {
   width: '100%',
   padding: '12px',
@@ -161,19 +141,6 @@ const inputStyle = {
   border: '1px solid #ddd',
   outlineColor: 'var(--accent)',
   boxSizing: 'border-box'
-};
-
-const selectStyle = {
-  width: '100%',
-  padding: '12px',
-  borderRadius: '8px',
-  border: '1px solid #ddd',
-  outlineColor: 'var(--accent)',
-  boxSizing: 'border-box',
-  backgroundColor: 'white',
-  fontFamily: 'inherit',
-  fontSize: '1rem',
-  color: '#333'
 };
 
 export default SignupScreen;

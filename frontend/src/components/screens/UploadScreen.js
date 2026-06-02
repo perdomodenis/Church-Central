@@ -1,132 +1,48 @@
-import React, { useState, useRef } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { createAnnouncement } from '../../lib/dataconnect';
-import { storage } from '../../services/firebase';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import React, { useState } from 'react';
 
-const SCOPE_OPTIONS = ['News', 'Department', 'District', 'Court', 'Leaders', 'Reverends', 'Admins', 'All'];
+const SCOPE_OPTIONS = ['News', 'Department', 'District', 'Court', 'Leaders', 'All'];
 
 const UploadScreen = ({ onCancel, onDone }) => {
   const [content, setContent] = useState('');
   const [scope, setScope] = useState('News');
-  const [isAnonymous, setIsAnonymous] = useState(false);
-  const [attachments, setAttachments] = useState([]);
-  const fileInputRef = useRef(null);
 
-  const handleFileSelect = (e) => {
-    const files = e.target.files;
-    if (files) {
-      Array.from(files).forEach(file => {
-        const type = file.type.startsWith('image/')
-          ? 'photo'
-          : file.type.startsWith('video/')
-            ? 'video'
-            : 'document';
-
-        if (type === 'photo') {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            setAttachments(prev => [...prev, {
-              id: Date.now() + Math.random(),
-              type: 'photo',
-              name: file.name,
-              data: event.target.result,
-              file: file
-            }]);
-          };
-          reader.readAsDataURL(file);
-        } else {
-          setAttachments(prev => [...prev, {
-            id: Date.now() + Math.random(),
-            type: type,
-            name: file.name,
-            data: null,
-            file: file
-          }]);
-        }
-      });
-    }
-  };
-
-  const removeAttachment = (id) => {
-    setAttachments(attachments.filter(att => att.id !== id));
-  };
-
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!content.trim() && attachments.length === 0) return;
-    if (!user) return;
-
-    setLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('content', content);
-      formData.append('targetGroup', scope); // Maps to 'targetGroup' in your backend req.body
-      
-      if (isAnonymous) {
-        formData.append('authorUid', 'anonymous');
-        // Let backend handle 'anonymous' authorUid properly, or pass explicit name if supported.
-      } else {
-        formData.append('authorUid', user.uid);
-      }
-
-      // 2. Attach the file if it exists
-      const firstAttachment = attachments[0];
-      if (firstAttachment && firstAttachment.file) {
-        formData.append('file', firstAttachment.file); // Maps to upload.single('file') in backend
-      }
-
-      // 3. Send it to your Node.js Express server instead of Firebase directly
-      // Determine the backend URL dynamically (defaults to port 5000)
-      const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${backendUrl}/api/announcements`, {
-        method: 'POST',
-        body: formData,
-        // Note: Do NOT manually set Content-Type header when using FormData with fetch.
-        // The browser will automatically set it and add the correct boundary string.
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log('Success:', data);
-
-      onDone();
-    } catch (err) {
-      console.error('Error creating post:', err);
-    } finally {
-      setLoading(false);
-    }
+    if (!content.trim()) return;
+    
+    // In a production environment, this is where you would call 
+    // Firebase Firestore to save the post and Firebase Storage for images.
+    console.log('Publishing post:', { 
+      content, 
+      scope, 
+      timestamp: new Date() 
+    });
+    
+    onDone();
   };
 
   return (
-    <div className="upload-screen" style={{
-      padding: '24px',
-      display: 'flex',
-      flexDirection: 'column',
+    <div className="upload-screen" style={{ 
+      padding: '24px', 
+      display: 'flex', 
+      flexDirection: 'column', 
       gap: '24px',
       height: '100%',
-      boxSizing: 'border-box',
-      overflowY: 'auto'
+      boxSizing: 'border-box'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>Create a Post</h2>
-        <button
-          onClick={onCancel}
-          style={{
-            background: '#f0f0f0',
-            border: 'none',
-            borderRadius: '50%',
-            width: '32px',
-            height: '32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+        <button 
+          onClick={onCancel} 
+          style={{ 
+            background: '#f0f0f0', 
+            border: 'none', 
+            borderRadius: '50%', 
+            width: '32px', 
+            height: '32px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
             cursor: 'pointer',
             fontSize: '18px',
             color: '#666'
@@ -136,13 +52,13 @@ const UploadScreen = ({ onCancel, onDone }) => {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1 }}>
         <div>
           <label style={labelStyle}>Share with:</label>
-          <div style={{
-            display: 'flex',
-            overflowX: 'auto',
-            gap: '8px',
+          <div style={{ 
+            display: 'flex', 
+            overflowX: 'auto', 
+            gap: '8px', 
             padding: '8px 0',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none'
@@ -172,15 +88,16 @@ const UploadScreen = ({ onCancel, onDone }) => {
           </div>
         </div>
 
-        <div>
+        <div style={{ flex: 1 }}>
           <label style={labelStyle}>Message</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Write something to the community..."
+            required
             style={{
               width: '100%',
-              minHeight: '120px',
+              height: '180px',
               padding: '16px',
               borderRadius: '12px',
               border: '1px solid #ddd',
@@ -194,99 +111,25 @@ const UploadScreen = ({ onCancel, onDone }) => {
           />
         </div>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          onChange={handleFileSelect}
-          style={{ display: 'none' }}
-        />
-
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button
-            type="button"
+          <button 
+            type="button" 
             style={secondaryButtonStyle}
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => alert('Media upload functionality coming soon!')}
           >
-            Add Document
+            📷 Photo
+          </button>
+          <button 
+            type="button" 
+            style={secondaryButtonStyle}
+            onClick={() => alert('File attachment functionality coming soon!')}
+          >
+            📎 File
           </button>
         </div>
 
-        {attachments.length > 0 && (
-          <div>
-            <label style={labelStyle}>Attachments ({attachments.length})</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px' }}>
-              {attachments.map(att => (
-                <div key={att.id} style={{ position: 'relative' }}>
-                  {att.type === 'photo' ? (
-                    <img
-                      src={att.data}
-                      alt={att.name}
-                      style={{
-                        width: '100%',
-                        height: '100px',
-                        objectFit: 'cover',
-                        borderRadius: '8px'
-                      }}
-                    />
-                  ) : (
-                    <div style={{
-                      width: '100%',
-                      height: '100px',
-                      backgroundColor: '#f0f0f0',
-                      borderRadius: '8px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '2rem'
-                    }}>
-                      {att.type === 'video' ? '🎥' : '📄'}
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => removeAttachment(att.id)}
-                    style={{
-                      position: 'absolute',
-                      top: '4px',
-                      right: '4px',
-                      width: '24px',
-                      height: '24px',
-                      borderRadius: '50%',
-                      backgroundColor: 'rgba(0,0,0,0.6)',
-                      color: 'white',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    ✕
-                  </button>
-                  <p style={{ fontSize: '0.75rem', margin: '4px 0 0 0', color: '#666', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {att.name}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <input
-            type="checkbox"
-            id="anonymousToggle"
-            checked={isAnonymous}
-            onChange={(e) => setIsAnonymous(e.target.checked)}
-            style={{ transform: 'scale(1.2)', accentColor: 'var(--accent)', cursor: 'pointer' }}
-          />
-          <label htmlFor="anonymousToggle" style={{ fontSize: '0.9rem', fontWeight: '600', color: '#555', cursor: 'pointer' }}>
-            Post Anonymously
-          </label>
-        </div>
-
-        <button type="submit" disabled={loading} style={submitButtonStyle}>
-          {loading ? 'Posting...' : `Post to ${scope}`}
+        <button type="submit" style={submitButtonStyle}>
+          Post to {scope}
         </button>
       </form>
     </div>
