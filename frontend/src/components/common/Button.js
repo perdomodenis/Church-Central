@@ -7,8 +7,6 @@ function Button({
     type = 'button',
     variant = 'primary',
     disabled = false,
-    loading = false,
-    className = '',
 }) {
     const buttonClass = `button ${variant}`;
 
@@ -17,10 +15,10 @@ function Button({
         type={type}
         onClick={onClick}
         disabled={disabled}
-        className={`btn btn-${variant} ${className}`}
+        className={buttonClass}
         >
-    {loading ? '⏳ Lädt...' : children}
-</button>
+        {children}
+        </button>
     );
 }
 

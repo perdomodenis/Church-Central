@@ -1,8 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { auth } from '../../services/firebase';
-import { signOut } from 'firebase/auth';
+import React from "react";
+import { Link } from "react-router-dom";
+import {useAuth} from '../../context/AuthContext';
 import './Header.css';
 
 function Header() {
