@@ -61,3 +61,97 @@ The application is **entirely web-based**, allowing for use without direct insta
 * High volume of simultaneous notifications.
 * Data privacy (Datenschutz).
 * Authentication (Authentifizierung).
+
+---
+
+## 🚀 Installations- und Setup-Anleitung (Hands-off)
+
+Diese Anleitung beschreibt, wie Sie das komplette System (Frontend & Backend) manuell oder vollautomatisch mittels Docker Compose in Betrieb nehmen können.
+
+### 📋 Voraussetzungen
+Stellen Sie sicher, dass folgende Software auf Ihrem System installiert ist:
+* **Docker & Docker Compose** (Empfohlen für vollautomatisches Setup)
+* **Node.js (v18+)** und **npm** (Für lokales manuelles Setup)
+* **Git** (Zum Klonen des Repositories)
+
+---
+
+### 🐳 Option A: Vollautomatisches Setup mit Docker Compose (Empfohlen)
+
+Mit Docker Compose können Sie das gesamte System (React Frontend, Express Backend und lokale Services) mit einem einzigen Befehl starten, ohne vorher Abhängigkeiten installieren zu müssen:
+
+1. **Repository klonen:**
+   ```bash
+   git clone https://github.com/perdomodenis/Church-Central.git
+   cd Church-Central
+   ```
+
+2. **Container bauen und starten:**
+   Führen Sie im Stammverzeichnis (wo sich `docker-compose.yml` befindet) folgenden Befehl aus:
+   ```bash
+   docker-compose up --build
+   ```
+
+3. **Applikation aufrufen:**
+   * **Frontend:** Öffnen Sie [http://localhost:3000](http://localhost:3000) im Browser.
+   * **Backend-API:** Erreichbar unter [http://localhost:5000](http://localhost:5000).
+
+4. **Container stoppen:**
+   ```bash
+   docker-compose down
+   ```
+
+---
+
+### 💻 Option B: Lokales manuelles Setup (Entwicklungsmodus)
+
+Falls Sie die Applikation direkt auf Ihrem Host-System ausführen möchten:
+
+1. **Repository klonen:**
+   ```bash
+   git clone https://github.com/perdomodenis/Church-Central.git
+   cd Church-Central
+   ```
+
+2. **Alle Abhängigkeiten installieren (Monorepo-Befehl):**
+   ```bash
+   npm run install:all
+   ```
+   *(Dieser Befehl installiert die npm-Pakete im Root sowie in den Unterordnern `frontend/` und `backend/`).*
+
+3. **Applikation starten:**
+   Starten Sie Frontend und Backend gleichzeitig über das Root-Verzeichnis:
+   ```bash
+   npm start
+   ```
+   *(Dieser Befehl nutzt `concurrently` und startet das Frontend auf Port `3000` sowie den Backend-Server im Entwicklungsmodus).*
+
+---
+
+### 🔑 Test-Benutzerdaten (Credentials)
+
+Für die manuelle Bewertung können Sie sich mit folgendem Standard-Testbenutzer in der App anmelden:
+
+* **E-Mail-Adresse:** `test@test.ch`
+* **Passwort:** `test123`
+
+---
+
+### 🧪 Ausführen der Test-Suites
+
+* **Frontend-Tests ausführen:**
+  ```bash
+  cd frontend
+  npm test -- --watchAll=false
+  ```
+* **Backend-Tests ausführen:**
+  ```bash
+  cd backend
+  npm test
+  ```
+* **Cypress E2E-Tests starten (Frontend muss laufen):**
+  ```bash
+  cd frontend
+  npx cypress open
+  ```
+
