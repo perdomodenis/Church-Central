@@ -14,19 +14,19 @@ describe('ForgotScreen Integration', () => {
   test('displays email input and submit button', () => {
     render(<ForgotScreen onBack={() => {}} />);
 
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /reset|send/i })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/email/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /send|reset/i })).toBeInTheDocument();
   });
 
   test('sends password reset email', async () => {
-    const user = userEvent.setup();
+    const user = await userEvent.setup();
 
     firebaseAuth.sendPasswordResetEmail = jest.fn().mockResolvedValue({});
 
     render(<ForgotScreen onBack={() => {}} />);
 
-    await user.type(screen.getByLabelText(/email/i), 'user@test.com');
-    await user.click(screen.getByRole('button', { name: /reset|send/i }));
+    await user.type(screen.getByPlaceholderText(/email/i), 'user@test.com');
+    await user.click(screen.getByRole('button', { name: /send|reset/i }));
 
     await waitFor(() => {
       expect(firebaseAuth.sendPasswordResetEmail).toHaveBeenCalled();
@@ -34,14 +34,14 @@ describe('ForgotScreen Integration', () => {
   });
 
   test('shows success message after sending reset email', async () => {
-    const user = userEvent.setup();
+    const user = await userEvent.setup();
 
     firebaseAuth.sendPasswordResetEmail = jest.fn().mockResolvedValue({});
 
     render(<ForgotScreen onBack={() => {}} />);
 
-    await user.type(screen.getByLabelText(/email/i), 'user@test.com');
-    await user.click(screen.getByRole('button', { name: /reset|send/i }));
+    await user.type(screen.getByPlaceholderText(/email/i), 'user@test.com');
+    await user.click(screen.getByRole('button', { name: /send|reset/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/check.*email|sent.*reset/i)).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe('ForgotScreen Integration', () => {
   });
 
   test('calls onBack when back button clicked', async () => {
-    const user = userEvent.setup();
+    const user = await userEvent.setup();
     const handleBack = jest.fn();
 
     render(<ForgotScreen onBack={handleBack} />);

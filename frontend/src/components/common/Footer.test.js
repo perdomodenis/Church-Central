@@ -17,7 +17,8 @@ describe('Footer Component', () => {
 
   test('contains required links', () => {
     render(<Footer />);
-    expect(screen.getByText(/privacy|policy|contact/i)).toBeInTheDocument();
+    expect(screen.getByText(/privacy/i)).toBeInTheDocument();
+    expect(screen.getByText(/contact/i)).toBeInTheDocument();
   });
 
   test('applies footer-specific styling', () => {

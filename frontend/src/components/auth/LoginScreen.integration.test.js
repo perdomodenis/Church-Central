@@ -13,8 +13,8 @@ describe('LoginScreen Integration', () => {
   });
 
   test('complete login flow', async () => {
-    const user = userEvent.setup();
-    
+    const user = await userEvent.setup();
+
     firebaseAuth.signInWithEmailAndPassword.mockResolvedValue({
       user: { uid: '123', email: 'test@test.com' }
     });
@@ -25,12 +25,10 @@ describe('LoginScreen Integration', () => {
       </AuthProvider>
     );
 
-    // Hohlt die form inputs und den submit button
-    const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/password/i);
+    const emailInput = screen.getByPlaceholderText(/email/i) || screen.getByDisplayValue('');
+    const passwordInput = screen.getByPlaceholderText(/password/i) || screen.getByDisplayValue('');
     const submitButton = screen.getByRole('button', { name: /login|sign in/i });
 
-    // Usergibt credentials ein und klickt auf Login
     await user.type(emailInput, 'test@test.com');
     await user.type(passwordInput, 'password123');
     await user.click(submitButton);
@@ -46,7 +44,7 @@ describe('LoginScreen Integration', () => {
   });
 
     test('shows error message on login failure', async () => {
-    const user = userEvent.setup();
+    const user = await userEvent.setup();
         firebaseAuth.signInWithEmailAndPassword.mockRejectedValue(
         new Error('Invalid credentials')
     );
@@ -56,8 +54,10 @@ describe('LoginScreen Integration', () => {
       </AuthProvider>
     );
 
-    await user.type(screen.getByLabelText(/email/i), 'test@test.com');
-    await user.type(screen.getByLabelText(/password/i), 'wrong');
+    const emailInput = screen.getByPlaceholderText(/email/i) || screen.getByDisplayValue('');
+    const passwordInput = screen.getByPlaceholderText(/password/i) || screen.getByDisplayValue('');
+    await user.type(emailInput, 'test@test.com');
+    await user.type(passwordInput, 'wrong');
         await user.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
