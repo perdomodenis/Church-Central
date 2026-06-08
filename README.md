@@ -3,10 +3,10 @@ The app simplifies and centralizes event planning and information sharing. Users
 
 ---
 
-Developers
-https://github.com/perdomodenis
-https://github.com/EriskReyes
-https://github.com/Neox-R
+## Developers
+* https://github.com/perdomodenis
+* https://github.com/EriskReyes
+* https://github.com/Neox-R
 
 ---
 
