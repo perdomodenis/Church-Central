@@ -3,6 +3,13 @@ The app simplifies and centralizes event planning and information sharing. Users
 
 ---
 
+Developers
+https://github.com/perdomodenis
+https://github.com/EriskReyes
+https://github.com/Neox-R
+
+---
+
 **Date:** April 2, 2026
 
 ## Purpose and Vision
