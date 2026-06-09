@@ -1,16 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
+import { rtdb } from '../../services/firebase';
+import { ref, onValue, set as rtdbSet } from 'firebase/database';
 
 const InboxScreen = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [messages, setMessages] = useState([]);
 
+  useEffect(() => {
+    if (!user) return;
+    const inboxRef = ref(rtdb, `inbox/${user.uid}`);
+    const unsubscribe = onValue(inboxRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.entries(data).map(([id, val]) => ({
+          id,
+          ...val
+        })).sort((a, b) => b.timestamp - a.timestamp);
+        setMessages(list);
+      } else {
+        setMessages([]);
+      }
+    });
+    return () => unsubscribe();
+  }, [user]);
+
   const handleOpenMessage = (messageId) => {
     setSelectedMessage(messageId);
-    setMessages(messages.map(msg =>
-      msg.id === messageId ? { ...msg, read: true } : msg
-    ));
+    if (user) {
+      rtdbSet(ref(rtdb, `inbox/${user.uid}/${messageId}/read`), true);
+    }
   };
 
   if (selectedMessage) {
@@ -31,24 +53,26 @@ const InboxScreen = () => {
           ← {t('back')}
         </button>
 
-        <div style={cardStyle}>
-          <div style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '16px' }}>
-            <p style={{ color: '#666', fontSize: '0.9rem', margin: '0 0 8px 0' }}>{t('from')}: {message.sender}</p>
-            <h2 style={{ margin: '0 0 8px 0', color: '#111', fontSize: '1.3rem', fontWeight: '700' }}>
-              {message.subject}
-            </h2>
-            <p style={{ color: '#999', fontSize: '0.85rem', margin: 0 }}>{message.time}</p>
-          </div>
+        {message && (
+          <div style={cardStyle}>
+            <div style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '16px' }}>
+              <p style={{ color: '#666', fontSize: '0.9rem', margin: '0 0 8px 0' }}>{t('from')}: {message.sender}</p>
+              <h2 style={{ margin: '0 0 8px 0', color: '#111', fontSize: '1.3rem', fontWeight: '700' }}>
+                {message.subject}
+              </h2>
+              <p style={{ color: '#999', fontSize: '0.85rem', margin: 0 }}>{message.time}</p>
+            </div>
 
-          <div style={{
-            color: '#333',
-            fontSize: '0.95rem',
-            lineHeight: '1.6',
-            whiteSpace: 'pre-wrap'
-          }}>
-            {message.body}
+            <div style={{
+              color: '#333',
+              fontSize: '0.95rem',
+              lineHeight: '1.6',
+              whiteSpace: 'pre-wrap'
+            }}>
+              {message.body}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }

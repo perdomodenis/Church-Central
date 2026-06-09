@@ -3,6 +3,8 @@ import * as Icon from '../common/Icons';
 import { listFeedPosts } from '../../lib/dataconnect';
 import './FeedScreen.css';
 import { useLanguage } from '../../context/LanguageContext';
+import { rtdb } from '../../services/firebase';
+import { ref, onValue, set as rtdbSet, push, remove } from 'firebase/database';
 
 const toCamelCase = (str) => {
   if (!str) return '';
@@ -44,16 +46,14 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
   const { t } = useLanguage();
   const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
   const [posts, setPosts] = useState([]);
-  const [postComments, setPostComments] = useState({});
+
   const [expandedPost, setExpandedPost] = useState(null);
   const [commentText, setCommentText] = useState({});
   const [selectedPost, setSelectedPost] = useState(null);
 
   // High fidelity UI states
-  const [likedPosts, setLikedPosts] = useState(() => {
-    const saved = localStorage.getItem('likedPosts:v1');
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
+  const [dbLikes, setDbLikes] = useState({});
+  const [dbComments, setDbComments] = useState({});
   const [floatingEmojis, setFloatingEmojis] = useState([]);
   const [heartbeatActive, setHeartbeatActive] = useState({});
   const [viewingPdfInline, setViewingPdfInline] = useState({});
@@ -90,10 +90,23 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
     { id: 'ev4', title: t('social'), date: '13', month: 'Jun', time: '09:00 AM', loc: 'Dining Area' }
   ];
 
-  // Sync liked posts to localStorage
+  // Sync RTDB likes and comments in real-time
   useEffect(() => {
-    localStorage.setItem('likedPosts:v1', JSON.stringify(Array.from(likedPosts)));
-  }, [likedPosts]);
+    const likesRef = ref(rtdb, 'feed_likes');
+    const unsubscribeLikes = onValue(likesRef, (snapshot) => {
+      setDbLikes(snapshot.val() || {});
+    });
+
+    const commentsRef = ref(rtdb, 'feed_comments');
+    const unsubscribeComments = onValue(commentsRef, (snapshot) => {
+      setDbComments(snapshot.val() || {});
+    });
+
+    return () => {
+      unsubscribeLikes();
+      unsubscribeComments();
+    };
+  }, []);
 
   // Sync RSVPs to localStorage
   useEffect(() => {
@@ -130,6 +143,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
 
   const handleLikeClick = (postId, e) => {
     e.stopPropagation();
+    if (!user) return;
 
     // Trigger heartbeat animation on button
     setHeartbeatActive(prev => ({ ...prev, [postId]: true }));
@@ -137,13 +151,13 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
       setHeartbeatActive(prev => ({ ...prev, [postId]: false }));
     }, 350);
 
-    const updated = new Set(likedPosts);
-    const wasLiked = updated.has(postId);
+    const userLikeRef = ref(rtdb, `feed_likes/${postId}/${user.uid}`);
+    const isCurrentlyLiked = !!dbLikes[postId]?.[user.uid];
 
-    if (wasLiked) {
-      updated.delete(postId);
+    if (isCurrentlyLiked) {
+      remove(userLikeRef);
     } else {
-      updated.add(postId);
+      rtdbSet(userLikeRef, true);
       
       // Spawn floating like emoji at mouse click position (or button center if keyboard)
       const rect = e.currentTarget.getBoundingClientRect();
@@ -166,8 +180,6 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
       // Trigger standard action notification
       if (onAction) onAction('pray');
     }
-
-    setLikedPosts(updated);
   };
 
   const handleRSVP = (eventId, status) => {
@@ -193,21 +205,58 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
     return post.scope === scope;
   });
 
-  const handleAddComment = (postId) => {
+  const handleAddComment = async (postId) => {
     const text = commentText[postId] || '';
-    if (!text.trim()) return;
+    if (!text.trim() || !user) return;
 
-    setPostComments(prev => ({
-      ...prev,
-      [postId]: [
-        ...(prev[postId] || posts.find(p => p.id === postId)?.comments || []),
-        {
-          id: Date.now(),
-          author: user ? `${user.first} ${user.last}` : 'You',
-          text: text
-        }
-      ]
-    }));
+    const commentsListRef = ref(rtdb, `feed_comments/${postId}`);
+    const newCommentRef = push(commentsListRef);
+    
+    const newComment = {
+      author: `${user.first} ${user.last}`.trim(),
+      authorId: user.uid,
+      text: text,
+      timestamp: Date.now()
+    };
+
+    await rtdbSet(newCommentRef, newComment);
+
+    // Check for @-mentions to notify in inbox
+    const mentionRegex = /@([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)/g;
+    let match;
+    const notifiedUsers = new Set();
+    while ((match = mentionRegex.exec(text)) !== null) {
+      const firstName = match[1].toLowerCase();
+      const lastName = match[2].toLowerCase();
+      const matchedMember = members.find(m => m.first.toLowerCase() === firstName && m.last.toLowerCase() === lastName);
+      if (matchedMember && matchedMember.uid !== user.uid) {
+        notifiedUsers.add(matchedMember.uid);
+      }
+    }
+
+    const singleMentionRegex = /@([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)(?!\s+[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)/g;
+    while ((match = singleMentionRegex.exec(text)) !== null) {
+      const firstName = match[1].toLowerCase();
+      const matchedMembers = members.filter(m => m.first.toLowerCase() === firstName);
+      if (matchedMembers.length === 1 && matchedMembers[0].uid !== user.uid) {
+        notifiedUsers.add(matchedMembers[0].uid);
+      }
+    }
+
+    for (const targetUid of notifiedUsers) {
+      const notificationRef = ref(rtdb, `inbox/${targetUid}`);
+      const newNotificationRef = push(notificationRef);
+      await rtdbSet(newNotificationRef, {
+        sender: `${user.first} ${user.last}`.trim(),
+        senderId: user.uid,
+        subject: 'You were mentioned in a comment',
+        preview: `${user.first} mentioned you: "${text.substring(0, 40)}${text.length > 40 ? '...' : ''}"`,
+        body: `Hi! ${user.first} ${user.last} mentioned you in a comment on a feed post:\n\n"${text}"\n\nGo check it out in the home feed!`,
+        time: new Date().toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('de-CH', { day: 'numeric', month: 'short' }),
+        timestamp: Date.now(),
+        read: false
+      });
+    }
 
     setCommentText(prev => ({
       ...prev,
@@ -281,7 +330,11 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
 
 
   const getPostComments = (postId) => {
-    return postComments[postId] || posts.find(p => p.id === postId)?.comments || [];
+    const list = dbComments[postId] || {};
+    return Object.entries(list).map(([id, val]) => ({
+      id,
+      ...val
+    })).sort((a, b) => a.timestamp - b.timestamp);
   };
 
   const commentCount = (postId) => getPostComments(postId).length;
@@ -408,8 +461,8 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
         {/* Announcements List */}
         {filteredPosts.length > 0 ? (
           filteredPosts.map(post => {
-            const hasLiked = likedPosts.has(post.id);
-            const totalLikes = post.likes + (hasLiked ? 1 : 0);
+            const hasLiked = !!dbLikes[post.id]?.[user?.uid];
+            const totalLikes = (post.likes || 0) + Object.keys(dbLikes[post.id] || {}).length;
             const isPdf = isPdfUrl(post.image);
             const showPdfInline = viewingPdfInline[post.id];
 
