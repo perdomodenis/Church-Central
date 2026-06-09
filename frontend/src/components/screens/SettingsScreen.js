@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useNotification } from '../../context/NotificationContext';
 
 
 const ACCENT_PRESETS = [
@@ -13,6 +14,7 @@ const ACCENT_PRESETS = [
 
 const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, setDarkMode }) => {
   const { t } = useLanguage();
+  const { pushEnabled, togglePushNotifications } = useNotification();
 
   return (
     <div className="settings-screen" style={{ padding: '24px', paddingBottom: '100px' }}>
@@ -78,10 +80,15 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
       <div style={sectionStyle}>
         <h3 style={sectionTitleStyle}>{t('preferences')}</h3>
         <div style={cardStyle}>
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-             <span style={{ fontWeight: '700', color: '#111' }}>{t('pushNotifications')}</span>
-             <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
-           </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: '700', color: '#111' }}>{t('pushNotifications')}</span>
+              <input 
+                type="checkbox" 
+                checked={pushEnabled} 
+                onChange={(e) => togglePushNotifications(e.target.checked)}
+                style={{ width: '20px', height: '20px', cursor: 'pointer' }} 
+              />
+            </div>
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { getAllMembers } from '../../services/memberService';
 import { createAppointmentRequest, getPendingAppointments, getApprovedAppointments, getRejectedAppointments } from '../../services/appointmentService';
 import { getAccessLevel } from '../../services/churchConstants';
+import { sendInboxNotification } from '../../services/notificationService';
 
 const AppointmentScreen = ({ user }) => {
   const { t } = useLanguage();
@@ -94,6 +95,17 @@ const AppointmentScreen = ({ user }) => {
         slots,
         reason
       );
+
+      // Send inbox notification to PA or Leader
+      const targetUid = paUid || selectedLeader.uid;
+      const recipientName = paUid ? 'PA of ' + selectedLeader.first : selectedLeader.first;
+      await sendInboxNotification(targetUid, {
+        sender: requesterName,
+        senderId: user ? user.uid : 'guest',
+        subject: 'New Appointment Request',
+        preview: `${requesterName} requested an appointment: "${reason.substring(0, 40)}${reason.length > 40 ? '...' : ''}"`,
+        body: `Hi ${recipientName}!\n\n${requesterName} has requested an appointment with ${selectedLeader.first} ${selectedLeader.last}.\n\nReason: "${reason}"\n\nSuggested slots:\n- Option 1: ${slots[0].date} at ${slots[0].time}\n- Option 2: ${slots[1].date} at ${slots[1].time}\n- Option 3: ${slots[2].date} at ${slots[2].time}\n\nPlease review and approve/reject this request in the Management tab.`
+      });
 
       alert(t('appointmentRequestSubmitted'));
       

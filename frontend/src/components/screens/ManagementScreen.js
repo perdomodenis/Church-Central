@@ -3,6 +3,7 @@ import { approveAppointment, rejectAppointment, getPendingAppointments, getAppro
 import { getDepartmentRequests, approveDepartmentRequest, rejectDepartmentRequest } from '../../services/departmentService';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { sendInboxNotificationByEmail } from '../../services/notificationService';
 
 const toCamelCase = (str) => {
   if (!str) return '';
@@ -93,6 +94,15 @@ const ManagementScreen = ({ user }) => {
         };
         setPendingAppointments(prev => prev.filter(app => app.id !== id));
         setApprovedAppointments(prev => [approvedObj, ...prev]);
+
+        // Send inbox notification to the requester
+        await sendInboxNotificationByEmail(appObj.requesterEmail, {
+          sender: authUser?.displayName || 'CCI Staff',
+          senderId: authUser?.uid || 'system',
+          subject: 'Appointment Approved',
+          preview: `Your appointment request has been approved for ${date} at ${time}.`,
+          body: `Hi ${appObj.requester}!\n\nYour appointment request with ${appObj.staff} has been approved by ${authUser?.displayName || 'CCI Staff'}.\n\nScheduled Date & Time:\n- Date: ${date}\n- Time: ${time}\n\nThank you!`
+        });
       }
       alert(t('appointmentApproved'));
     } catch (error) {
@@ -117,6 +127,15 @@ const ManagementScreen = ({ user }) => {
         };
         setPendingAppointments(prev => prev.filter(app => app.id !== id));
         setRejectedAppointments(prev => [rejectedObj, ...prev]);
+
+        // Send inbox notification to the requester
+        await sendInboxNotificationByEmail(appObj.requesterEmail, {
+          sender: authUser?.displayName || 'CCI Staff',
+          senderId: authUser?.uid || 'system',
+          subject: 'Appointment Declined',
+          preview: `Your appointment request with ${appObj.staff} was declined.`,
+          body: `Hi ${appObj.requester}!\n\nYour appointment request with ${appObj.staff} could not be scheduled at this time.\n\nDecision by: ${authUser?.displayName || 'CCI Staff'}\nReason: ${reason}`
+        });
       }
       alert(t('appointmentRejected'));
     } catch (error) {

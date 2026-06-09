@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { useAuth } from './context/AuthContext';
+import { useNotification } from './context/NotificationContext';
 import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from './services/firebase';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { seedLiveData } from './services/liveData';
@@ -49,6 +50,7 @@ const ACCENT_PRESETS = [
 function App() {
   const { user: authUser, loading: authLoading } = useAuth();
   const { t } = useLanguage();
+  const { hasNewInbox } = useNotification();
 
   // Route state machine
   const [route, setRoute] = useState(() => localStorage.getItem('lastRoute') || 'login');
@@ -407,6 +409,7 @@ function App() {
           scope={scope}
           scopeOptions={route === 'home' ? scopeOptions : null}
           user={user}
+          hasNewInbox={hasNewInbox}
           title={
             route === 'inbox' ? t('inbox') :
             route === 'messages' ? t('messages') :

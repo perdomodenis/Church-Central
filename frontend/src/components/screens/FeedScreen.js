@@ -5,6 +5,7 @@ import './FeedScreen.css';
 import { useLanguage } from '../../context/LanguageContext';
 import { rtdb } from '../../services/firebase';
 import { ref, onValue, set as rtdbSet, push, remove } from 'firebase/database';
+import { sendInboxNotification } from '../../services/notificationService';
 
 const toCamelCase = (str) => {
   if (!str) return '';
@@ -244,17 +245,12 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
     }
 
     for (const targetUid of notifiedUsers) {
-      const notificationRef = ref(rtdb, `inbox/${targetUid}`);
-      const newNotificationRef = push(notificationRef);
-      await rtdbSet(newNotificationRef, {
+      await sendInboxNotification(targetUid, {
         sender: `${user.first} ${user.last}`.trim(),
         senderId: user.uid,
         subject: 'You were mentioned in a comment',
         preview: `${user.first} mentioned you: "${text.substring(0, 40)}${text.length > 40 ? '...' : ''}"`,
-        body: `Hi! ${user.first} ${user.last} mentioned you in a comment on a feed post:\n\n"${text}"\n\nGo check it out in the home feed!`,
-        time: new Date().toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('de-CH', { day: 'numeric', month: 'short' }),
-        timestamp: Date.now(),
-        read: false
+        body: `Hi! ${user.first} ${user.last} mentioned you in a comment on a feed post:\n\n"${text}"\n\nGo check it out in the home feed!`
       });
     }
 
