@@ -203,6 +203,18 @@ const translations = {
     yourAppointments: 'Your Appointments',
     noAppointmentsYet: 'No appointments scheduled yet',
     appointmentRequestSubmitted: 'Your appointment request has been submitted for review.',
+    appointmentOption1: 'Option 1 (Preferred)',
+    appointmentOption2: 'Option 2',
+    appointmentOption3: 'Option 3',
+    selectLeaderGallery: 'Select a Leader to Meet With',
+    approvedSlot: 'Approved Slot',
+    assignPA: 'Personal Assistant (PA)',
+    personalAssistant: 'Personal Assistant',
+    noPASelected: 'No PA Selected',
+    selectSlotToApprove: 'Select which slot option to approve:',
+    slotOption1: 'Option 1',
+    slotOption2: 'Option 2',
+    slotOption3: 'Option 3',
 
     // Management
     appointmentApproved: '✅ Appointment approved!',

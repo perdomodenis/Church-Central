@@ -42,14 +42,20 @@ export const getRejectedAppointments = async () => {
 };
 
 // Create a new appointment request
-export const createAppointmentRequest = async (requesterName, requesterEmail, staff, date, time, reason) => {
+export const createAppointmentRequest = async (requesterName, requesterEmail, staff, leaderUid, paUid, slots, reason) => {
   try {
     const response = await dbCreateAppointment(dataConnect, {
       requester: requesterName,
       requesterEmail,
       staff,
-      date,
-      time,
+      leaderUid,
+      paUid: paUid || null,
+      date1: slots[0].date,
+      time1: slots[0].time,
+      date2: slots[1].date,
+      time2: slots[1].time,
+      date3: slots[2].date,
+      time3: slots[2].time,
       reason,
       type: 'Consultation'
     });
@@ -61,11 +67,14 @@ export const createAppointmentRequest = async (requesterName, requesterEmail, st
 };
 
 // Approve an appointment
-export const approveAppointment = async (appointmentId, approvedBy) => {
+export const approveAppointment = async (appointmentId, approvedBy, selectedSlot, date, time) => {
   try {
     await dbApproveAppointment(dataConnect, {
       id: appointmentId,
-      approvedBy
+      approvedBy,
+      selectedSlot,
+      date,
+      time
     });
     return true;
   } catch (error) {
@@ -88,3 +97,4 @@ export const rejectAppointment = async (appointmentId, rejectedBy, reason) => {
     throw error;
   }
 };
+

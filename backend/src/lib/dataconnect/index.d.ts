@@ -25,6 +25,9 @@ export interface ApproveAppointmentData {
 export interface ApproveAppointmentVariables {
   id: UUIDString;
   approvedBy: string;
+  selectedSlot: number;
+  date: string;
+  time: string;
 }
 
 export interface BaptismEvent_Key {
@@ -78,8 +81,14 @@ export interface CreateAppointmentRequestVariables {
   requester: string;
   requesterEmail: string;
   staff: string;
-  date: string;
-  time: string;
+  leaderUid: string;
+  paUid?: string | null;
+  date1: string;
+  time1: string;
+  date2: string;
+  time2: string;
+  date3: string;
+  time3: string;
   reason: string;
   type: string;
 }
@@ -205,6 +214,11 @@ export interface GetUserProfileData {
     status?: string | null;
     recentActivity?: string | null;
     interests?: string[] | null;
+    pa?: {
+      uid: string;
+      first: string;
+      last: string;
+    } & User_Key;
   } & User_Key;
 }
 
@@ -218,14 +232,33 @@ export interface ListApprovedAppointmentsData {
     requester: string;
     requesterEmail: string;
     staff: string;
-    date: string;
-    time: string;
+    date1: string;
+    time1: string;
+    date2: string;
+    time2: string;
+    date3: string;
+    time3: string;
+    date?: string | null;
+    time?: string | null;
     reason: string;
     type: string;
     status: string;
     createdAt: TimestampString;
     approvedBy?: string | null;
     decidedAt?: TimestampString | null;
+    selectedSlot?: number | null;
+    leader?: {
+      uid: string;
+      first: string;
+      last: string;
+      profilePhoto?: string | null;
+      position?: string | null;
+    } & User_Key;
+      pa?: {
+        uid: string;
+        first: string;
+        last: string;
+      } & User_Key;
   } & AppointmentRequest_Key)[];
 }
 
@@ -318,6 +351,11 @@ export interface ListMembersData {
     status?: string | null;
     recentActivity?: string | null;
     interests?: string[] | null;
+    pa?: {
+      uid: string;
+      first: string;
+      last: string;
+    } & User_Key;
   } & User_Key)[];
 }
 
@@ -327,12 +365,30 @@ export interface ListPendingAppointmentsData {
     requester: string;
     requesterEmail: string;
     staff: string;
-    date: string;
-    time: string;
+    date1: string;
+    time1: string;
+    date2: string;
+    time2: string;
+    date3: string;
+    time3: string;
+    date?: string | null;
+    time?: string | null;
     reason: string;
     type: string;
     status: string;
     createdAt: TimestampString;
+    leader?: {
+      uid: string;
+      first: string;
+      last: string;
+      profilePhoto?: string | null;
+      position?: string | null;
+    } & User_Key;
+      pa?: {
+        uid: string;
+        first: string;
+        last: string;
+      } & User_Key;
   } & AppointmentRequest_Key)[];
 }
 
@@ -342,8 +398,14 @@ export interface ListRejectedAppointmentsData {
     requester: string;
     requesterEmail: string;
     staff: string;
-    date: string;
-    time: string;
+    date1: string;
+    time1: string;
+    date2: string;
+    time2: string;
+    date3: string;
+    time3: string;
+    date?: string | null;
+    time?: string | null;
     reason: string;
     type: string;
     status: string;
@@ -351,6 +413,18 @@ export interface ListRejectedAppointmentsData {
     rejectedBy?: string | null;
     rejectionReason?: string | null;
     decidedAt?: TimestampString | null;
+    leader?: {
+      uid: string;
+      first: string;
+      last: string;
+      profilePhoto?: string | null;
+      position?: string | null;
+    } & User_Key;
+      pa?: {
+        uid: string;
+        first: string;
+        last: string;
+      } & User_Key;
   } & AppointmentRequest_Key)[];
 }
 
@@ -402,6 +476,11 @@ export interface SearchMembersData {
     status?: string | null;
     recentActivity?: string | null;
     interests?: string[] | null;
+    pa?: {
+      uid: string;
+      first: string;
+      last: string;
+    } & User_Key;
   } & User_Key)[];
 }
 
@@ -446,12 +525,68 @@ export interface UpsertUserProfileVariables {
   status?: string | null;
   recentActivity?: string | null;
   interests?: string[] | null;
+  paUid?: string | null;
 }
 
 export interface User_Key {
   uid: string;
   __typename?: 'User_Key';
 }
+
+/** Generated Node Admin SDK operation action function for the 'GetUserContext' Query. Allow users to execute without passing in DataConnect. */
+export function getUserContext(dc: DataConnect, vars: GetUserContextVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetUserContextData>>;
+/** Generated Node Admin SDK operation action function for the 'GetUserContext' Query. Allow users to pass in custom DataConnect instances. */
+export function getUserContext(vars: GetUserContextVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetUserContextData>>;
+
+/** Generated Node Admin SDK operation action function for the 'GetUserProfile' Query. Allow users to execute without passing in DataConnect. */
+export function getUserProfile(dc: DataConnect, vars: GetUserProfileVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetUserProfileData>>;
+/** Generated Node Admin SDK operation action function for the 'GetUserProfile' Query. Allow users to pass in custom DataConnect instances. */
+export function getUserProfile(vars: GetUserProfileVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetUserProfileData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListMembers' Query. Allow users to execute without passing in DataConnect. */
+export function listMembers(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListMembersData>>;
+/** Generated Node Admin SDK operation action function for the 'ListMembers' Query. Allow users to pass in custom DataConnect instances. */
+export function listMembers(options?: OperationOptions): Promise<ExecuteOperationResponse<ListMembersData>>;
+
+/** Generated Node Admin SDK operation action function for the 'SearchMembers' Query. Allow users to execute without passing in DataConnect. */
+export function searchMembers(dc: DataConnect, vars: SearchMembersVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<SearchMembersData>>;
+/** Generated Node Admin SDK operation action function for the 'SearchMembers' Query. Allow users to pass in custom DataConnect instances. */
+export function searchMembers(vars: SearchMembersVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<SearchMembersData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListFeedPosts' Query. Allow users to execute without passing in DataConnect. */
+export function listFeedPosts(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListFeedPostsData>>;
+/** Generated Node Admin SDK operation action function for the 'ListFeedPosts' Query. Allow users to pass in custom DataConnect instances. */
+export function listFeedPosts(options?: OperationOptions): Promise<ExecuteOperationResponse<ListFeedPostsData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListEvents' Query. Allow users to execute without passing in DataConnect. */
+export function listEvents(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListEventsData>>;
+/** Generated Node Admin SDK operation action function for the 'ListEvents' Query. Allow users to pass in custom DataConnect instances. */
+export function listEvents(options?: OperationOptions): Promise<ExecuteOperationResponse<ListEventsData>>;
+
+/** Generated Node Admin SDK operation action function for the 'GetEventDetails' Query. Allow users to execute without passing in DataConnect. */
+export function getEventDetails(dc: DataConnect, vars: GetEventDetailsVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetEventDetailsData>>;
+/** Generated Node Admin SDK operation action function for the 'GetEventDetails' Query. Allow users to pass in custom DataConnect instances. */
+export function getEventDetails(vars: GetEventDetailsVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetEventDetailsData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListBaptisms' Query. Allow users to execute without passing in DataConnect. */
+export function listBaptisms(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListBaptismsData>>;
+/** Generated Node Admin SDK operation action function for the 'ListBaptisms' Query. Allow users to pass in custom DataConnect instances. */
+export function listBaptisms(options?: OperationOptions): Promise<ExecuteOperationResponse<ListBaptismsData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListPendingAppointments' Query. Allow users to execute without passing in DataConnect. */
+export function listPendingAppointments(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListPendingAppointmentsData>>;
+/** Generated Node Admin SDK operation action function for the 'ListPendingAppointments' Query. Allow users to pass in custom DataConnect instances. */
+export function listPendingAppointments(options?: OperationOptions): Promise<ExecuteOperationResponse<ListPendingAppointmentsData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListApprovedAppointments' Query. Allow users to execute without passing in DataConnect. */
+export function listApprovedAppointments(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListApprovedAppointmentsData>>;
+/** Generated Node Admin SDK operation action function for the 'ListApprovedAppointments' Query. Allow users to pass in custom DataConnect instances. */
+export function listApprovedAppointments(options?: OperationOptions): Promise<ExecuteOperationResponse<ListApprovedAppointmentsData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListRejectedAppointments' Query. Allow users to execute without passing in DataConnect. */
+export function listRejectedAppointments(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListRejectedAppointmentsData>>;
+/** Generated Node Admin SDK operation action function for the 'ListRejectedAppointments' Query. Allow users to pass in custom DataConnect instances. */
+export function listRejectedAppointments(options?: OperationOptions): Promise<ExecuteOperationResponse<ListRejectedAppointmentsData>>;
 
 /** Generated Node Admin SDK operation action function for the 'UpsertUserProfile' Mutation. Allow users to execute without passing in DataConnect. */
 export function upsertUserProfile(dc: DataConnect, vars: UpsertUserProfileVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpsertUserProfileData>>;
@@ -522,59 +657,4 @@ export function approveAppointment(vars: ApproveAppointmentVariables, options?: 
 export function rejectAppointment(dc: DataConnect, vars: RejectAppointmentVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RejectAppointmentData>>;
 /** Generated Node Admin SDK operation action function for the 'RejectAppointment' Mutation. Allow users to pass in custom DataConnect instances. */
 export function rejectAppointment(vars: RejectAppointmentVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RejectAppointmentData>>;
-
-/** Generated Node Admin SDK operation action function for the 'GetUserContext' Query. Allow users to execute without passing in DataConnect. */
-export function getUserContext(dc: DataConnect, vars: GetUserContextVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetUserContextData>>;
-/** Generated Node Admin SDK operation action function for the 'GetUserContext' Query. Allow users to pass in custom DataConnect instances. */
-export function getUserContext(vars: GetUserContextVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetUserContextData>>;
-
-/** Generated Node Admin SDK operation action function for the 'GetUserProfile' Query. Allow users to execute without passing in DataConnect. */
-export function getUserProfile(dc: DataConnect, vars: GetUserProfileVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetUserProfileData>>;
-/** Generated Node Admin SDK operation action function for the 'GetUserProfile' Query. Allow users to pass in custom DataConnect instances. */
-export function getUserProfile(vars: GetUserProfileVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetUserProfileData>>;
-
-/** Generated Node Admin SDK operation action function for the 'ListMembers' Query. Allow users to execute without passing in DataConnect. */
-export function listMembers(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListMembersData>>;
-/** Generated Node Admin SDK operation action function for the 'ListMembers' Query. Allow users to pass in custom DataConnect instances. */
-export function listMembers(options?: OperationOptions): Promise<ExecuteOperationResponse<ListMembersData>>;
-
-/** Generated Node Admin SDK operation action function for the 'SearchMembers' Query. Allow users to execute without passing in DataConnect. */
-export function searchMembers(dc: DataConnect, vars: SearchMembersVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<SearchMembersData>>;
-/** Generated Node Admin SDK operation action function for the 'SearchMembers' Query. Allow users to pass in custom DataConnect instances. */
-export function searchMembers(vars: SearchMembersVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<SearchMembersData>>;
-
-/** Generated Node Admin SDK operation action function for the 'ListFeedPosts' Query. Allow users to execute without passing in DataConnect. */
-export function listFeedPosts(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListFeedPostsData>>;
-/** Generated Node Admin SDK operation action function for the 'ListFeedPosts' Query. Allow users to pass in custom DataConnect instances. */
-export function listFeedPosts(options?: OperationOptions): Promise<ExecuteOperationResponse<ListFeedPostsData>>;
-
-/** Generated Node Admin SDK operation action function for the 'ListEvents' Query. Allow users to execute without passing in DataConnect. */
-export function listEvents(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListEventsData>>;
-/** Generated Node Admin SDK operation action function for the 'ListEvents' Query. Allow users to pass in custom DataConnect instances. */
-export function listEvents(options?: OperationOptions): Promise<ExecuteOperationResponse<ListEventsData>>;
-
-/** Generated Node Admin SDK operation action function for the 'GetEventDetails' Query. Allow users to execute without passing in DataConnect. */
-export function getEventDetails(dc: DataConnect, vars: GetEventDetailsVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetEventDetailsData>>;
-/** Generated Node Admin SDK operation action function for the 'GetEventDetails' Query. Allow users to pass in custom DataConnect instances. */
-export function getEventDetails(vars: GetEventDetailsVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetEventDetailsData>>;
-
-/** Generated Node Admin SDK operation action function for the 'ListBaptisms' Query. Allow users to execute without passing in DataConnect. */
-export function listBaptisms(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListBaptismsData>>;
-/** Generated Node Admin SDK operation action function for the 'ListBaptisms' Query. Allow users to pass in custom DataConnect instances. */
-export function listBaptisms(options?: OperationOptions): Promise<ExecuteOperationResponse<ListBaptismsData>>;
-
-/** Generated Node Admin SDK operation action function for the 'ListPendingAppointments' Query. Allow users to execute without passing in DataConnect. */
-export function listPendingAppointments(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListPendingAppointmentsData>>;
-/** Generated Node Admin SDK operation action function for the 'ListPendingAppointments' Query. Allow users to pass in custom DataConnect instances. */
-export function listPendingAppointments(options?: OperationOptions): Promise<ExecuteOperationResponse<ListPendingAppointmentsData>>;
-
-/** Generated Node Admin SDK operation action function for the 'ListApprovedAppointments' Query. Allow users to execute without passing in DataConnect. */
-export function listApprovedAppointments(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListApprovedAppointmentsData>>;
-/** Generated Node Admin SDK operation action function for the 'ListApprovedAppointments' Query. Allow users to pass in custom DataConnect instances. */
-export function listApprovedAppointments(options?: OperationOptions): Promise<ExecuteOperationResponse<ListApprovedAppointmentsData>>;
-
-/** Generated Node Admin SDK operation action function for the 'ListRejectedAppointments' Query. Allow users to execute without passing in DataConnect. */
-export function listRejectedAppointments(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListRejectedAppointmentsData>>;
-/** Generated Node Admin SDK operation action function for the 'ListRejectedAppointments' Query. Allow users to pass in custom DataConnect instances. */
-export function listRejectedAppointments(options?: OperationOptions): Promise<ExecuteOperationResponse<ListRejectedAppointmentsData>>;
 

@@ -66,7 +66,8 @@ export const LIVE_MEMBERS = [
     joined: '2008-01-15',
     lastActive: minutesAgo(15),
     status: 'online',
-    recentActivity: 'Posted news about this Sunday service'
+    recentActivity: 'Posted news about this Sunday service',
+    paUid: 'member_005'
   },
   {
     uid: 'pastor_002',
@@ -82,7 +83,8 @@ export const LIVE_MEMBERS = [
     joined: '2012-03-22',
     lastActive: minutesAgo(8),
     status: 'online',
-    recentActivity: 'Commented on worship practice'
+    recentActivity: 'Commented on worship practice',
+    paUid: 'member_010'
   },
   {
     uid: 'member_001',
@@ -658,7 +660,8 @@ export const seedLiveData = async () => {
         lastActive: member.lastActive,
         status: member.status,
         recentActivity: member.recentActivity || '',
-        interests: member.interests || []
+        interests: member.interests || [],
+        paUid: member.paUid || null
       });
     }
     console.log(`✅ ${LIVE_MEMBERS.length} miembros activos inyectados en PostgreSQL`);

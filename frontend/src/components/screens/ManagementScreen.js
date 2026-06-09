@@ -16,7 +16,7 @@ const toCamelCase = (str) => {
     .join('');
 };
 
-const ManagementScreen = () => {
+const ManagementScreen = ({ user }) => {
   const { t } = useLanguage();
   const { user: authUser } = useAuth();
   const [activeTab, setActiveTab] = useState('pending');
@@ -25,6 +25,28 @@ const ManagementScreen = () => {
   const [rejectedAppointments, setRejectedAppointments] = useState([]);
   const [departmentRequests, setDepartmentRequests] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Helper to filter appointments for PA routing or Pastor routing
+  const filterAppointments = (list) => {
+    if (!user) return [];
+    
+    // Level 4 (Admin, Bishop, Reverend) sees everything
+    if (user.accessLevel >= 4) return list;
+    
+    // Filter by PA or Leader
+    return list.filter(app => {
+      // If current user is the PA for this request
+      if (app.pa && app.pa.uid === user.uid) return true;
+      // If current user is the target leader and the request has NO PA (it went directly to them)
+      if (app.leader && app.leader.uid === user.uid && !app.pa) return true;
+      
+      return false;
+    });
+  };
+
+  const displayPending = filterAppointments(pendingAppointments);
+  const displayApproved = filterAppointments(approvedAppointments);
+  const displayRejected = filterAppointments(rejectedAppointments);
 
   const pendingDeptRequests = departmentRequests.filter(r => r.status === 'pending');
   const historyDeptRequests = departmentRequests.filter(r => r.status !== 'pending');
@@ -54,9 +76,9 @@ const ManagementScreen = () => {
     }
   };
 
-  const handleApprove = async (id) => {
+  const handleApprove = async (id, selectedSlot, date, time) => {
     try {
-      await approveAppointment(id, authUser?.displayName || 'Admin');
+      await approveAppointment(id, authUser?.displayName || 'Admin', selectedSlot, date, time);
       setPendingAppointments(prev => prev.filter(app => app.id !== id));
       alert(t('appointmentApproved'));
       await loadData();
@@ -133,19 +155,19 @@ const ManagementScreen = () => {
             onClick={() => setActiveTab('pending')}
             style={tabButtonStyle(activeTab === 'pending')}
           >
-            ⏳ {t('pending')} ({pendingAppointments.length})
+            ⏳ {t('pending')} ({displayPending.length})
           </button>
           <button
             onClick={() => setActiveTab('approved')}
             style={tabButtonStyle(activeTab === 'approved')}
           >
-            ✅ {t('approved')} ({approvedAppointments.length})
+            ✅ {t('approved')} ({displayApproved.length})
           </button>
           <button
             onClick={() => setActiveTab('rejected')}
             style={tabButtonStyle(activeTab === 'rejected')}
           >
-            ❌ {t('rejected')} ({rejectedAppointments.length})
+            ❌ {t('rejected')} ({displayRejected.length})
           </button>
         </div>
       ) : (
@@ -179,21 +201,80 @@ const ManagementScreen = () => {
             {t('loading')}
           </div>
         ) : activeTab === 'pending' ? (
-          pendingAppointments.length > 0 ? (
-            pendingAppointments.map(app => (
+          displayPending.length > 0 ? (
+            displayPending.map(app => (
               <div key={app.id} style={cardStyle}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>{app.requester}</span>
                   <span style={tagStyle}>{t(app.type.toLowerCase().includes('pastoral') ? 'pastoralCounseling' : app.type.toLowerCase().includes('worship') ? 'worshipDiscussion' : 'guidanceCounseling')}</span>
                 </div>
                 <div style={detailStyle}>{t('with')}: <strong>{app.staff}</strong></div>
-                <div style={detailStyle}>📅 {app.date} {t('at')} {app.time}</div>
+                {app.pa && (
+                  <div style={{ ...detailStyle, color: 'var(--accent)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', margin: '4px 0' }}>
+                    <span>🛡️ Sent to PA:</span>
+                    <span>{app.pa.first} {app.pa.last}</span>
+                  </div>
+                )}
+                
                 <p style={{ fontSize: '0.9rem', margin: '12px 0', fontStyle: 'italic', color: '#555' }}>
                   "{app.reason}"
                 </p>
-                <div style={actionRowStyle}>
-                  <button onClick={() => handleReject(app.id)} style={secondaryButtonStyle}>❌ {t('reject')}</button>
-                  <button onClick={() => handleApprove(app.id)} style={primaryButtonStyle}>✅ {t('approve')}</button>
+
+                <div style={{ marginTop: '12px', borderTop: '1px solid #f0f0f0', paddingTop: '12px' }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#666', marginBottom: '8px' }}>
+                    {t('selectSlotToApprove') || 'Select slot option to approve:'}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <button 
+                      onClick={() => handleApprove(app.id, 1, app.date1, app.time1)}
+                      style={slotApproveButtonStyle}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--accent)';
+                        e.currentTarget.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f4f2ff';
+                        e.currentTarget.style.color = 'var(--accent)';
+                      }}
+                    >
+                      <span> Option 1: <strong>{app.date1}</strong> at <strong>{app.time1}</strong></span>
+                      <span style={{ fontSize: '1rem' }}>➡️</span>
+                    </button>
+                    <button 
+                      onClick={() => handleApprove(app.id, 2, app.date2, app.time2)}
+                      style={slotApproveButtonStyle}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--accent)';
+                        e.currentTarget.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f4f2ff';
+                        e.currentTarget.style.color = 'var(--accent)';
+                      }}
+                    >
+                      <span> Option 2: <strong>{app.date2}</strong> at <strong>{app.time2}</strong></span>
+                      <span style={{ fontSize: '1rem' }}>➡️</span>
+                    </button>
+                    <button 
+                      onClick={() => handleApprove(app.id, 3, app.date3, app.time3)}
+                      style={slotApproveButtonStyle}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--accent)';
+                        e.currentTarget.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f4f2ff';
+                        e.currentTarget.style.color = 'var(--accent)';
+                      }}
+                    >
+                      <span> Option 3: <strong>{app.date3}</strong> at <strong>{app.time3}</strong></span>
+                      <span style={{ fontSize: '1rem' }}>➡️</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ ...actionRowStyle, marginTop: '16px' }}>
+                  <button onClick={() => handleReject(app.id)} style={{ ...secondaryButtonStyle, width: '100%', flex: 'none' }}>❌ {t('reject')}</button>
                 </div>
               </div>
             ))
@@ -203,15 +284,20 @@ const ManagementScreen = () => {
             </div>
           )
         ) : activeTab === 'approved' ? (
-          approvedAppointments.length > 0 ? (
-            approvedAppointments.map(app => (
+          displayApproved.length > 0 ? (
+            displayApproved.map(app => (
               <div key={app.id} style={{ ...cardStyle, borderLeft: '4px solid #4caf50' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>✅ {app.requester}</span>
                   <span style={{ ...tagStyle, backgroundColor: '#e8f5e9', color: '#2e7d32' }}>{t(app.type.toLowerCase().includes('pastoral') ? 'pastoralCounseling' : app.type.toLowerCase().includes('worship') ? 'worshipDiscussion' : 'guidanceCounseling')}</span>
                 </div>
                 <div style={detailStyle}>{t('with')}: <strong>{app.staff}</strong></div>
-                <div style={detailStyle}>📅 {app.date} {t('at')} {app.time}</div>
+                <div style={detailStyle}>📅 <strong>{app.date}</strong> {t('at')} <strong>{app.time}</strong> {app.selectedSlot && `(Option ${app.selectedSlot})`}</div>
+                {app.pa && (
+                  <div style={{ ...detailStyle, color: 'var(--accent)', marginTop: '4px' }}>
+                    🛡️ Managed by PA: {app.pa.first} {app.pa.last}
+                  </div>
+                )}
                 <div style={{ fontSize: '0.8rem', color: '#4caf50', marginTop: '8px' }}>{t('approvedBy')}: {app.approvedBy}</div>
                 <div style={{ fontSize: '0.8rem', color: '#4caf50' }}>{t('decided')}: {new Date(app.decidedAt).toLocaleString()}</div>
               </div>
@@ -222,15 +308,20 @@ const ManagementScreen = () => {
             </div>
           )
         ) : activeTab === 'rejected' ? (
-          rejectedAppointments.length > 0 ? (
-            rejectedAppointments.map(app => (
+          displayRejected.length > 0 ? (
+            displayRejected.map(app => (
               <div key={app.id} style={{ ...cardStyle, borderLeft: '4px solid #f44336' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>❌ {app.requester}</span>
                   <span style={{ ...tagStyle, backgroundColor: '#ffebee', color: '#c62828' }}>{t(app.type.toLowerCase().includes('pastoral') ? 'pastoralCounseling' : app.type.toLowerCase().includes('worship') ? 'worshipDiscussion' : 'guidanceCounseling')}</span>
                 </div>
                 <div style={detailStyle}>{t('with')}: <strong>{app.staff}</strong></div>
-                <div style={detailStyle}>📅 {app.date} {t('at')} {app.time}</div>
+                <div style={detailStyle}>📅 Suggested: Option 1 ({app.date1}), Option 2 ({app.date2}), Option 3 ({app.date3})</div>
+                {app.pa && (
+                  <div style={{ ...detailStyle, color: 'var(--accent)', marginTop: '4px' }}>
+                    🛡️ Managed by PA: {app.pa.first} {app.pa.last}
+                  </div>
+                )}
                 <div style={{ fontSize: '0.8rem', color: '#f44336', marginTop: '8px' }}>{t('rejectedBy')}: {app.rejectedBy}</div>
                 <div style={{ fontSize: '0.8rem', color: '#f44336' }}>{t('decided')}: {new Date(app.decidedAt).toLocaleString()}</div>
               </div>
@@ -325,5 +416,23 @@ const actionRowStyle = { display: 'flex', gap: '10px', marginTop: '16px' };
 const primaryButtonStyle = { flex: 1, padding: '10px', backgroundColor: 'var(--accent)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' };
 
 const secondaryButtonStyle = { flex: 1, padding: '10px', backgroundColor: '#f5f5f5', color: '#666', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' };
+
+const slotApproveButtonStyle = {
+  width: '100%',
+  padding: '10px 14px',
+  backgroundColor: '#f4f2ff',
+  color: 'var(--accent)',
+  border: '1px solid rgba(91, 63, 187, 0.2)',
+  borderRadius: '8px',
+  fontWeight: '600',
+  fontSize: '0.85rem',
+  cursor: 'pointer',
+  textAlign: 'left',
+  transition: 'all 0.2s',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: '6px'
+};
 
 export default ManagementScreen;

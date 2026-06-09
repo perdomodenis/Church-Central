@@ -4,6 +4,7 @@ import { updateProfilePhoto, updateUserProfile, getUserProfile } from '../../ser
 import { COURTS, DEPARTMENTS, ROLES, getAccessLevel } from '../../services/churchConstants';
 import { requestDepartmentJoin } from '../../services/departmentService';
 import { useLanguage } from '../../context/LanguageContext';
+import { getAllMembers } from '../../services/memberService';
 
 const toCamelCase = (str) => {
   if (!str) return '';
@@ -37,7 +38,8 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
     court: user.court || '',
     dept: user.dept || '',
     position: user.position || '',
-    interests: user.interests || []
+    interests: user.interests || [],
+    paUid: user.pa?.uid || user.paUid || ''
   });
   const [newInterest, setNewInterest] = useState('');
   const [notifications, setNotifications] = useState({
@@ -46,11 +48,34 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
     news: false,
     documents: true
   });
+  const [members, setMembers] = useState([]);
 
   useEffect(() => {
     loadPhotos();
     loadProfileData();
+    loadMembers();
   }, [user?.uid]);
+
+  useEffect(() => {
+    setEditUser({
+      first: user.first || '',
+      last: user.last || '',
+      court: user.court || '',
+      dept: user.dept || '',
+      position: user.position || '',
+      interests: user.interests || [],
+      paUid: user.pa?.uid || user.paUid || ''
+    });
+  }, [user]);
+
+  const loadMembers = async () => {
+    try {
+      const allMembers = await getAllMembers();
+      setMembers(allMembers.filter(m => m.uid !== user?.uid));
+    } catch (error) {
+      console.error('Error loading members:', error);
+    }
+  };
 
   const loadPhotos = async () => {
     if (!user?.uid) return;
@@ -136,7 +161,8 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
         last: editUser.last,
         court: editUser.court,
         position: editUser.position,
-        interests: editUser.interests
+        interests: editUser.interests,
+        paUid: editUser.paUid || null
       };
 
       if (editUser.dept !== user.dept) {
@@ -149,10 +175,13 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
 
       await updateUserProfile(user.uid, updates);
 
+      const freshProfile = await getUserProfile(user.uid);
+
       const updatedUser = {
         ...user,
         ...editUser,
         dept: editUser.dept !== user.dept ? user.dept : editUser.dept,
+        pa: freshProfile.pa || null,
         accessLevel: getAccessLevel(editUser.position || 'Member')
       };
       onUpdateUser(updatedUser);
@@ -314,6 +343,21 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
                 ))}
               </select>
             </div>
+            {getAccessLevel(editUser.position) >= 3 && (
+              <div>
+                <label style={labelStyle}>{t('assignPA')}</label>
+                <select
+                  value={editUser.paUid}
+                  onChange={(e) => setEditUser(prev => ({ ...prev, paUid: e.target.value }))}
+                  style={selectStyle}
+                >
+                  <option value="">{t('noPASelected')}</option>
+                  {members.map(m => (
+                    <option key={m.uid} value={m.uid}>{m.first} {m.last} ({m.position || 'Member'})</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         ) : (
           <>
@@ -336,6 +380,15 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               <span style={labelStyle}>{t('positionLabel')}</span>
               <span style={valueStyle}>{editUser.position ? t(toCamelCase(editUser.position)) : t('notSpecified')}</span>
             </div>
+
+            {getAccessLevel(user.position) >= 3 && (
+              <div style={infoRowStyle}>
+                <span style={labelStyle}>{t('personalAssistant')}</span>
+                <span style={valueStyle}>
+                  {user.pa ? `${user.pa.first} ${user.pa.last}` : t('notSpecified')}
+                </span>
+              </div>
+            )}
           </>
         )}
       </div>

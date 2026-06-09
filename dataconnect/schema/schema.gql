@@ -15,6 +15,7 @@ type User @table(key: "uid") {
   status: String
   recentActivity: String
   interests: [String!]
+  pa: User
 }
 
 type Event @table {
@@ -73,8 +74,16 @@ type AppointmentRequest @table {
   requester: String!
   requesterEmail: String!
   staff: String!
-  date: String!
-  time: String!
+  leader: User
+  pa: User
+  date1: String!
+  time1: String!
+  date2: String!
+  time2: String!
+  date3: String!
+  time3: String!
+  date: String
+  time: String
   reason: String!
   type: String!
   status: String! @default(value: "pending")
@@ -85,4 +94,6 @@ type AppointmentRequest @table {
   rejectedBy: String
   rejectionReason: String
   decidedAt: Timestamp
+  selectedSlot: Int
 }
+

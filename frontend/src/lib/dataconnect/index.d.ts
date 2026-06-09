@@ -28,6 +28,9 @@ export interface ApproveAppointmentData {
 export interface ApproveAppointmentVariables {
   id: UUIDString;
   approvedBy: string;
+  selectedSlot: number;
+  date: string;
+  time: string;
 }
 
 export interface BaptismEvent_Key {
@@ -81,8 +84,14 @@ export interface CreateAppointmentRequestVariables {
   requester: string;
   requesterEmail: string;
   staff: string;
-  date: string;
-  time: string;
+  leaderUid: string;
+  paUid?: string | null;
+  date1: string;
+  time1: string;
+  date2: string;
+  time2: string;
+  date3: string;
+  time3: string;
   reason: string;
   type: string;
 }
@@ -208,6 +217,11 @@ export interface GetUserProfileData {
     status?: string | null;
     recentActivity?: string | null;
     interests?: string[] | null;
+    pa?: {
+      uid: string;
+      first: string;
+      last: string;
+    } & User_Key;
   } & User_Key;
 }
 
@@ -221,14 +235,33 @@ export interface ListApprovedAppointmentsData {
     requester: string;
     requesterEmail: string;
     staff: string;
-    date: string;
-    time: string;
+    date1: string;
+    time1: string;
+    date2: string;
+    time2: string;
+    date3: string;
+    time3: string;
+    date?: string | null;
+    time?: string | null;
     reason: string;
     type: string;
     status: string;
     createdAt: TimestampString;
     approvedBy?: string | null;
     decidedAt?: TimestampString | null;
+    selectedSlot?: number | null;
+    leader?: {
+      uid: string;
+      first: string;
+      last: string;
+      profilePhoto?: string | null;
+      position?: string | null;
+    } & User_Key;
+      pa?: {
+        uid: string;
+        first: string;
+        last: string;
+      } & User_Key;
   } & AppointmentRequest_Key)[];
 }
 
@@ -321,6 +354,11 @@ export interface ListMembersData {
     status?: string | null;
     recentActivity?: string | null;
     interests?: string[] | null;
+    pa?: {
+      uid: string;
+      first: string;
+      last: string;
+    } & User_Key;
   } & User_Key)[];
 }
 
@@ -330,12 +368,30 @@ export interface ListPendingAppointmentsData {
     requester: string;
     requesterEmail: string;
     staff: string;
-    date: string;
-    time: string;
+    date1: string;
+    time1: string;
+    date2: string;
+    time2: string;
+    date3: string;
+    time3: string;
+    date?: string | null;
+    time?: string | null;
     reason: string;
     type: string;
     status: string;
     createdAt: TimestampString;
+    leader?: {
+      uid: string;
+      first: string;
+      last: string;
+      profilePhoto?: string | null;
+      position?: string | null;
+    } & User_Key;
+      pa?: {
+        uid: string;
+        first: string;
+        last: string;
+      } & User_Key;
   } & AppointmentRequest_Key)[];
 }
 
@@ -345,8 +401,14 @@ export interface ListRejectedAppointmentsData {
     requester: string;
     requesterEmail: string;
     staff: string;
-    date: string;
-    time: string;
+    date1: string;
+    time1: string;
+    date2: string;
+    time2: string;
+    date3: string;
+    time3: string;
+    date?: string | null;
+    time?: string | null;
     reason: string;
     type: string;
     status: string;
@@ -354,6 +416,18 @@ export interface ListRejectedAppointmentsData {
     rejectedBy?: string | null;
     rejectionReason?: string | null;
     decidedAt?: TimestampString | null;
+    leader?: {
+      uid: string;
+      first: string;
+      last: string;
+      profilePhoto?: string | null;
+      position?: string | null;
+    } & User_Key;
+      pa?: {
+        uid: string;
+        first: string;
+        last: string;
+      } & User_Key;
   } & AppointmentRequest_Key)[];
 }
 
@@ -405,6 +479,11 @@ export interface SearchMembersData {
     status?: string | null;
     recentActivity?: string | null;
     interests?: string[] | null;
+    pa?: {
+      uid: string;
+      first: string;
+      last: string;
+    } & User_Key;
   } & User_Key)[];
 }
 
@@ -449,6 +528,7 @@ export interface UpsertUserProfileVariables {
   status?: string | null;
   recentActivity?: string | null;
   interests?: string[] | null;
+  paUid?: string | null;
 }
 
 export interface User_Key {

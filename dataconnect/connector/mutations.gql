@@ -15,6 +15,7 @@ mutation UpsertUserProfile(
   $status: String
   $recentActivity: String
   $interests: [String!]
+  $paUid: String
 ) @auth(level: USER) {
   user_upsert(data: {
     uid: $uid
@@ -33,6 +34,7 @@ mutation UpsertUserProfile(
     status: $status
     recentActivity: $recentActivity
     interests: $interests
+    pa: { uid: $paUid }
   })
 }
 
@@ -165,8 +167,14 @@ mutation CreateAppointmentRequest(
   $requester: String!
   $requesterEmail: String!
   $staff: String!
-  $date: String!
-  $time: String!
+  $leaderUid: String!
+  $paUid: String
+  $date1: String!
+  $time1: String!
+  $date2: String!
+  $time2: String!
+  $date3: String!
+  $time3: String!
   $reason: String!
   $type: String!
 ) @auth(level: USER) {
@@ -174,17 +182,26 @@ mutation CreateAppointmentRequest(
     requester: $requester
     requesterEmail: $requesterEmail
     staff: $staff
-    date: $date
-    time: $time
+    leader: { uid: $leaderUid }
+    pa: { uid: $paUid }
+    date1: $date1
+    time1: $time1
+    date2: $date2
+    time2: $time2
+    date3: $date3
+    time3: $time3
     reason: $reason
     type: $type
   })
 }
 
-mutation ApproveAppointment($id: UUID!, $approvedBy: String!) @auth(level: USER) {
+mutation ApproveAppointment($id: UUID!, $approvedBy: String!, $selectedSlot: Int!, $date: String!, $time: String!) @auth(level: USER) {
   appointmentRequest_update(id: $id, data: {
     status: "approved"
     approvedBy: $approvedBy
+    selectedSlot: $selectedSlot
+    date: $date
+    time: $time
     decidedAt_expr: "request.time"
   })
 }

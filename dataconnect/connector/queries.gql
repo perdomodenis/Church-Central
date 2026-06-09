@@ -25,6 +25,11 @@ query GetUserProfile($uid: String!) @auth(level: USER) {
     status
     recentActivity
     interests
+    pa {
+      uid
+      first
+      last
+    }
   }
 }
 
@@ -46,6 +51,11 @@ query ListMembers @auth(level: USER) {
     status
     recentActivity
     interests
+    pa {
+      uid
+      first
+      last
+    }
   }
 }
 
@@ -75,6 +85,11 @@ query SearchMembers($query: String!) @auth(level: USER) {
     status
     recentActivity
     interests
+    pa {
+      uid
+      first
+      last
+    }
   }
 }
 
@@ -184,12 +199,30 @@ query ListPendingAppointments @auth(level: USER) {
     requester
     requesterEmail
     staff
+    date1
+    time1
+    date2
+    time2
+    date3
+    time3
     date
     time
     reason
     type
     status
     createdAt
+    leader {
+      uid
+      first
+      last
+      profilePhoto
+      position
+    }
+    pa {
+      uid
+      first
+      last
+    }
   }
 }
 
@@ -199,6 +232,12 @@ query ListApprovedAppointments @auth(level: USER) {
     requester
     requesterEmail
     staff
+    date1
+    time1
+    date2
+    time2
+    date3
+    time3
     date
     time
     reason
@@ -207,6 +246,19 @@ query ListApprovedAppointments @auth(level: USER) {
     createdAt
     approvedBy
     decidedAt
+    selectedSlot
+    leader {
+      uid
+      first
+      last
+      profilePhoto
+      position
+    }
+    pa {
+      uid
+      first
+      last
+    }
   }
 }
 
@@ -216,6 +268,12 @@ query ListRejectedAppointments @auth(level: USER) {
     requester
     requesterEmail
     staff
+    date1
+    time1
+    date2
+    time2
+    date3
+    time3
     date
     time
     reason
@@ -225,5 +283,17 @@ query ListRejectedAppointments @auth(level: USER) {
     rejectedBy
     rejectionReason
     decidedAt
+    leader {
+      uid
+      first
+      last
+      profilePhoto
+      position
+    }
+    pa {
+      uid
+      first
+      last
+    }
   }
 }

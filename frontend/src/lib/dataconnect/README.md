@@ -254,6 +254,11 @@ export interface GetUserProfileData {
     status?: string | null;
     recentActivity?: string | null;
     interests?: string[] | null;
+    pa?: {
+      uid: string;
+      first: string;
+      last: string;
+    } & User_Key;
   } & User_Key;
 }
 ```
@@ -374,6 +379,11 @@ export interface ListMembersData {
     status?: string | null;
     recentActivity?: string | null;
     interests?: string[] | null;
+    pa?: {
+      uid: string;
+      first: string;
+      last: string;
+    } & User_Key;
   } & User_Key)[];
 }
 ```
@@ -488,6 +498,11 @@ export interface SearchMembersData {
     status?: string | null;
     recentActivity?: string | null;
     interests?: string[] | null;
+    pa?: {
+      uid: string;
+      first: string;
+      last: string;
+    } & User_Key;
   } & User_Key)[];
 }
 ```
@@ -1062,12 +1077,30 @@ export interface ListPendingAppointmentsData {
     requester: string;
     requesterEmail: string;
     staff: string;
-    date: string;
-    time: string;
+    date1: string;
+    time1: string;
+    date2: string;
+    time2: string;
+    date3: string;
+    time3: string;
+    date?: string | null;
+    time?: string | null;
     reason: string;
     type: string;
     status: string;
     createdAt: TimestampString;
+    leader?: {
+      uid: string;
+      first: string;
+      last: string;
+      profilePhoto?: string | null;
+      position?: string | null;
+    } & User_Key;
+      pa?: {
+        uid: string;
+        first: string;
+        last: string;
+      } & User_Key;
   } & AppointmentRequest_Key)[];
 }
 ```
@@ -1164,14 +1197,33 @@ export interface ListApprovedAppointmentsData {
     requester: string;
     requesterEmail: string;
     staff: string;
-    date: string;
-    time: string;
+    date1: string;
+    time1: string;
+    date2: string;
+    time2: string;
+    date3: string;
+    time3: string;
+    date?: string | null;
+    time?: string | null;
     reason: string;
     type: string;
     status: string;
     createdAt: TimestampString;
     approvedBy?: string | null;
     decidedAt?: TimestampString | null;
+    selectedSlot?: number | null;
+    leader?: {
+      uid: string;
+      first: string;
+      last: string;
+      profilePhoto?: string | null;
+      position?: string | null;
+    } & User_Key;
+      pa?: {
+        uid: string;
+        first: string;
+        last: string;
+      } & User_Key;
   } & AppointmentRequest_Key)[];
 }
 ```
@@ -1268,8 +1320,14 @@ export interface ListRejectedAppointmentsData {
     requester: string;
     requesterEmail: string;
     staff: string;
-    date: string;
-    time: string;
+    date1: string;
+    time1: string;
+    date2: string;
+    time2: string;
+    date3: string;
+    time3: string;
+    date?: string | null;
+    time?: string | null;
     reason: string;
     type: string;
     status: string;
@@ -1277,6 +1335,18 @@ export interface ListRejectedAppointmentsData {
     rejectedBy?: string | null;
     rejectionReason?: string | null;
     decidedAt?: TimestampString | null;
+    leader?: {
+      uid: string;
+      first: string;
+      last: string;
+      profilePhoto?: string | null;
+      position?: string | null;
+    } & User_Key;
+      pa?: {
+        uid: string;
+        first: string;
+        last: string;
+      } & User_Key;
   } & AppointmentRequest_Key)[];
 }
 ```
@@ -1396,6 +1466,7 @@ export interface UpsertUserProfileVariables {
   status?: string | null;
   recentActivity?: string | null;
   interests?: string[] | null;
+  paUid?: string | null;
 }
 ```
 ### Return Type
@@ -1431,13 +1502,14 @@ const upsertUserProfileVars: UpsertUserProfileVariables = {
   status: ..., // optional
   recentActivity: ..., // optional
   interests: ..., // optional
+  paUid: ..., // optional
 };
 
 // Call the `upsertUserProfile()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await upsertUserProfile(upsertUserProfileVars);
 // Variables can be defined inline as well.
-const { data } = await upsertUserProfile({ uid: ..., email: ..., first: ..., last: ..., zip: ..., city: ..., court: ..., dept: ..., position: ..., bio: ..., profilePhoto: ..., joined: ..., lastActive: ..., status: ..., recentActivity: ..., interests: ..., });
+const { data } = await upsertUserProfile({ uid: ..., email: ..., first: ..., last: ..., zip: ..., city: ..., court: ..., dept: ..., position: ..., bio: ..., profilePhoto: ..., joined: ..., lastActive: ..., status: ..., recentActivity: ..., interests: ..., paUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -1476,12 +1548,13 @@ const upsertUserProfileVars: UpsertUserProfileVariables = {
   status: ..., // optional
   recentActivity: ..., // optional
   interests: ..., // optional
+  paUid: ..., // optional
 };
 
 // Call the `upsertUserProfileRef()` function to get a reference to the mutation.
 const ref = upsertUserProfileRef(upsertUserProfileVars);
 // Variables can be defined inline as well.
-const ref = upsertUserProfileRef({ uid: ..., email: ..., first: ..., last: ..., zip: ..., city: ..., court: ..., dept: ..., position: ..., bio: ..., profilePhoto: ..., joined: ..., lastActive: ..., status: ..., recentActivity: ..., interests: ..., });
+const ref = upsertUserProfileRef({ uid: ..., email: ..., first: ..., last: ..., zip: ..., city: ..., court: ..., dept: ..., position: ..., bio: ..., profilePhoto: ..., joined: ..., lastActive: ..., status: ..., recentActivity: ..., interests: ..., paUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -2737,8 +2810,14 @@ export interface CreateAppointmentRequestVariables {
   requester: string;
   requesterEmail: string;
   staff: string;
-  date: string;
-  time: string;
+  leaderUid: string;
+  paUid?: string | null;
+  date1: string;
+  time1: string;
+  date2: string;
+  time2: string;
+  date3: string;
+  time3: string;
   reason: string;
   type: string;
 }
@@ -2763,8 +2842,14 @@ const createAppointmentRequestVars: CreateAppointmentRequestVariables = {
   requester: ..., 
   requesterEmail: ..., 
   staff: ..., 
-  date: ..., 
-  time: ..., 
+  leaderUid: ..., 
+  paUid: ..., // optional
+  date1: ..., 
+  time1: ..., 
+  date2: ..., 
+  time2: ..., 
+  date3: ..., 
+  time3: ..., 
   reason: ..., 
   type: ..., 
 };
@@ -2773,7 +2858,7 @@ const createAppointmentRequestVars: CreateAppointmentRequestVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createAppointmentRequest(createAppointmentRequestVars);
 // Variables can be defined inline as well.
-const { data } = await createAppointmentRequest({ requester: ..., requesterEmail: ..., staff: ..., date: ..., time: ..., reason: ..., type: ..., });
+const { data } = await createAppointmentRequest({ requester: ..., requesterEmail: ..., staff: ..., leaderUid: ..., paUid: ..., date1: ..., time1: ..., date2: ..., time2: ..., date3: ..., time3: ..., reason: ..., type: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -2799,8 +2884,14 @@ const createAppointmentRequestVars: CreateAppointmentRequestVariables = {
   requester: ..., 
   requesterEmail: ..., 
   staff: ..., 
-  date: ..., 
-  time: ..., 
+  leaderUid: ..., 
+  paUid: ..., // optional
+  date1: ..., 
+  time1: ..., 
+  date2: ..., 
+  time2: ..., 
+  date3: ..., 
+  time3: ..., 
   reason: ..., 
   type: ..., 
 };
@@ -2808,7 +2899,7 @@ const createAppointmentRequestVars: CreateAppointmentRequestVariables = {
 // Call the `createAppointmentRequestRef()` function to get a reference to the mutation.
 const ref = createAppointmentRequestRef(createAppointmentRequestVars);
 // Variables can be defined inline as well.
-const ref = createAppointmentRequestRef({ requester: ..., requesterEmail: ..., staff: ..., date: ..., time: ..., reason: ..., type: ..., });
+const ref = createAppointmentRequestRef({ requester: ..., requesterEmail: ..., staff: ..., leaderUid: ..., paUid: ..., date1: ..., time1: ..., date2: ..., time2: ..., date3: ..., time3: ..., reason: ..., type: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -2863,6 +2954,9 @@ The `ApproveAppointment` mutation requires an argument of type `ApproveAppointme
 export interface ApproveAppointmentVariables {
   id: UUIDString;
   approvedBy: string;
+  selectedSlot: number;
+  date: string;
+  time: string;
 }
 ```
 ### Return Type
@@ -2884,13 +2978,16 @@ import { connectorConfig, approveAppointment, ApproveAppointmentVariables } from
 const approveAppointmentVars: ApproveAppointmentVariables = {
   id: ..., 
   approvedBy: ..., 
+  selectedSlot: ..., 
+  date: ..., 
+  time: ..., 
 };
 
 // Call the `approveAppointment()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await approveAppointment(approveAppointmentVars);
 // Variables can be defined inline as well.
-const { data } = await approveAppointment({ id: ..., approvedBy: ..., });
+const { data } = await approveAppointment({ id: ..., approvedBy: ..., selectedSlot: ..., date: ..., time: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -2915,12 +3012,15 @@ import { connectorConfig, approveAppointmentRef, ApproveAppointmentVariables } f
 const approveAppointmentVars: ApproveAppointmentVariables = {
   id: ..., 
   approvedBy: ..., 
+  selectedSlot: ..., 
+  date: ..., 
+  time: ..., 
 };
 
 // Call the `approveAppointmentRef()` function to get a reference to the mutation.
 const ref = approveAppointmentRef(approveAppointmentVars);
 // Variables can be defined inline as well.
-const ref = approveAppointmentRef({ id: ..., approvedBy: ..., });
+const ref = approveAppointmentRef({ id: ..., approvedBy: ..., selectedSlot: ..., date: ..., time: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);

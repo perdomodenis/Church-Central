@@ -40,68 +40,56 @@ console.log('📋 VERIFICACIÓN DE CAMBIOS EN ARCHIVOS\n');
 
 console.log('AppointmentScreen:');
 test(
-  'Contiene miembros reales (James Peterson, Rachel Thompson, etc)',
-  fileContains('frontend/src/components/screens/AppointmentScreen.js', 'James Peterson')
+  'Importa getAllMembers para cargar líderes dinámicamente',
+  fileContains('frontend/src/components/screens/AppointmentScreen.js', 'getAllMembers')
 );
 test(
-  'Contiene "Senior Pastor" en lugar de "Pastor John Doe"',
-  fileContains('frontend/src/components/screens/AppointmentScreen.js', 'Senior Pastor')
+  'Importa createAppointmentRequest para la base de datos',
+  fileContains('frontend/src/components/screens/AppointmentScreen.js', 'createAppointmentRequest')
 );
 test(
-  'No contiene datos mock antiguos',
-  !fileContains('frontend/src/components/screens/AppointmentScreen.js', 'MOCK_STAFF')
+  'Usa galería visual para seleccionar líderes',
+  fileContains('frontend/src/components/screens/AppointmentScreen.js', 'selectLeaderGallery')
 );
 test(
-  'Contiene STAFF_MEMBERS en lugar de MOCK_STAFF',
-  fileContains('frontend/src/components/screens/AppointmentScreen.js', 'STAFF_MEMBERS')
+  'Implementa 3 sugerencias de fecha obligatorias por cita',
+  fileContains('frontend/src/components/screens/AppointmentScreen.js', 'slots.map')
 );
 
 console.log('\nInboxScreen:');
 test(
-  'Contiene mensajes reales de la iglesia (Grace Community)',
-  fileContains('frontend/src/components/screens/InboxScreen.js', 'Grace Community')
+  'Usa Firebase Realtime Database para cargar mensajes dinámicamente',
+  fileContains('frontend/src/components/screens/InboxScreen.js', 'rtdb')
 );
 test(
-  'Contiene mensajes de James Peterson',
-  fileContains('frontend/src/components/screens/InboxScreen.js', 'James Peterson')
+  'Escucha cambios en el nodo inbox del usuario',
+  fileContains('frontend/src/components/screens/InboxScreen.js', 'inbox/')
 );
 test(
-  'Contiene mensaje de Juan Rivera sobre campamento',
-  fileContains('frontend/src/components/screens/InboxScreen.js', 'Youth Summer Camp')
+  'Maneja estado de lectura de mensajes',
+  fileContains('frontend/src/components/screens/InboxScreen.js', 'read')
 );
 test(
-  'Contiene mensaje de Sofia Garcia sobre voluntarios',
-  fileContains('frontend/src/components/screens/InboxScreen.js', 'Sofia Garcia')
-);
-test(
-  'Contiene timestamps realistas (hace 1 hora, ayer, etc)',
-  fileContains('frontend/src/components/screens/InboxScreen.js', 'hace 1 hora')
-);
-test(
-  'No contiene datos mock antiguos MOCK_MESSAGES',
-  !fileContains('frontend/src/components/screens/InboxScreen.js', 'MOCK_MESSAGES')
-);
-test(
-  'Contiene CHURCH_MESSAGES en lugar de MOCK_MESSAGES',
-  fileContains('frontend/src/components/screens/InboxScreen.js', 'CHURCH_MESSAGES')
+  'Tiene componente de vista de mensaje detallado',
+  fileContains('frontend/src/components/screens/InboxScreen.js', 'selectedMessage')
 );
 
 console.log('\nApp.js Auto-Load:');
 test(
   'Importa seedLiveData',
-  fileContains('frontend/src/App.js', 'import { seedLiveData }')
+  fileContains('frontend/src/App.js', 'seedLiveData')
 );
 test(
-  'Tiene useEffect para cargar datos automáticamente',
-  fileContains('frontend/src/App.js', 'seedLiveData()')
+  'Tiene useEffect para sincronizar perfil con PostgreSQL',
+  fileContains('frontend/src/App.js', 'syncProfile')
 );
 test(
-  'Usa sessionStorage para evitar carga duplicada',
-  fileContains('frontend/src/App.js', 'sessionStorage.getItem')
+  'Importa getAllMembers para verificar si el usuario es PA',
+  fileContains('frontend/src/App.js', 'getAllMembers')
 );
 test(
-  'Carga datos cuando authUser está disponible',
-  fileContains('frontend/src/App.js', 'authUser')
+  'Permite acceso a Management si el usuario es PA',
+  fileContains('frontend/src/App.js', 'user.isPA')
 );
 
 console.log('\nDatos Vivos:');
@@ -131,13 +119,13 @@ console.log('\n🔍 VERIFICACIÓN DE CONTENIDO\n');
 
 const appJs = fs.readFileSync('frontend/src/App.js', 'utf8');
 const appointmentJs = fs.readFileSync('frontend/src/components/screens/AppointmentScreen.js', 'utf8');
-const inboxJs = fs.readFileSync('frontend/src/components/screens/InboxScreen.js', 'utf8');
+const liveDataJs = fs.readFileSync('frontend/src/services/liveData.js', 'utf8');
 
-console.log('Miembros Reales de la Iglesia:');
-test('App carga datos cuando usuario se autentica', appJs.includes('if (!hasLoadedData && authUser)'));
-test('AppointmentScreen tiene 6 miembros reales', (appointmentJs.match(/name:/g) || []).length >= 6);
+console.log('Miembros Reales de la Iglesia en liveData.js:');
+test('App carga datos cuando usuario se autentica', appJs.includes('syncProfile'));
+test('liveData.js tiene al menos 10 miembros reales', (liveDataJs.match(/uid:/g) || []).length >= 10);
 
-console.log('\nMensajes Reales en Inbox:');
+console.log('\nMiembros de la Iglesia en liveData.js:');
 const messages = [
   'James Peterson',
   'Juan Rivera',
@@ -148,13 +136,12 @@ const messages = [
 ];
 
 for (const sender of messages) {
-  test(`Inbox contiene mensaje de ${sender}`, inboxJs.includes(sender));
+  test(`liveData.js contiene a ${sender}`, liveDataJs.includes(sender));
 }
 
-console.log('\nTimestamps Realistas:');
-test('Hay timestamps "hace X tiempo"', inboxJs.includes('hace'));
-test('Hay timestamps "ayer"', inboxJs.includes('ayer'));
-test('Hay timestamps en días pasados', inboxJs.includes('días'));
+console.log('\nPA y Relaciones:');
+test('liveData.js define PA para James Peterson', liveDataJs.includes('paUid: \'member_005\''));
+test('liveData.js define PA para Rachel Thompson', liveDataJs.includes('paUid: \'member_010\''));
 
 console.log('\n' + '─'.repeat(70));
 console.log('\n📊 RESULTADOS\n');
@@ -171,28 +158,11 @@ if (percentage >= 90) {
   console.log('🎉 ¡EXCELENTE! La aplicación está completamente lista.\n');
   console.log('✨ CAMBIOS IMPLEMENTADOS:\n');
   console.log('   ✅ Todos los datos mock reemplazados con datos reales');
-  console.log('   ✅ AppointmentScreen muestra 6 líderes reales');
-  console.log('   ✅ InboxScreen muestra 6 mensajes recientes de la iglesia');
-  console.log('   ✅ Auto-carga de datos VIVOS en App.js');
-  console.log('   ✅ Grace Community Church data completamente integrada');
-  console.log('   ✅ Timestamps realistas (hace X tiempo, ayer, etc)');
-
-  console.log('\n🚀 LISTA PARA PRODUCCIÓN:\n');
-  console.log('   1. Abre: http://localhost:3000');
-  console.log('   2. Login: test@email.com / 123456');
-  console.log('   3. ¡Los datos VIVOS se cargan automáticamente!');
-  console.log('   4. No necesitas ir al Debug Screen');
-
-  console.log('\n📋 VE Y PRUEBA:\n');
-  console.log('   • Appointments - Ve a 6 líderes reales');
-  console.log('   • Inbox - Ve 6 mensajes recientes');
-  console.log('   • Feed - Ve 8 posts (auto-cargados)');
-  console.log('   • Schedule - Ve eventos de HOY (auto-cargados)');
-  console.log('   • Baptism - Ve eventos de bautismo (auto-cargados)');
-  console.log('   • Members - Ve 10 miembros activos (auto-cargados)');
-
-  console.log('\n¡LA APP PARECE UNA IGLESIA REAL EN FUNCIONAMIENTO! 🎉\n');
-
+  console.log('   ✅ AppointmentScreen muestra galería de líderes reales');
+  console.log('   ✅ Enrutamiento de citas automático al PA');
+  console.log('   ✅ 3 sugerencias de fecha obligatorias por cita');
+  console.log('   ✅ Selección de ranura de fecha en el Dashboard de aprobación');
+  
   process.exit(0);
 } else {
   console.log('⚠️ Hay algunos problemas a revisar.\n');

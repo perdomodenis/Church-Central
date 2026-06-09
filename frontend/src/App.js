@@ -30,6 +30,7 @@ import {
   DocumentsScreen,
   NLSScreen
 } from './components/screens';
+import { getAllMembers } from './services/memberService';
 
 // UI Components
 import { TopBar, MenuDrawer, FabMenu, Sheet, useToast } from './components/common/UI';
@@ -107,6 +108,14 @@ function App() {
           // Fetch current profile in PostgreSQL
           const currentProfile = await getUserProfile(authUser.uid);
           
+          let isPA = false;
+          try {
+            const allMembers = await getAllMembers();
+            isPA = allMembers.some(m => m.pa?.uid === authUser.uid);
+          } catch (err) {
+            console.error('Error checking if user is PA:', err);
+          }
+
           const dbUserData = {
             uid: authUser.uid,
             email: currentProfile.email || email,
@@ -123,11 +132,13 @@ function App() {
             status: currentProfile.status || 'online',
             lastActive: new Date().toISOString(),
             recentActivity: currentProfile.recentActivity || '',
-            interests: currentProfile.interests || []
+            interests: currentProfile.interests || [],
+            paUid: currentProfile.pa?.uid || null
           };
 
           const userData = {
             ...dbUserData,
+            isPA,
             accessLevel: getAccessLevel(currentProfile.position || 'Member')
           };
 
@@ -353,11 +364,11 @@ function App() {
       />
     ) : <AccessDenied requiredLevel={2} />;
   } else if (route === 'appointment') {
-    body = <AppointmentScreen />;
+    body = <AppointmentScreen user={user} />;
   } else if (route === 'events') {
     body = <EventsScreen user={user} />;
   } else if (route === 'mgmt') {
-    body = level >= 3 ? <ManagementScreen /> : <AccessDenied requiredLevel={3} />;
+    body = (level >= 3 || user.isPA) ? <ManagementScreen user={user} /> : <AccessDenied requiredLevel={3} />;
   } else if (route === 'feedback') {
     body = <FeedbackScreen />;
   } else if (route === 'baptism') {
