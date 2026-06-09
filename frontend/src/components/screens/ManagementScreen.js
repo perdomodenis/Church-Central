@@ -79,9 +79,22 @@ const ManagementScreen = ({ user }) => {
   const handleApprove = async (id, selectedSlot, date, time) => {
     try {
       await approveAppointment(id, authUser?.displayName || 'Admin', selectedSlot, date, time);
-      setPendingAppointments(prev => prev.filter(app => app.id !== id));
+      
+      const appObj = pendingAppointments.find(app => app.id === id);
+      if (appObj) {
+        const approvedObj = {
+          ...appObj,
+          status: 'approved',
+          approvedBy: authUser?.displayName || 'Admin',
+          decidedAt: new Date().toISOString(),
+          selectedSlot,
+          date,
+          time
+        };
+        setPendingAppointments(prev => prev.filter(app => app.id !== id));
+        setApprovedAppointments(prev => [approvedObj, ...prev]);
+      }
       alert(t('appointmentApproved'));
-      await loadData();
     } catch (error) {
       alert(t('errorApproving'));
       console.error(error);
@@ -90,10 +103,22 @@ const ManagementScreen = ({ user }) => {
 
   const handleReject = async (id) => {
     try {
-      await rejectAppointment(id, authUser?.displayName || 'Admin', 'Not approved at this time');
-      setPendingAppointments(prev => prev.filter(app => app.id !== id));
+      const reason = 'Not approved at this time';
+      await rejectAppointment(id, authUser?.displayName || 'Admin', reason);
+      
+      const appObj = pendingAppointments.find(app => app.id === id);
+      if (appObj) {
+        const rejectedObj = {
+          ...appObj,
+          status: 'rejected',
+          rejectedBy: authUser?.displayName || 'Admin',
+          rejectionReason: reason,
+          decidedAt: new Date().toISOString()
+        };
+        setPendingAppointments(prev => prev.filter(app => app.id !== id));
+        setRejectedAppointments(prev => [rejectedObj, ...prev]);
+      }
       alert(t('appointmentRejected'));
-      await loadData();
     } catch (error) {
       alert(t('errorRejecting'));
       console.error(error);
@@ -103,9 +128,16 @@ const ManagementScreen = ({ user }) => {
   const handleApproveDept = async (req) => {
     try {
       await approveDepartmentRequest(req.id, req.userId, req.departmentName, authUser?.displayName || 'Admin');
+      
+      setDepartmentRequests(prev => prev.map(r => r.id === req.id ? {
+        ...r,
+        status: 'approved',
+        approvedBy: authUser?.displayName || 'Admin',
+        decidedAt: new Date().toISOString()
+      } : r));
+      
       const deptNameTranslated = t(toCamelCase(req.departmentName)) || req.departmentName;
       alert(t('deptJoinedSuccess').replace('{name}', req.userName).replace('{dept}', deptNameTranslated));
-      await loadData();
     } catch (error) {
       alert(t('errorDeptApproval'));
       console.error(error);
@@ -115,8 +147,15 @@ const ManagementScreen = ({ user }) => {
   const handleRejectDept = async (id) => {
     try {
       await rejectDepartmentRequest(id, authUser?.displayName || 'Admin');
+      
+      setDepartmentRequests(prev => prev.map(r => r.id === id ? {
+        ...r,
+        status: 'rejected',
+        rejectedBy: authUser?.displayName || 'Admin',
+        decidedAt: new Date().toISOString()
+      } : r));
+      
       alert(t('deptRequestRejected'));
-      await loadData();
     } catch (error) {
       alert(t('errorDeptRejection'));
       console.error(error);
