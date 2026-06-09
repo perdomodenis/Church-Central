@@ -418,7 +418,12 @@ const translations = {
     leadership: 'Leadership',
     media: 'Media',
     postAs: 'Post As',
-    myself: 'Myself'
+    myself: 'Myself',
+    authorizationControls: 'Posting Authorization',
+    authControlDesc: 'Authorize this member to post announcements on behalf of groups:',
+    postAsChurch: 'Post as Church',
+    postAsDept: 'Post as Department',
+    postAsDistrict: 'Post as District'
   }
 };
 export default translations;

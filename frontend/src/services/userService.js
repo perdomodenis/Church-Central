@@ -32,6 +32,9 @@ export const updateUserProfile = async (userId, data) => {
     status: currentProfile.status || data.status || 'online',
     recentActivity: currentProfile.recentActivity || data.recentActivity || '',
     interests: currentProfile.interests || data.interests || [],
+    authorizedPostAsChurch: currentProfile.authorizedPostAsChurch !== undefined ? currentProfile.authorizedPostAsChurch : false,
+    authorizedPostAsDept: currentProfile.authorizedPostAsDept !== undefined ? currentProfile.authorizedPostAsDept : false,
+    authorizedPostAsCourt: currentProfile.authorizedPostAsCourt !== undefined ? currentProfile.authorizedPostAsCourt : false,
     ...data
   };
 

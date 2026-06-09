@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getUserPhotos } from '../../services/photoService';
 import { createDirectChat } from '../../services/chatService';
+import { updateUserProfile } from '../../services/userService';
 
 const toCamelCase = (str) => {
   if (!str) return '';
@@ -21,10 +22,33 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
   const [loading, setLoading] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(null);
   const [messaging, setMessaging] = useState(false);
+  const [memberState, setMemberState] = useState(member);
+
+  useEffect(() => {
+    setMemberState(member);
+  }, [member]);
 
   useEffect(() => {
     loadPhotos();
-  }, [member]);
+  }, [memberState]);
+
+  const handleTogglePermission = async (field, val) => {
+    try {
+      const updatedProfile = {
+        ...memberState,
+        [field]: val
+      };
+      setMemberState(updatedProfile);
+
+      await updateUserProfile(memberState.uid, {
+        [field]: val
+      });
+    } catch (error) {
+      console.error(`Error toggling permission ${field}:`, error);
+      alert('Failed to update permission settings');
+      setMemberState(memberState);
+    }
+  };
 
   const loadPhotos = async () => {
     setLoading(true);
@@ -47,6 +71,8 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
     }
     setMessaging(false);
   };
+
+  const isAdmin = user && (user.accessLevel >= 4 || ['Bishop', 'Reverend', 'Admin'].includes(user.position));
 
   return (
     <div style={{ paddingBottom: '100px' }}>
@@ -74,9 +100,9 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
           ←
         </button>
 
-        {member.profilePhoto && (
+        {memberState.profilePhoto && (
           <img
-            src={member.profilePhoto}
+            src={memberState.profilePhoto}
             alt="Profile"
             style={{
               width: '100%',
@@ -100,23 +126,23 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
               fontSize: '3rem',
               fontWeight: '800',
               margin: '-60px auto 16px',
-              backgroundImage: member.profilePhoto ? `url(${member.profilePhoto})` : 'none',
+              backgroundImage: memberState.profilePhoto ? `url(${memberState.profilePhoto})` : 'none',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
               border: '4px solid white'
             }}
           >
-            {!member.profilePhoto && member.first?.[0]}
+            {!memberState.profilePhoto && memberState.first?.[0]}
           </div>
 
           <h1 style={{ fontSize: '1.75rem', fontWeight: '800', margin: '0 0 8px 0', color: '#111' }}>
-            {member.first} {member.last}
+            {memberState.first} {memberState.last}
           </h1>
 
-          {member.email && (
+          {memberState.email && (
             <p style={{ fontSize: '0.95rem', color: '#666', margin: '0 0 16px 0' }}>
-              {member.email}
+              {memberState.email}
             </p>
           )}
 
@@ -136,8 +162,8 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
                 <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Status</span>
                 <span style={{
-                  backgroundColor: member.status === 'offline' ? '#ffebee' : '#e8f5e9',
-                  color: member.status === 'offline' ? '#c62828' : '#2e7d32',
+                  backgroundColor: memberState.status === 'offline' ? '#ffebee' : '#e8f5e9',
+                  color: memberState.status === 'offline' ? '#c62828' : '#2e7d32',
                   fontSize: '0.8rem',
                   fontWeight: '700',
                   padding: '4px 10px',
@@ -150,9 +176,9 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
                     width: '8px',
                     height: '8px',
                     borderRadius: '50%',
-                    backgroundColor: member.status === 'offline' ? '#c62828' : '#2e7d32'
+                    backgroundColor: memberState.status === 'offline' ? '#c62828' : '#2e7d32'
                   }} />
-                  {member.status === 'offline' ? 'Absent' : 'Active'}
+                  {memberState.status === 'offline' ? 'Absent' : 'Active'}
                 </span>
               </div>
 
@@ -160,7 +186,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Role</span>
                 <span style={{ color: '#555', fontSize: '0.9rem', fontWeight: '600' }}>
-                  {member.position || 'Member'}
+                  {memberState.position || 'Member'}
                 </span>
               </div>
 
@@ -168,7 +194,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Department</span>
                 <span style={{ color: '#555', fontSize: '0.9rem' }}>
-                  {member.dept || 'General'}
+                  {memberState.dept || 'General'}
                 </span>
               </div>
 
@@ -176,7 +202,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Court</span>
                 <span style={{ color: '#555', fontSize: '0.9rem' }}>
-                  {member.court || member.campus || 'Main Campus'}
+                  {memberState.court || memberState.campus || 'Main Campus'}
                 </span>
               </div>
 
@@ -184,7 +210,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Current Project</span>
                 <span style={{ color: '#555', fontSize: '0.9rem', fontStyle: 'italic' }}>
-                  {member.currentProject || 'General Outreach'}
+                  {memberState.currentProject || 'General Outreach'}
                 </span>
               </div>
 
@@ -192,7 +218,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Active Member Since</span>
                 <span style={{ color: '#555', fontSize: '0.9rem' }}>
-                  {member.joined ? new Date(member.joined).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '2025-01-01'}
+                  {memberState.joined ? new Date(memberState.joined).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '2025-01-01'}
                 </span>
               </div>
 
@@ -202,17 +228,72 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
                 <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                     <span style={{ color: '#666' }}>• School of the Word Class:</span>
-                    <span style={{ fontWeight: '600', color: '#444' }}>{member.schoolClass || 'School of the Word - Level 1'}</span>
+                    <span style={{ fontWeight: '600', color: '#444' }}>{memberState.schoolClass || 'School of the Word - Level 1'}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                     <span style={{ color: '#666' }}>• District:</span>
-                    <span style={{ fontWeight: '600', color: '#444' }}>{member.district || 'Central District'}</span>
+                    <span style={{ fontWeight: '600', color: '#444' }}>{memberState.district || 'Central District'}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-          {member.bio && (
+          {/* Posting Permissions Controls for Administrators */}
+          {isAdmin && user.uid !== memberState.uid && (
+            <div style={{
+              backgroundColor: 'rgba(91, 63, 187, 0.04)',
+              borderRadius: '16px',
+              padding: '20px',
+              marginBottom: '24px',
+              textAlign: 'left',
+              border: '1px solid rgba(91, 63, 187, 0.15)',
+              boxShadow: '0 4px 12px rgba(91, 63, 187, 0.05)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
+            }}>
+              <h3 style={{ margin: 0, color: 'var(--ink)', fontSize: '1.05rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                🔑 {t('authorizationControls')}
+              </h3>
+              <p style={{ color: 'var(--ink-2)', fontSize: '0.82rem', margin: 0 }}>
+                {t('authControlDesc')}
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600', color: 'var(--ink)' }}>
+                  <input
+                    type="checkbox"
+                    checked={!!memberState.authorizedPostAsChurch}
+                    onChange={(e) => handleTogglePermission('authorizedPostAsChurch', e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
+                  />
+                  📢 {t('postAsChurch')}
+                </label>
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600', color: 'var(--ink)' }}>
+                  <input
+                    type="checkbox"
+                    checked={!!memberState.authorizedPostAsDept}
+                    onChange={(e) => handleTogglePermission('authorizedPostAsDept', e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
+                  />
+                  💼 {t('postAsDept')} ({memberState.dept || 'General'})
+                </label>
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600', color: 'var(--ink)' }}>
+                  <input
+                    type="checkbox"
+                    checked={!!memberState.authorizedPostAsCourt}
+                    onChange={(e) => handleTogglePermission('authorizedPostAsCourt', e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
+                  />
+                  District ({memberState.court || memberState.campus || 'Main Campus'})
+                </label>
+              </div>
+            </div>
+          )}
+
+          {memberState.bio && (
             <div style={{
               backgroundColor: 'white',
               borderRadius: '12px',
@@ -221,7 +302,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
               border: '1px solid #eee'
             }}>
               <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: '#333', margin: 0 }}>
-                {member.bio}
+                {memberState.bio}
               </p>
             </div>
           )}

@@ -28,9 +28,12 @@ const UploadScreen = ({ onCancel, onDone, user }) => {
   const userDept = user?.dept || '';
   const userCourt = user?.court || '';
 
-  const canPostAsChurch = ['Bishop', 'Reverend', 'Admin', 'Pastor'].includes(userPosition);
-  const canPostAsDept = userDept && ['Bishop', 'Reverend', 'Admin', 'Pastor', 'Leader', 'Co-Leader'].includes(userPosition);
-  const canPostAsCourt = userCourt && ['Bishop', 'Reverend', 'Admin', 'Pastor', 'Leader', 'Co-Leader'].includes(userPosition);
+  const isLeader = ['Bishop', 'Reverend', 'Admin', 'Pastor', 'Deacon', 'Leader', 'Co-Leader'].includes(userPosition);
+  const isGlobalLeader = ['Bishop', 'Reverend', 'Admin', 'Pastor'].includes(userPosition);
+
+  const canPostAsChurch = isGlobalLeader || user?.authorizedPostAsChurch === true;
+  const canPostAsDept = userDept && (isLeader || user?.authorizedPostAsDept === true);
+  const canPostAsCourt = userCourt && (isLeader || user?.authorizedPostAsCourt === true);
 
 
 

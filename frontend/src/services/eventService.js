@@ -2,7 +2,8 @@ import {
   createEvent as createEventInDb,
   listEvents as fetchAllEventsFromDb,
   updateEvent as updateEventInDb,
-  deleteEvent as deleteEventInDb
+  deleteEvent as deleteEventInDb,
+  createAnnouncement
 } from '../lib/dataconnect';
 
 export const addEvent = async (eventData, userId) => {
@@ -34,6 +35,27 @@ export const addEvent = async (eventData, userId) => {
     };
 
     const response = await createEventInDb(variables);
+
+    // Auto-upload event to news feed
+    try {
+      const dateParts = date.split('-');
+      let formattedDate = date;
+      if (dateParts.length === 3) {
+        const d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+        formattedDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+      const postContent = `📅 **New Event: ${variables.title}**\n\n📍 Location: ${variables.location}\n🕒 Time: ${formattedDate} at ${variables.time}\n\n${variables.description}`;
+      
+      await createAnnouncement({
+        content: postContent,
+        scope: 'News',
+        category: 'Announcement',
+        imageUrl: '',
+        authorUid: userId
+      });
+    } catch (announcementError) {
+      console.error('Failed to auto-create news feed post for event:', announcementError);
+    }
     
     // Construct return value compatible with old structure
     return {

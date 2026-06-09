@@ -16,6 +16,9 @@ type User @table(key: "uid") {
   recentActivity: String
   interests: [String!]
   pa: User
+  authorizedPostAsChurch: Boolean @default(value: false)
+  authorizedPostAsDept: Boolean @default(value: false)
+  authorizedPostAsCourt: Boolean @default(value: false)
 }
 
 type Event @table {

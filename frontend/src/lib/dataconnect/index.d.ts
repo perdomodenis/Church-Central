@@ -192,6 +192,9 @@ export interface GetUserContextData {
     court?: string | null;
     dept?: string | null;
     position?: string | null;
+    authorizedPostAsChurch?: boolean | null;
+    authorizedPostAsDept?: boolean | null;
+    authorizedPostAsCourt?: boolean | null;
   } & User_Key;
 }
 
@@ -222,6 +225,9 @@ export interface GetUserProfileData {
       first: string;
       last: string;
     } & User_Key;
+      authorizedPostAsChurch?: boolean | null;
+      authorizedPostAsDept?: boolean | null;
+      authorizedPostAsCourt?: boolean | null;
   } & User_Key;
 }
 
@@ -359,6 +365,9 @@ export interface ListMembersData {
       first: string;
       last: string;
     } & User_Key;
+      authorizedPostAsChurch?: boolean | null;
+      authorizedPostAsDept?: boolean | null;
+      authorizedPostAsCourt?: boolean | null;
   } & User_Key)[];
 }
 
@@ -484,6 +493,9 @@ export interface SearchMembersData {
       first: string;
       last: string;
     } & User_Key;
+      authorizedPostAsChurch?: boolean | null;
+      authorizedPostAsDept?: boolean | null;
+      authorizedPostAsCourt?: boolean | null;
   } & User_Key)[];
 }
 
@@ -529,6 +541,9 @@ export interface UpsertUserProfileVariables {
   recentActivity?: string | null;
   interests?: string[] | null;
   paUid?: string | null;
+  authorizedPostAsChurch?: boolean | null;
+  authorizedPostAsDept?: boolean | null;
+  authorizedPostAsCourt?: boolean | null;
 }
 
 export interface User_Key {

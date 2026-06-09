@@ -16,6 +16,9 @@ mutation UpsertUserProfile(
   $recentActivity: String
   $interests: [String!]
   $paUid: String
+  $authorizedPostAsChurch: Boolean
+  $authorizedPostAsDept: Boolean
+  $authorizedPostAsCourt: Boolean
 ) @auth(level: USER) {
   user_upsert(data: {
     uid: $uid
@@ -35,6 +38,9 @@ mutation UpsertUserProfile(
     recentActivity: $recentActivity
     interests: $interests
     pa: { uid: $paUid }
+    authorizedPostAsChurch: $authorizedPostAsChurch
+    authorizedPostAsDept: $authorizedPostAsDept
+    authorizedPostAsCourt: $authorizedPostAsCourt
   })
 }
 

@@ -661,7 +661,10 @@ export const seedLiveData = async () => {
         status: member.status,
         recentActivity: member.recentActivity || '',
         interests: member.interests || [],
-        paUid: member.paUid || null
+        paUid: member.paUid || null,
+        authorizedPostAsChurch: member.authorizedPostAsChurch || false,
+        authorizedPostAsDept: member.authorizedPostAsDept || false,
+        authorizedPostAsCourt: member.authorizedPostAsCourt || false
       });
     }
     console.log(`✅ ${LIVE_MEMBERS.length} miembros activos inyectados en PostgreSQL`);
