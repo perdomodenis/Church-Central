@@ -400,7 +400,9 @@ const translations = {
     errorCreatingClass: 'Error creating class: ',
     global: 'Global',
     leadership: 'Leadership',
-    media: 'Media'
+    media: 'Media',
+    postAs: 'Post As',
+    myself: 'Myself'
   },
 
   es: {
@@ -788,7 +790,9 @@ const translations = {
     errorCreatingClass: 'Error al crear la clase: ',
     global: 'Global',
     leadership: 'Liderazgo',
-    media: 'Medios'
+    media: 'Medios',
+    postAs: 'Publicar como',
+    myself: 'Mí mismo'
   },
 
   de: {
@@ -1176,7 +1180,9 @@ const translations = {
     errorCreatingClass: 'Fehler beim Erstellen der Klasse: ',
     global: 'Global',
     leadership: 'Leitung',
-    media: 'Medien'
+    media: 'Medien',
+    postAs: 'Beitrag erstellen als',
+    myself: 'Ich selbst'
   },
 
   fr: {
@@ -1564,7 +1570,9 @@ const translations = {
     errorCreatingClass: 'Erreur lors de la création de la classe : ',
     global: 'Global',
     leadership: 'Direction',
-    media: 'Médias'
+    media: 'Médias',
+    postAs: 'Publier en tant que',
+    myself: 'Moi-même'
   },
 
   it: {
@@ -1952,7 +1960,9 @@ const translations = {
     errorCreatingClass: 'Errore durante la creazione della classe: ',
     global: 'Globale',
     leadership: 'Leadership',
-    media: 'Media'
+    media: 'Media',
+    postAs: 'Pubblica come',
+    myself: 'Me stesso'
   },
 
   pt: {
@@ -2340,7 +2350,9 @@ const translations = {
     errorCreatingClass: 'Erro ao criar a classe: ',
     global: 'Global',
     leadership: 'Liderança',
-    media: 'Mídia'
+    media: 'Mídia',
+    postAs: 'Publicar como',
+    myself: 'Eu mesmo'
   },
 
   ln: {
@@ -2728,7 +2740,9 @@ const translations = {
     errorCreatingClass: 'Mbeba na bokeli kelasi: ',
     global: 'Mokolili',
     leadership: 'Bokambi',
-    media: 'Bapanzi-sango'
+    media: 'Bapanzi-sango',
+    postAs: 'Tinda lokola',
+    myself: 'Ngai moko'
   }
 };
 

@@ -338,8 +338,6 @@ function App() {
     body = <EventsScreen user={user} />;
   } else if (route === 'mgmt') {
     body = level >= 3 ? <ManagementScreen /> : <AccessDenied requiredLevel={3} />;
-  } else if (route === 'upload') {
-    body = <UploadScreen onCancel={() => handleNavigate('home')} onDone={() => { handleNavigate('home'); triggerRefresh(); }} />;
   } else if (route === 'feedback') {
     body = <FeedbackScreen />;
   } else if (route === 'baptism') {
@@ -388,7 +386,6 @@ function App() {
             route === 'baptism' ? t('baptism') :
             route === 'profile' ? t('profile') :
             route === 'settings' ? t('settings') :
-            route === 'upload' ? t('upload') :
             route === 'feedback' ? t('feedback') :
             route === 'nls' ? t('nls') : ''
           }
@@ -402,7 +399,7 @@ function App() {
         {body}
       </div>
 
-      {!inAuth && route !== 'upload' && <FabMenu onAction={handleFab} />}
+      {!inAuth && <FabMenu onAction={handleFab} />}
 
       <MenuDrawer
         open={menuOpen}
@@ -413,9 +410,16 @@ function App() {
         user={user}
       />
 
-      <Sheet open={uploadOpen} onClose={() => setUploadOpen(false)} height="92%">
-        {uploadOpen && <UploadScreen onCancel={() => setUploadOpen(false)} onDone={() => { setUploadOpen(false); triggerRefresh(); toast.show('Shared with the family!'); }} />}
-      </Sheet>
+      {uploadOpen && (
+        <UploadScreen
+          onCancel={() => setUploadOpen(false)}
+          onDone={() => {
+            setUploadOpen(false);
+            triggerRefresh();
+            toast.show('Shared with the family!');
+          }}
+        />
+      )}
 
       {toast.node}
     </div>

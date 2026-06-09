@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 const cors = require('cors');
 const multer = require('multer');
 const { getDataConnect } = require('firebase-admin/data-connect');
-const { connectorConfig, getUserProfile, createAnnouncement } = require('./lib/dataconnect');
+const { connectorConfig, getUserProfile, createAnnouncement, upsertUserProfile } = require('./lib/dataconnect');
 
 // Load environment variables
 require('dotenv').config();
@@ -66,6 +66,30 @@ app.post('/api/announcements', upload.single('file'), async (req, res) => {
   const file = req.file;
 
   try {
+    // Check if authorUid is a special identity that needs profile upsertion first
+    if (authorUid && (authorUid.startsWith('church_') || authorUid.startsWith('dept_') || authorUid.startsWith('court_'))) {
+      const authorFirst = req.body.authorFirst || '';
+      const authorLast = req.body.authorLast || '';
+      await upsertUserProfile(adminDc, {
+        uid: authorUid,
+        email: `${authorUid}@churchcentral.org`,
+        first: authorFirst,
+        last: authorLast,
+        zip: '',
+        city: '',
+        court: authorUid.startsWith('court_') ? authorFirst : 'Main Campus',
+        dept: authorUid.startsWith('dept_') ? authorFirst : 'General',
+        position: authorUid.startsWith('church_') ? 'Church' : authorUid.startsWith('dept_') ? 'Department' : 'District',
+        bio: '',
+        profilePhoto: '',
+        joined: new Date().toISOString().split('T')[0],
+        lastActive: new Date().toISOString(),
+        status: 'online',
+        recentActivity: '',
+        interests: []
+      });
+    }
+
     let uploadedImageUrlOrPdf = '';
 
     if (file) {
