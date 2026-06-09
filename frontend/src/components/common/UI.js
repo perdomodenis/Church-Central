@@ -4,6 +4,18 @@ import * as Icon from './Icons';
 import { useLanguage } from '../../context/LanguageContext';
 
 // --- TopBar Component ---
+const RED_DOT_STYLE = {
+  position: 'absolute',
+  top: '4px',
+  right: '4px',
+  width: '10px',
+  height: '10px',
+  backgroundColor: '#ff3b30',
+  borderRadius: '50%',
+  border: '2px solid white',
+  boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+};
+
 export const TopBar = ({ route, onNavigate, scope, scopeOptions, title, onScope, onMenu, onProfile, user, hasNewInbox = false, hasNewMessages = false }) => {
   const { t } = useLanguage();
   const level = user?.accessLevel || 1;
@@ -18,17 +30,7 @@ export const TopBar = ({ route, onNavigate, scope, scopeOptions, title, onScope,
     { id: 'baptism', label: t('baptism') },
   ];
 
-  const redDotStyle = {
-    position: 'absolute',
-    top: '4px',
-    right: '4px',
-    width: '10px',
-    height: '10px',
-    backgroundColor: '#ff3b30',
-    borderRadius: '50%',
-    border: '2px solid white',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-  };
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white', borderBottom: '1px solid #eee', zIndex: 1000, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
@@ -90,11 +92,11 @@ export const TopBar = ({ route, onNavigate, scope, scopeOptions, title, onScope,
         <div style={{ display: 'flex', alignItems: 'center', marginRight: '8px' }}>
           <button onClick={() => onNavigate && onNavigate('inbox')} style={{...iconButtonStyle, position: 'relative'}} title="Inbox">
             <Icon.Inbox />
-            {hasNewInbox && <div style={redDotStyle} />}
+            {hasNewInbox && <div style={RED_DOT_STYLE} />}
           </button>
           <button onClick={() => onNavigate && onNavigate('messages')} style={{ ...iconButtonStyle, marginLeft: '4px', position: 'relative' }} title="Messages">
             <Icon.Feedback />
-            {hasNewMessages && <div style={redDotStyle} />}
+            {hasNewMessages && <div style={RED_DOT_STYLE} />}
           </button>
         </div>
         <button onClick={onProfile} style={iconButtonStyle} title="Profile">

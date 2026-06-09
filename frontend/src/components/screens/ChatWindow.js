@@ -166,7 +166,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
                   {msg.text}
                 </p>
                 <div style={{
-                  fontSize: '0.7rem',
+                  fontSize: '0.75rem',
                   opacity: 0.6,
                   marginTop: '4px'
                 }}>

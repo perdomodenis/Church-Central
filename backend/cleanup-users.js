@@ -41,22 +41,31 @@ async function cleanup() {
     console.log('\n--- Cleaning Firebase Auth ---');
     let pageToken;
     let deletedAuthCount = 0;
-    
+
     do {
       const listUsersResult = await admin.auth().listUsers(1000, pageToken);
       pageToken = listUsersResult.pageToken;
-      
-      for (const userRecord of listUsersResult.users) {
-        if (!shouldKeepUser(userRecord.email)) {
-          await admin.auth().deleteUser(userRecord.uid);
-          console.log(`Deleted from Auth: ${userRecord.email} (${userRecord.uid})`);
-          deletedAuthCount++;
-        } else {
+
+      const usersToDelete = listUsersResult.users.filter(
+        (userRecord) => !shouldKeepUser(userRecord.email)
+      );
+
+      listUsersResult.users.forEach((userRecord) => {
+        if (shouldKeepUser(userRecord.email)) {
           console.log(`Kept in Auth: ${userRecord.email}`);
         }
-      }
+      });
+
+      await Promise.all(
+        usersToDelete.map(async (userRecord) => {
+          await admin.auth().deleteUser(userRecord.uid);
+          console.log(`Deleted from Auth: ${userRecord.email} (${userRecord.uid})`);
+        })
+      );
+
+      deletedAuthCount += usersToDelete.length;
     } while (pageToken);
-    
+
     console.log(`Finished cleaning Auth. Deleted ${deletedAuthCount} users.`);
 
     // 2. Cleanup Realtime Database
@@ -71,9 +80,9 @@ async function cleanup() {
       snapshot.forEach((childSnapshot) => {
         const uid = childSnapshot.key;
         const userData = childSnapshot.val();
-        
+
         if (!shouldKeepUser(userData.email)) {
-          updates[uid] = null; // Mark for deletion
+          updates[uid] = null;
           console.log(`Marked for deletion from RTDB: ${userData.email || uid}`);
           deletedRtdbCount++;
         }

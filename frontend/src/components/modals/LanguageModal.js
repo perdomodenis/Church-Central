@@ -1,6 +1,16 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 
+const LANGUAGES = [
+  { code: 'en', name: '🇬🇧 English', flag: '🇬🇧' },
+  { code: 'es', name: '🇪🇸 Español', flag: '🇪🇸' },
+  { code: 'de', name: '🇩🇪 Deutsch', flag: '🇩🇪' },
+  { code: 'fr', name: '🇫🇷 Français', flag: '🇫🇷' },
+  { code: 'it', name: '🇮🇹 Italiano', flag: '🇮🇹' },
+  { code: 'pt', name: '🇵🇹 Português', flag: '🇵🇹' },
+  { code: 'ln', name: '🇨🇩 Lingala', flag: '🇨🇩' }
+];
+
 const LanguageModal = ({ onClose }) => {
   const { setLanguage } = useLanguage();
 
@@ -9,15 +19,6 @@ const LanguageModal = ({ onClose }) => {
     onClose();
   };
 
-  const languages = [
-    { code: 'en', name: '🇬🇧 English', flag: '🇬🇧' },
-    { code: 'es', name: '🇪🇸 Español', flag: '🇪🇸' },
-    { code: 'de', name: '🇩🇪 Deutsch', flag: '🇩🇪' },
-    { code: 'fr', name: '🇫🇷 Français', flag: '🇫🇷' },
-    { code: 'it', name: '🇮🇹 Italiano', flag: '🇮🇹' },
-    { code: 'pt', name: '🇵🇹 Português', flag: '🇵🇹' },
-    { code: 'ln', name: '🇨🇩 Lingala', flag: '🇨🇩' }
-  ];
 
   return (
     <div style={overlayStyle} onClick={onClose}>
@@ -32,7 +33,7 @@ const LanguageModal = ({ onClose }) => {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {languages.map(lang => (
+          {LANGUAGES.map(lang => (
             <button
               key={lang.code}
               onClick={() => handleSelectLanguage(lang.code)}

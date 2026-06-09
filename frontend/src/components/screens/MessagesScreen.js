@@ -44,12 +44,15 @@ const MessagesScreen = ({ user }) => {
     try {
       const response = await listMembers();
       const members = response.data?.users || [];
-      const mapped = members
-        .filter(m => m.uid !== user?.uid)
-        .map(m => ({
-          uid: m.uid,
-          name: `${m.first} ${m.last}`.trim() || m.email || 'Unknown'
-        }));
+      const mapped = members.reduce((acc, m) => {
+        if (m.uid !== user?.uid) {
+          acc.push({
+            uid: m.uid,
+            name: `${m.first} ${m.last}`.trim() || m.email || 'Unknown'
+          });
+        }
+        return acc;
+      }, []);
       setAllUsers(mapped);
     } catch (error) {
       console.error('Error loading users:', error);

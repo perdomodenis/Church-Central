@@ -148,10 +148,10 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
       }
 
       await updateUserProfile(user.uid, updates);
-      
-      const updatedUser = { 
+
+      const updatedUser = {
         ...user,
-        ...editUser, 
+        ...editUser,
         dept: editUser.dept !== user.dept ? user.dept : editUser.dept,
         accessLevel: getAccessLevel(editUser.position || 'Member')
       };
@@ -423,7 +423,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
                 onChange={(e) => setNewInterest(e.target.value)}
                 placeholder={t('addNewInterest')}
                 onKeyPress={(e) => e.key === 'Enter' && handleAddInterest()}
-                style={{...inputStyle, flex: 1}}
+                style={{ ...inputStyle, flex: 1 }}
               />
               <button
                 onClick={handleAddInterest}
@@ -442,8 +442,8 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {editUser.interests.length > 0 ? (
-                editUser.interests.map((interest, idx) => (
-                  <div key={idx} style={{ ...interestTagStyle, display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '8px' }}>
+                editUser.interests.map((interest, item) => (
+                  <div key={item.id} style={{ ...interestTagStyle, display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '8px' }}>
                     {interest}
                     <button
                       onClick={() => handleRemoveInterest(interest)}
@@ -468,8 +468,8 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
         ) : (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {editUser.interests && editUser.interests.length > 0 ? (
-              editUser.interests.map((interest, idx) => (
-                <span key={idx} style={interestTagStyle}>
+              editUser.interests.map((interest, item) => (
+                <span key={item.id} style={interestTagStyle}>
                   {interest}
                 </span>
               ))
@@ -489,10 +489,10 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               <span style={labelStyle}>{t('specificEvents')}</span>
               <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>{t('getNotifiedEvents')}</p>
             </div>
-            <input 
-              type="checkbox" 
-              checked={notifications.events} 
-              onChange={() => setNotifications(prev => ({...prev, events: !prev.events}))}
+            <input
+              type="checkbox"
+              checked={notifications.events}
+              onChange={() => setNotifications(prev => ({ ...prev, events: !prev.events }))}
               style={{ transform: 'scale(1.2)', accentColor: 'var(--accent)', cursor: 'pointer' }}
             />
           </div>
@@ -501,10 +501,10 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               <span style={labelStyle}>{t('videoConferences')}</span>
               <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>{t('getLinksVideo')}</p>
             </div>
-            <input 
-              type="checkbox" 
-              checked={notifications.videoCalls} 
-              onChange={() => setNotifications(prev => ({...prev, videoCalls: !prev.videoCalls}))}
+            <input
+              type="checkbox"
+              checked={notifications.videoCalls}
+              onChange={() => setNotifications(prev => ({ ...prev, videoCalls: !prev.videoCalls }))}
               style={{ transform: 'scale(1.2)', accentColor: 'var(--accent)', cursor: 'pointer' }}
             />
           </div>
@@ -513,10 +513,10 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               <span style={labelStyle}>{t('generalNews')}</span>
               <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>{t('updatesNewsFeed')}</p>
             </div>
-            <input 
-              type="checkbox" 
-              checked={notifications.news} 
-              onChange={() => setNotifications(prev => ({...prev, news: !prev.news}))}
+            <input
+              type="checkbox"
+              checked={notifications.news}
+              onChange={() => setNotifications(prev => ({ ...prev, news: !prev.news }))}
               style={{ transform: 'scale(1.2)', accentColor: 'var(--accent)', cursor: 'pointer' }}
             />
           </div>

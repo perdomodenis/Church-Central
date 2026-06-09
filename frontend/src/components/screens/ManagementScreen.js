@@ -26,6 +26,9 @@ const ManagementScreen = () => {
   const [departmentRequests, setDepartmentRequests] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const pendingDeptRequests = departmentRequests.filter(r => r.status === 'pending');
+  const historyDeptRequests = departmentRequests.filter(r => r.status !== 'pending');
+
   useEffect(() => {
     loadData();
   }, []);
@@ -33,10 +36,12 @@ const ManagementScreen = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const pending = await getPendingAppointments();
-      const approved = await getApprovedAppointments();
-      const rejected = await getRejectedAppointments();
-      const deptReqs = await getDepartmentRequests();
+      const [pending, approved, rejected, deptReqs] = await Promise.all([
+        getPendingAppointments(),
+        getApprovedAppointments(),
+        getRejectedAppointments(),
+        getDepartmentRequests()
+      ]);
 
       setPendingAppointments(pending);
       setApprovedAppointments(approved);
@@ -44,8 +49,9 @@ const ManagementScreen = () => {
       setDepartmentRequests(deptReqs);
     } catch (error) {
       console.error('Error loading appointments:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleApprove = async (id) => {
@@ -103,8 +109,8 @@ const ManagementScreen = () => {
       </div>
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-        <select 
-          value={activeTab.includes('dept') ? 'dept' : 'appts'} 
+        <select
+          value={activeTab.includes('dept') ? 'dept' : 'appts'}
           onChange={(e) => setActiveTab(e.target.value === 'dept' ? 'dept_pending' : 'pending')}
           style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #ddd', fontWeight: '600' }}
         >
@@ -199,15 +205,15 @@ const ManagementScreen = () => {
         ) : activeTab === 'approved' ? (
           approvedAppointments.length > 0 ? (
             approvedAppointments.map(app => (
-              <div key={app.id} style={{...cardStyle, borderLeft: '4px solid #4caf50'}}>
+              <div key={app.id} style={{ ...cardStyle, borderLeft: '4px solid #4caf50' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>✅ {app.requester}</span>
-                  <span style={{...tagStyle, backgroundColor: '#e8f5e9', color: '#2e7d32'}}>{t(app.type.toLowerCase().includes('pastoral') ? 'pastoralCounseling' : app.type.toLowerCase().includes('worship') ? 'worshipDiscussion' : 'guidanceCounseling')}</span>
+                  <span style={{ ...tagStyle, backgroundColor: '#e8f5e9', color: '#2e7d32' }}>{t(app.type.toLowerCase().includes('pastoral') ? 'pastoralCounseling' : app.type.toLowerCase().includes('worship') ? 'worshipDiscussion' : 'guidanceCounseling')}</span>
                 </div>
                 <div style={detailStyle}>{t('with')}: <strong>{app.staff}</strong></div>
                 <div style={detailStyle}>📅 {app.date} {t('at')} {app.time}</div>
-                <div style={{fontSize: '0.8rem', color: '#4caf50', marginTop: '8px'}}>{t('approvedBy')}: {app.approvedBy}</div>
-                <div style={{fontSize: '0.8rem', color: '#4caf50'}}>{t('decided')}: {new Date(app.decidedAt).toLocaleString()}</div>
+                <div style={{ fontSize: '0.8rem', color: '#4caf50', marginTop: '8px' }}>{t('approvedBy')}: {app.approvedBy}</div>
+                <div style={{ fontSize: '0.8rem', color: '#4caf50' }}>{t('decided')}: {new Date(app.decidedAt).toLocaleString()}</div>
               </div>
             ))
           ) : (
@@ -218,15 +224,15 @@ const ManagementScreen = () => {
         ) : activeTab === 'rejected' ? (
           rejectedAppointments.length > 0 ? (
             rejectedAppointments.map(app => (
-              <div key={app.id} style={{...cardStyle, borderLeft: '4px solid #f44336'}}>
+              <div key={app.id} style={{ ...cardStyle, borderLeft: '4px solid #f44336' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>❌ {app.requester}</span>
-                  <span style={{...tagStyle, backgroundColor: '#ffebee', color: '#c62828'}}>{t(app.type.toLowerCase().includes('pastoral') ? 'pastoralCounseling' : app.type.toLowerCase().includes('worship') ? 'worshipDiscussion' : 'guidanceCounseling')}</span>
+                  <span style={{ ...tagStyle, backgroundColor: '#ffebee', color: '#c62828' }}>{t(app.type.toLowerCase().includes('pastoral') ? 'pastoralCounseling' : app.type.toLowerCase().includes('worship') ? 'worshipDiscussion' : 'guidanceCounseling')}</span>
                 </div>
                 <div style={detailStyle}>{t('with')}: <strong>{app.staff}</strong></div>
                 <div style={detailStyle}>📅 {app.date} {t('at')} {app.time}</div>
-                <div style={{fontSize: '0.8rem', color: '#f44336', marginTop: '8px'}}>{t('rejectedBy')}: {app.rejectedBy}</div>
-                <div style={{fontSize: '0.8rem', color: '#f44336'}}>{t('decided')}: {new Date(app.decidedAt).toLocaleString()}</div>
+                <div style={{ fontSize: '0.8rem', color: '#f44336', marginTop: '8px' }}>{t('rejectedBy')}: {app.rejectedBy}</div>
+                <div style={{ fontSize: '0.8rem', color: '#f44336' }}>{t('decided')}: {new Date(app.decidedAt).toLocaleString()}</div>
               </div>
             ))
           ) : (
@@ -235,12 +241,12 @@ const ManagementScreen = () => {
             </div>
           )
         ) : activeTab === 'dept_pending' ? (
-          departmentRequests.filter(r => r.status === 'pending').length > 0 ? (
-            departmentRequests.filter(r => r.status === 'pending').map(req => (
+          pendingDeptRequests.length > 0 ? (
+            pendingDeptRequests.map(req => (
               <div key={req.id} style={cardStyle}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>{req.userName}</span>
-                  <span style={{...tagStyle, backgroundColor: 'rgba(91, 63, 187, 0.1)'}}>{t('deptJoin')}</span>
+                  <span style={{ ...tagStyle, backgroundColor: 'rgba(91, 63, 187, 0.1)' }}>{t('deptJoin')}</span>
                 </div>
                 <div style={detailStyle}>{t('requestsToJoin')} <strong>{t(toCamelCase(req.departmentName)) || req.departmentName}</strong></div>
                 <div style={detailStyle}>{t('requested')}: {new Date(req.requestedAt).toLocaleString()}</div>
@@ -256,21 +262,21 @@ const ManagementScreen = () => {
             </div>
           )
         ) : activeTab === 'dept_history' ? (
-          departmentRequests.filter(r => r.status !== 'pending').length > 0 ? (
-            departmentRequests.filter(r => r.status !== 'pending').map(req => (
-              <div key={req.id} style={{...cardStyle, borderLeft: req.status === 'approved' ? '4px solid #4caf50' : '4px solid #f44336'}}>
+          historyDeptRequests.length > 0 ? (
+            historyDeptRequests.map(req => (
+              <div key={req.id} style={{ ...cardStyle, borderLeft: req.status === 'approved' ? '4px solid #4caf50' : '4px solid #f44336' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>
                     {req.status === 'approved' ? '✅' : '❌'} {req.userName}
                   </span>
-                  <span style={{...tagStyle, backgroundColor: req.status === 'approved' ? '#e8f5e9' : '#ffebee', color: req.status === 'approved' ? '#2e7d32' : '#c62828'}}>{req.status === 'approved' ? t('approved') : t('rejected')}</span>
+                  <span style={{ ...tagStyle, backgroundColor: req.status === 'approved' ? '#e8f5e9' : '#ffebee', color: req.status === 'approved' ? '#2e7d32' : '#c62828' }}>{req.status === 'approved' ? t('approved') : t('rejected')}</span>
                 </div>
                 <div style={detailStyle}>{t('requestsToJoin')} <strong>{t(toCamelCase(req.departmentName)) || req.departmentName}</strong></div>
                 <div style={detailStyle}>{t('requested')}: {new Date(req.requestedAt).toLocaleString()}</div>
-                <div style={{fontSize: '0.8rem', color: req.status === 'approved' ? '#4caf50' : '#f44336', marginTop: '8px'}}>
+                <div style={{ fontSize: '0.8rem', color: req.status === 'approved' ? '#4caf50' : '#f44336', marginTop: '8px' }}>
                   {req.status === 'approved' ? t('approvedBy') : t('rejectedBy')}: {req.status === 'approved' ? req.approvedBy : req.rejectedBy}
                 </div>
-                <div style={{fontSize: '0.8rem', color: req.status === 'approved' ? '#4caf50' : '#f44336'}}>
+                <div style={{ fontSize: '0.8rem', color: req.status === 'approved' ? '#4caf50' : '#f44336' }}>
                   {t('decided')}: {new Date(req.decidedAt).toLocaleString()}
                 </div>
               </div>

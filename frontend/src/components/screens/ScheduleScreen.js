@@ -5,6 +5,30 @@ import AddEventModal from './AddEventModal';
 import { formatEventDate, formatEventTime } from '../../services/calendarService';
 import { useLanguage } from '../../context/LanguageContext';
 
+const isValidEvent = (event) => {
+  return event.title && event.title !== 'TBD' && event.startTime && event.startTime !== 'TBD';
+};
+
+// Static church service program (does not depend on component state)
+const SERVICE_PROGRAM = [
+  { id: 1, time: '10:00 AM', title: 'Welcome & Announcements', leader: 'Pastor John' },
+  { id: 2, time: '10:15 AM', title: 'Praise & Worship', leader: 'Worship Team' },
+  { id: 3, time: '10:45 AM', title: 'Tithes & Offerings', leader: 'Deacon Smith' },
+  { id: 4, time: '10:55 AM', title: 'Special Music', leader: 'Youth Choir' },
+  { id: 5, time: '11:00 AM', title: 'Sermon', leader: 'Pastor Sarah' },
+  { id: 6, time: '11:45 AM', title: 'Altar Call & Prayer', leader: 'Prayer Ministry' },
+  { id: 7, time: '12:00 PM', title: 'Closing & Benediction', leader: 'Pastor John' }
+];
+
+// Static department attendance roster
+const DEPARTMENT_MEMBERS = [
+  { id: 1, name: 'Alice Johnson', role: 'Team Lead', present: true },
+  { id: 2, name: 'Bob Smith', role: 'Member', present: false },
+  { id: 3, name: 'Charlie Davis', role: 'Member', present: true },
+  { id: 4, name: 'Diana Evans', role: 'Coordinator', present: true },
+  { id: 5, name: 'Evan Harris', role: 'Member', present: false },
+];
+
 const ScheduleScreen = () => {
   const { t } = useLanguage();
   const { user: authUser } = useAuth();
@@ -44,34 +68,10 @@ const ScheduleScreen = () => {
     }
   };
 
-  const isValidEvent = (event) => {
-    return event.title && event.title !== 'TBD' && event.startTime && event.startTime !== 'TBD';
-  };
-
   const validEvents = events.filter(isValidEvent);
   const personalEvents = validEvents.filter(e => e.type !== 'Work Shift');
   const workShifts = validEvents.filter(e => e.type === 'Work Shift');
   const totalHours = workShifts.reduce((acc, curr) => acc + (parseFloat(curr.hours) || 0), 0);
-
-  // Mock data for Church Tab
-  const serviceProgram = [
-    { time: '10:00 AM', title: 'Welcome & Announcements', leader: 'Pastor John' },
-    { time: '10:15 AM', title: 'Praise & Worship', leader: 'Worship Team' },
-    { time: '10:45 AM', title: 'Tithes & Offerings', leader: 'Deacon Smith' },
-    { time: '10:55 AM', title: 'Special Music', leader: 'Youth Choir' },
-    { time: '11:00 AM', title: 'Sermon', leader: 'Pastor Sarah' },
-    { time: '11:45 AM', title: 'Altar Call & Prayer', leader: 'Prayer Ministry' },
-    { time: '12:00 PM', title: 'Closing & Benediction', leader: 'Pastor John' }
-  ];
-
-  // Mock data for Department Tab
-  const departmentMembers = [
-    { id: 1, name: 'Alice Johnson', role: 'Team Lead', present: true },
-    { id: 2, name: 'Bob Smith', role: 'Member', present: false },
-    { id: 3, name: 'Charlie Davis', role: 'Member', present: true },
-    { id: 4, name: 'Diana Evans', role: 'Coordinator', present: true },
-    { id: 5, name: 'Evan Harris', role: 'Member', present: false },
-  ];
 
   const renderTabContent = () => {
     if (activeTab === 'church') {
@@ -96,8 +96,8 @@ const ScheduleScreen = () => {
             </button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {serviceProgram.map((item, index) => (
-              <div key={index} style={{ ...cardStyle, padding: '12px 16px', gap: '12px' }}>
+            {SERVICE_PROGRAM.map((item) => (
+              <div key={item.id} style={{ ...cardStyle, padding: '12px 16px', gap: '12px' }}>
                 <div style={{ fontWeight: '700', color: 'var(--accent)', minWidth: '80px' }}>{item.time}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: '600', color: '#111' }}>{item.title}</div>
@@ -115,7 +115,7 @@ const ScheduleScreen = () => {
         <div style={{ marginTop: '16px' }}>
           <h3 style={{ marginBottom: '16px', color: '#111' }}>{t('departmentMembers')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {departmentMembers.map(member => (
+            {DEPARTMENT_MEMBERS.map(member => (
               <div key={member.id} style={{ ...cardStyle, padding: '12px 16px', gap: '12px', alignItems: 'center' }}>
                 <div style={{
                   width: '12px',
@@ -181,7 +181,7 @@ const ScheduleScreen = () => {
                 </div>
               </div>
             )}
-            
+
             {personalEvents.length > 0 && (
               <div>
                 <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('personalEvents')}</h4>
@@ -210,135 +210,135 @@ const ScheduleScreen = () => {
 
     return (
       <div key={event.id} style={cardStyle}>
-                <div style={dateColumnStyle}>
-                  {dateInfo.day && dateInfo.day !== 'TBD' && (
-                    <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--accent)', textTransform: 'uppercase' }}>
-                      {dateInfo.day}
-                    </span>
-                  )}
-                  {dateInfo.date && dateInfo.date !== 'TBD' && (
-                    <span style={{ fontSize: '1.4rem', fontWeight: '800', lineHeight: '1' }}>
-                      {dateInfo.date}
-                    </span>
-                  )}
-                  {dateInfo.month && dateInfo.month !== 'TBD' && (
-                    <span style={{ fontSize: '0.6rem', color: '#666', fontWeight: '600' }}>
-                      {dateInfo.month}
-                    </span>
-                  )}
-                </div>
+        <div style={dateColumnStyle}>
+          {dateInfo.day && dateInfo.day !== 'TBD' && (
+            <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent)', textTransform: 'uppercase' }}>
+              {dateInfo.day}
+            </span>
+          )}
+          {dateInfo.date && dateInfo.date !== 'TBD' && (
+            <span style={{ fontSize: '1.4rem', fontWeight: '800', lineHeight: '1' }}>
+              {dateInfo.date}
+            </span>
+          )}
+          {dateInfo.month && dateInfo.month !== 'TBD' && (
+            <span style={{ fontSize: '0.75rem', color: '#666', fontWeight: '600' }}>
+              {dateInfo.month}
+            </span>
+          )}
+        </div>
 
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                      <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '4px', color: '#111' }}>{event.title}</h3>
-                      {event.createdByName && event.createdByName !== 'TBD' && (
-                        <span style={{ fontSize: '0.75rem', color: '#999' }}>{t('by')} {event.createdByName}</span>
-                      )}
-                    </div>
-                    {shouldShow.category && <span style={tagStyle}>{t(event.category.toLowerCase())}</span>}
-                  </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '4px', color: '#111' }}>{event.title}</h3>
+              {event.createdByName && event.createdByName !== 'TBD' && (
+                <span style={{ fontSize: '0.75rem', color: '#999' }}>{t('by')} {event.createdByName}</span>
+              )}
+            </div>
+            {shouldShow.category && <span style={tagStyle}>{t(event.category.toLowerCase())}</span>}
+          </div>
 
-                  {shouldShow.time && (
-                    <div style={infoRowStyle}>
-                      <span style={{ fontSize: '0.9rem' }}>🕒</span>
-                      <span style={infoTextStyle}>{timeInfo}</span>
-                    </div>
-                  )}
+          {shouldShow.time && (
+            <div style={infoRowStyle}>
+              <span style={{ fontSize: '0.9rem' }}>🕒</span>
+              <span style={infoTextStyle}>{timeInfo}</span>
+            </div>
+          )}
 
-                  {shouldShow.location && (
-                    <div style={infoRowStyle}>
-                      <span style={{ fontSize: '0.9rem' }}>📍</span>
-                      <span style={infoTextStyle}>{event.location}</span>
-                    </div>
-                  )}
+          {shouldShow.location && (
+            <div style={infoRowStyle}>
+              <span style={{ fontSize: '0.9rem' }}>📍</span>
+              <span style={infoTextStyle}>{event.location}</span>
+            </div>
+          )}
 
-                  {event.dressCode && (
-                    <div style={infoRowStyle}>
-                      <span style={{ fontSize: '0.9rem' }}>👔</span>
-                      <span style={infoTextStyle}>{t('dressCode')}: <strong style={{ color: 'var(--accent)' }}>{event.dressCode}</strong></span>
-                    </div>
-                  )}
+          {event.dressCode && (
+            <div style={infoRowStyle}>
+              <span style={{ fontSize: '0.9rem' }}>👔</span>
+              <span style={infoTextStyle}>{t('dressCode')}: <strong style={{ color: 'var(--accent)' }}>{event.dressCode}</strong></span>
+            </div>
+          )}
 
-                  {shouldShow.description && (
-                    <div style={{ ...infoRowStyle, marginTop: '8px' }}>
-                      <span style={{ fontSize: '0.85rem', color: '#555' }}>{event.description}</span>
-                    </div>
-                  )}
+          {shouldShow.description && (
+            <div style={{ ...infoRowStyle, marginTop: '8px' }}>
+              <span style={{ fontSize: '0.85rem', color: '#555' }}>{event.description}</span>
+            </div>
+          )}
 
-                  {/* Event Links */}
-                  {(event.streamUrl || event.videoConferenceUrl) && (
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-                      {event.streamUrl && (
-                        <a 
-                          href={event.streamUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          style={{
-                            backgroundColor: '#fff0f0',
-                            color: '#e53935',
-                            padding: '6px 12px',
-                            borderRadius: '20px',
-                            textDecoration: 'none',
-                            fontSize: '0.8rem',
-                            fontWeight: '600',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <span style={{ fontSize: '1rem' }}>▶</span> {t('watchStream')}
-                        </a>
-                      )}
-                      {event.videoConferenceUrl && (
-                        <a 
-                          href={event.videoConferenceUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          style={{
-                            backgroundColor: '#e3f2fd',
-                            color: '#1e88e5',
-                            padding: '6px 12px',
-                            borderRadius: '20px',
-                            textDecoration: 'none',
-                            fontSize: '0.8rem',
-                            fontWeight: '600',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <span style={{ fontSize: '1rem' }}>📹</span> {t('joinMeeting')}
-                        </a>
-                      )}
-                    </div>
-                  )}
+          {/* Event Links */}
+          {(event.streamUrl || event.videoConferenceUrl) && (
+            <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+              {event.streamUrl && (
+                <a
+                  href={event.streamUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    backgroundColor: '#fff0f0',
+                    color: '#e53935',
+                    padding: '6px 12px',
+                    borderRadius: '20px',
+                    textDecoration: 'none',
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <span style={{ fontSize: '1rem' }}>▶</span> {t('watchStream')}
+                </a>
+              )}
+              {event.videoConferenceUrl && (
+                <a
+                  href={event.videoConferenceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    backgroundColor: '#e3f2fd',
+                    color: '#1e88e5',
+                    padding: '6px 12px',
+                    borderRadius: '20px',
+                    textDecoration: 'none',
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <span style={{ fontSize: '1rem' }}>📹</span> {t('joinMeeting')}
+                </a>
+              )}
+            </div>
+          )}
 
-                  {canDelete && (
-                    <button
-                      onClick={() => handleDeleteEvent(event.id, event.createdBy)}
-                      style={{
-                        marginTop: '8px',
-                        padding: '4px 8px',
-                        backgroundColor: '#ffebee',
-                        color: '#c62828',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
-                        cursor: 'pointer',
-                        fontWeight: '600'
-                      }}>
-                      {t('delete')}
-                    </button>
-                  )}
-                </div>
-              </div>
+          {canDelete && (
+            <button
+              onClick={() => handleDeleteEvent(event.id, event.createdBy)}
+              style={{
+                marginTop: '8px',
+                padding: '4px 8px',
+                backgroundColor: '#ffebee',
+                color: '#c62828',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}>
+              {t('delete')}
+            </button>
+          )}
+        </div>
+      </div>
     );
   };
 
   return (
     <div className="schedule-screen" style={{ padding: '16px', paddingBottom: '80px' }}>
-      
+
       {/* Tab Navigation */}
       <div style={{ display: 'flex', backgroundColor: '#f0f4f8', borderRadius: '12px', padding: '4px', marginBottom: '20px' }}>
         {['me', 'church', 'department'].map(tab => (

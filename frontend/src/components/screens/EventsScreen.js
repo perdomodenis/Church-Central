@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { addEvent, getAllEvents, deleteEvent } from '../../services/eventService';
 import { useLanguage } from '../../context/LanguageContext';
 
+const CATEGORIES = ['General', 'Worship', 'Study', 'Social', 'Outreach', 'Youth', 'Other'];
+
 const EventsScreen = ({ user }) => {
   const { t, language } = useLanguage();
   const [events, setEvents] = useState([]);
@@ -71,7 +73,7 @@ const EventsScreen = ({ user }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const categories = ['General', 'Worship', 'Study', 'Social', 'Outreach', 'Youth', 'Other'];
+
 
   return (
     <div style={{ paddingBottom: '100px' }}>
@@ -144,7 +146,7 @@ const EventsScreen = ({ user }) => {
                 onChange={handleInputChange}
                 style={inputStyle}
               >
-                {categories.map(cat => (
+                {CATEGORIES.map(cat => (
                   <option key={cat} value={cat}>{t(cat.toLowerCase())}</option>
                 ))}
               </select>

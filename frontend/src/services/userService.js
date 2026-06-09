@@ -1,15 +1,15 @@
 import { storage } from './firebase';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { 
-  getUserProfile as fetchUserProfileFromDb, 
-  upsertUserProfile as upsertUserProfileInDb 
+import {
+  getUserProfile as fetchUserProfileFromDb,
+  upsertUserProfile as upsertUserProfileInDb
 } from '../lib/dataconnect';
 
 export const updateProfilePhoto = async (userId, file) => {
   const photoRef = storageRef(storage, `users/${userId}/profile-photo`);
   await uploadBytes(photoRef, file);
   const url = await getDownloadURL(photoRef);
-  await updateUserProfile(userId, { profilePhoto: url });
+  updateUserProfile(userId, { profilePhoto: url });
   return url;
 };
 

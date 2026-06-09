@@ -208,7 +208,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
             <h4 style={{ fontWeight: '700', fontSize: '1rem' }}>
               {user?.first ? `${user.first} ${user.last}` : t('welcomeGuest')}
             </h4>
-            <span className="post-scope-tag" style={{ marginTop: '4px', display: 'inline-block', fontSize: '0.65rem' }}>
+            <span className="post-scope-tag" style={{ marginTop: '4px', display: 'inline-block', fontSize: '0.75rem' }}>
               {user?.position ? (t(toCamelCase(user.position)) || user.position) : t('member')}
             </span>
           </div>
