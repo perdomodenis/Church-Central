@@ -21,7 +21,7 @@ export const TopBar = ({ route, onNavigate, scope, scopeOptions, title, onScope,
   const level = user?.accessLevel || 1;
   const navItems = [
     { id: 'home', label: t('home') },
-    ...(level >= 3 ? [{ id: 'members', label: t('members') }] : []),
+    ...(level >= 3 ? [{ id: 'members', label: t('church') }] : []),
     ...(level >= 2 ? [{ id: 'documents', label: t('documents') }] : []),
     ...(level >= 2 ? [{ id: 'schedule', label: t('schedule') }] : []),
     { id: 'appointment', label: t('appointments') },
@@ -130,7 +130,7 @@ export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout, user })
         </div>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '0 20px' }}>
           <MenuItem label={t('home')} active={route === 'home'} onClick={() => handleNavigate('home')} />
-          {level >= 3 && <MenuItem label={t('members')} active={route === 'members'} onClick={() => handleNavigate('members')} />}
+          {level >= 3 && <MenuItem label={t('church')} active={route === 'members'} onClick={() => handleNavigate('members')} />}
           {level >= 2 && <MenuItem label={t('documents')} active={route === 'documents'} onClick={() => handleNavigate('documents')} />}
           {level >= 2 && <MenuItem label={t('schedule')} active={route === 'schedule'} onClick={() => handleNavigate('schedule')} />}
           <MenuItem label={t('appointments')} active={route === 'appointment'} onClick={() => handleNavigate('appointment')} />
@@ -175,9 +175,10 @@ const MenuItem = ({ icon, label, active, onClick }) => (
 );
 
 // --- FabMenu Component ---
-export const FabMenu = ({ onAction }) => {
+export const FabMenu = ({ onAction, user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useLanguage();
+  const level = user?.accessLevel || 1;
 
   const handleActionClick = (action) => {
     onAction(action);
@@ -188,7 +189,11 @@ export const FabMenu = ({ onAction }) => {
     <div style={fabContainerStyle}>
       {isOpen && (
         <div style={fabActionsStyle}>
+          {level >= 3 && (
+            <FabAction icon="📅" label="Add Schedule" onClick={() => handleActionClick('add_schedule')} />
+          )}
           <FabAction icon="⬆️" label={t('upload')} onClick={() => handleActionClick('upload')} />
+          <FabAction icon="📄" label={t('uploadDocument')} onClick={() => handleActionClick('upload_doc')} />
           <FabAction icon="💡" label={t('feedback')} onClick={() => handleActionClick('feedback')} />
         </div>
       )}

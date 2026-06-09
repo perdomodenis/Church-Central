@@ -120,34 +120,97 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
             </p>
           )}
 
-          {(member.dept || member.position || member.court) && (
             <div style={{
               backgroundColor: '#f9f9f9',
-              borderRadius: '12px',
-              padding: '16px',
-              marginBottom: '16px',
-              textAlign: 'left'
+              borderRadius: '16px',
+              padding: '20px',
+              marginBottom: '24px',
+              textAlign: 'left',
+              border: '1px solid #f0f0f0',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px'
             }}>
-              {member.dept && (
-                <div style={{ fontSize: '0.9rem', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '600', color: '#111' }}>{t('departmentLabel')}:</span>
-                  <span style={{ color: '#666', marginLeft: '8px' }}>{t(toCamelCase(member.dept))}</span>
+              {/* Active / Absent Status */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+                <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Status</span>
+                <span style={{
+                  backgroundColor: member.status === 'offline' ? '#ffebee' : '#e8f5e9',
+                  color: member.status === 'offline' ? '#c62828' : '#2e7d32',
+                  fontSize: '0.8rem',
+                  fontWeight: '700',
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  <span style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: member.status === 'offline' ? '#c62828' : '#2e7d32'
+                  }} />
+                  {member.status === 'offline' ? 'Absent' : 'Active'}
+                </span>
+              </div>
+
+              {/* Role */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Role</span>
+                <span style={{ color: '#555', fontSize: '0.9rem', fontWeight: '600' }}>
+                  {member.position || 'Member'}
+                </span>
+              </div>
+
+              {/* Department(s) */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Department</span>
+                <span style={{ color: '#555', fontSize: '0.9rem' }}>
+                  {member.dept || 'General'}
+                </span>
+              </div>
+
+              {/* Court(s) */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Court</span>
+                <span style={{ color: '#555', fontSize: '0.9rem' }}>
+                  {member.court || member.campus || 'Main Campus'}
+                </span>
+              </div>
+
+              {/* Current Project */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Current Project</span>
+                <span style={{ color: '#555', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                  {member.currentProject || 'General Outreach'}
+                </span>
+              </div>
+
+              {/* Active as member since */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Active Member Since</span>
+                <span style={{ color: '#555', fontSize: '0.9rem' }}>
+                  {member.joined ? new Date(member.joined).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '2025-01-01'}
+                </span>
+              </div>
+
+              {/* Sub Groups */}
+              <div style={{ borderTop: '1px solid #eee', paddingTop: '10px', marginTop: '4px' }}>
+                <div style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem', marginBottom: '8px' }}>Sub Groups</div>
+                <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                    <span style={{ color: '#666' }}>• School of the Word Class:</span>
+                    <span style={{ fontWeight: '600', color: '#444' }}>{member.schoolClass || 'School of the Word - Level 1'}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                    <span style={{ color: '#666' }}>• District:</span>
+                    <span style={{ fontWeight: '600', color: '#444' }}>{member.district || 'Central District'}</span>
+                  </div>
                 </div>
-              )}
-              {member.position && (
-                <div style={{ fontSize: '0.9rem', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '600', color: '#111' }}>{t('positionLabel')}:</span>
-                  <span style={{ color: '#666', marginLeft: '8px' }}>{t(toCamelCase(member.position))}</span>
-                </div>
-              )}
-              {member.court && (
-                <div style={{ fontSize: '0.9rem' }}>
-                  <span style={{ fontWeight: '600', color: '#111' }}>{t('churchLabel')}:</span>
-                  <span style={{ color: '#666', marginLeft: '8px' }}>{t(toCamelCase(member.court))}</span>
-                </div>
-              )}
+              </div>
             </div>
-          )}
 
           {member.bio && (
             <div style={{

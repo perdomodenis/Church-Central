@@ -104,9 +104,7 @@ testFileContains('frontend/src/App.js', 'signInWithPopup', 'Google Sign-In imple
 testFileContains('frontend/src/App.js', 'signOut', 'Sign-out implementado');
 
 console.log('\nMultilingual Support:');
-testFileContains('frontend/src/services/translations.js', 'es:', 'Español translations');
-testFileContains('frontend/src/services/translations.js', 'de:', 'Deutsch translations');
-testFileContains('frontend/src/services/translations.js', 'fr:', 'Français translations');
+testFileContains('frontend/src/services/translations.js', 'en:', 'English translations');
 testFileContains('frontend/src/context/LanguageContext.js', 'useLanguage', 'Language hook implementado');
 
 console.log('\nChat & Messaging:');
@@ -130,6 +128,30 @@ testFileContains('frontend/src/services/liveData.js', 'seedLiveData', 'Live data
 console.log('\nDebug Features:');
 testFileContains('frontend/src/components/screens/DebugScreen.js', 'seedLiveData', 'Load live data button');
 testFileContains('frontend/src/components/screens/DebugScreen.js', 'seedProductionData', 'Load production data button');
+
+console.log('\nDocuments Search & Filtering:');
+testFileContains('frontend/src/components/screens/DocumentsScreen.js', 'searchQuery', 'Search query state implemented');
+testFileContains('frontend/src/components/screens/DocumentsScreen.js', 'fileTypeFilter', 'File type filter state implemented');
+testFileContains('frontend/src/components/screens/DocumentsScreen.js', 'dateFilter', 'Date filter state implemented');
+testFileContains('frontend/src/components/screens/DocumentsScreen.js', 'matchesSearch', 'Search matching logic implemented');
+testFileContains('frontend/src/components/screens/DocumentsScreen.js', 'getTabMatchCount', 'Campus tab badge counts implemented');
+
+console.log('\nChurch (Members) Reorganization:');
+testFileContains('frontend/src/components/screens/MemberSearchScreen.js', 'activeCourt', 'Court tabs state implemented');
+testFileContains('frontend/src/components/screens/MemberSearchScreen.js', 'groupedMembers', 'Multi-department grouping implemented');
+testFileContains('frontend/src/components/screens/MemberProfileScreen.js', 'School of the Word', 'School of the Word subgroup displayed');
+testFileContains('frontend/src/components/screens/MemberProfileScreen.js', 'District', 'District subgroup displayed');
+testFileContains('frontend/src/components/screens/MemberProfileScreen.js', 'Current Project', 'Current project displayed');
+testFileContains('frontend/src/components/screens/MemberProfileScreen.js', 'Active Member Since', 'Joined date displayed');
+testFileContains('frontend/src/components/common/UI.js', "label: t('church')", 'Navigation menu renamed to Church');
+
+console.log('\nSchedule Page restructures & FAB actions:');
+testFileContains('frontend/src/components/screens/ScheduleScreen.js', 'Obligatory Attendance', 'Obligatory Attendance header implemented');
+testFileContains('frontend/src/components/screens/ScheduleScreen.js', 'Group Meetings', 'Group Meetings header implemented');
+testFileContains('frontend/src/components/screens/ScheduleScreen.js', 'getMinutesSinceMidnight', 'Time check conversion logic implemented');
+testFileContains('frontend/src/components/screens/ScheduleScreen.js', 'Currently Ongoing', 'Ongoing schedule indicator implemented');
+testFileContains('frontend/src/components/common/UI.js', 'Add Schedule', 'FAB Add Schedule button implemented for level 3+');
+testFileContains('frontend/src/App.js', 'openAddScheduleOnMount', 'FAB Add Schedule mount trigger implemented');
 
 console.log('\n' + '─'.repeat(70));
 console.log('\n📱 VERIFICACIÓN DE SCREENS\n');
@@ -176,10 +198,13 @@ if (percentage >= 95) {
   console.log('\n✨ Estado de la App:');
   console.log('   ✅ Todos los componentes principales presentes');
   console.log('   ✅ Autenticación implementada (Email + Google)');
-  console.log('   ✅ Soporte multilingüe (4 idiomas)');
+  console.log('   ✅ English-only language configuration');
   console.log('   ✅ Chat y mensajería funcional');
   console.log('   ✅ Eventos y calendario integrados');
   console.log('   ✅ Bautismos con registro de asistentes');
+  console.log('   ✅ Documents search and filtering controls');
+  console.log('   ✅ Church members list organized by court/dept');
+  console.log('   ✅ Schedule ongoing indicators & FAB action');
   console.log('   ✅ Datos vivos y de producción listos');
   console.log('   ✅ Debug tools para testing\n');
 
@@ -193,11 +218,12 @@ if (percentage >= 95) {
 
   console.log('✅ FUNCIONALIDADES PARA PROBAR:\n');
   console.log('   📰 Feed - Posts con comentarios');
-  console.log('   📅 Schedule - Eventos de hoy/mañana');
+  console.log('   📅 Schedule - Ongoing program indicator, personal schedule headings');
   console.log('   🕊️ Baptism - Registro de bautismos');
-  console.log('   👥 Members - Perfiles y búsqueda');
+  console.log('   ⛪ Church - Members organized by Court & Department, detailed profile info');
   console.log('   💬 Messages - Chat directo y grupos');
-  console.log('   ⚙️ Settings - Cambiar idioma a ES/DE/FR');
+  console.log('   📁 Documents - Search & Filter (by name/campus/uploader/type/date)');
+  console.log('   ⚙️ Settings - Themes, colors and account details');
   console.log('   🎯 Profile - Editar tu perfil\n');
 
   process.exit(0);

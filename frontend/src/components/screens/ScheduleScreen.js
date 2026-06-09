@@ -29,7 +29,18 @@ const DEPARTMENT_MEMBERS = [
   { id: 5, name: 'Evan Harris', role: 'Member', present: false },
 ];
 
-const ScheduleScreen = () => {
+const getMinutesSinceMidnight = (timeStr) => {
+  const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!match) return 0;
+  let hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
+  const ampm = match[3].toUpperCase();
+  if (ampm === 'PM' && hours < 12) hours += 12;
+  if (ampm === 'AM' && hours === 12) hours = 0;
+  return hours * 60 + minutes;
+};
+
+const ScheduleScreen = ({ openAddEventOnMount, onCloseAddEventOnMount }) => {
   const { t } = useLanguage();
   const { user: authUser } = useAuth();
   const [events, setEvents] = useState([]);
@@ -40,6 +51,13 @@ const ScheduleScreen = () => {
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  useEffect(() => {
+    if (openAddEventOnMount) {
+      setShowAddModal(true);
+      if (onCloseAddEventOnMount) onCloseAddEventOnMount();
+    }
+  }, [openAddEventOnMount]);
 
   const fetchEvents = async () => {
     setLoading(true);
@@ -68,6 +86,28 @@ const ScheduleScreen = () => {
     }
   };
 
+  // Resolve ongoing program item using time checks
+  const getOngoingItemId = () => {
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    // Real-time check
+    for (let i = 0; i < SERVICE_PROGRAM.length; i++) {
+      const item = SERVICE_PROGRAM[i];
+      const nextItem = SERVICE_PROGRAM[i + 1];
+      const start = getMinutesSinceMidnight(item.time);
+      const end = nextItem ? getMinutesSinceMidnight(nextItem.time) : getMinutesSinceMidnight('12:15 PM');
+      if (currentMinutes >= start && currentMinutes < end) {
+        return item.id;
+      }
+    }
+    return null;
+  };
+
+  const ongoingId = getOngoingItemId();
+  const isSimulated = ongoingId === null;
+  const activeOngoingId = ongoingId || 2; // Default to Worship (ID 2) for preview if service is offline
+
   const validEvents = events.filter(isValidEvent);
   const personalEvents = validEvents.filter(e => e.type !== 'Work Shift');
   const workShifts = validEvents.filter(e => e.type === 'Work Shift');
@@ -77,6 +117,24 @@ const ScheduleScreen = () => {
     if (activeTab === 'church') {
       return (
         <div style={{ marginTop: '16px' }}>
+          {isSimulated && (
+            <div style={{
+              backgroundColor: '#fff8e1',
+              color: '#b78103',
+              padding: '10px 16px',
+              borderRadius: '12px',
+              fontSize: '0.85rem',
+              fontWeight: '600',
+              marginBottom: '16px',
+              border: '1px solid #ffe082',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span>ℹ️</span>
+              <span>Sunday Service is currently offline (Schedules run Sundays 10:00 AM - 12:15 PM). Showing simulated preview.</span>
+            </div>
+          )}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h3 style={{ margin: 0, color: '#111' }}>{t('upcomingServiceProgram')}</h3>
             <button
@@ -96,15 +154,52 @@ const ScheduleScreen = () => {
             </button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {SERVICE_PROGRAM.map((item) => (
-              <div key={item.id} style={{ ...cardStyle, padding: '12px 16px', gap: '12px' }}>
-                <div style={{ fontWeight: '700', color: 'var(--accent)', minWidth: '80px' }}>{item.time}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: '600', color: '#111' }}>{item.title}</div>
-                  <div style={{ fontSize: '0.85rem', color: '#666' }}>{item.leader}</div>
+            {SERVICE_PROGRAM.map((item) => {
+              const isOngoing = item.id === activeOngoingId;
+              return (
+                <div 
+                  key={item.id} 
+                  style={{ 
+                    ...cardStyle, 
+                    padding: '12px 16px', 
+                    gap: '12px',
+                    border: isOngoing ? '2px solid #4caf50' : '1px solid #f0f0f0',
+                    backgroundColor: isOngoing ? '#f9fdfa' : 'white',
+                    position: 'relative'
+                  }}
+                >
+                  <div style={{ fontWeight: '700', color: isOngoing ? '#2e7d32' : 'var(--accent)', minWidth: '80px' }}>{item.time}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: '600', color: '#111' }}>{item.title}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#666' }}>{item.leader}</div>
+                  </div>
+                  {isOngoing && (
+                    <span style={{
+                      backgroundColor: '#e8f5e9',
+                      color: '#2e7d32',
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      padding: '4px 10px',
+                      borderRadius: '12px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 2px 6px rgba(46, 125, 50, 0.1)',
+                      alignSelf: 'center'
+                    }}>
+                      <span style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: '#2e7d32',
+                        display: 'inline-block'
+                      }} />
+                      Currently Ongoing
+                    </span>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       );
@@ -175,7 +270,7 @@ const ScheduleScreen = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {workShifts.length > 0 && (
               <div>
-                <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('workShifts')}</h4>
+                <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Obligatory Attendance</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {workShifts.map(event => renderEventCard(event))}
                 </div>
@@ -184,7 +279,7 @@ const ScheduleScreen = () => {
 
             {personalEvents.length > 0 && (
               <div>
-                <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('personalEvents')}</h4>
+                <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Group Meetings</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {personalEvents.map(event => renderEventCard(event))}
                 </div>
@@ -238,6 +333,19 @@ const ScheduleScreen = () => {
             </div>
             {shouldShow.category && <span style={tagStyle}>{t(event.category.toLowerCase())}</span>}
           </div>
+
+          {/* Formatted Event Type Indicators */}
+          {event.type === 'Work Shift' ? (
+            <div style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: '700', margin: '6px 0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span>⚠️</span>
+              <span>Obligatory attendance on {dateInfo.date} {dateInfo.month} at {timeInfo}</span>
+            </div>
+          ) : (
+            <div style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: '700', margin: '6px 0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span>👥</span>
+              <span>Group meeting at {timeInfo} on {dateInfo.date} {dateInfo.month}</span>
+            </div>
+          )}
 
           {shouldShow.time && (
             <div style={infoRowStyle}>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import LanguageModal from '../modals/LanguageModal';
+
 
 const ACCENT_PRESETS = [
   ['#5B3FBB', '#EFE9FF'],
@@ -12,8 +12,7 @@ const ACCENT_PRESETS = [
 ];
 
 const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, setDarkMode }) => {
-  const { language, t } = useLanguage();
-  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <div className="settings-screen" style={{ padding: '24px', paddingBottom: '100px' }}>
@@ -73,41 +72,7 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
         </div>
       </div>
 
-      {/* Language Section */}
-      <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>{t('language')}</h3>
-        <div style={cardStyle}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <div>
-              <p style={{ margin: 0, fontWeight: '700', color: '#111' }}>{t('currentLanguage')}</p>
-              <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#666' }}>
-                {language === 'en' && '🇬🇧 English'}
-                {language === 'es' && '🇪🇸 Español'}
-                {language === 'de' && '🇩🇪 Deutsch'}
-                {language === 'fr' && '🇫🇷 Français'}
-                {language === 'it' && '🇮🇹 Italiano'}
-                {language === 'pt' && '🇵🇹 Português'}
-                {language === 'ln' && '🇨🇩 Lingala'}
-              </p>
-            </div>
-            <button
-              onClick={() => setShowLanguageModal(true)}
-              style={{
-                backgroundColor: 'var(--accent)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '8px 16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                fontSize: '0.9rem'
-              }}
-            >
-              {t('edit')}
-            </button>
-          </div>
-        </div>
-      </div>
+
 
       {/* Preferences Section */}
       <div style={sectionStyle}>
@@ -125,9 +90,7 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
         CCI Switzerland • Management System
       </div>
 
-      {showLanguageModal && (
-        <LanguageModal onClose={() => setShowLanguageModal(false)} />
-      )}
+
     </div>
   );
 };

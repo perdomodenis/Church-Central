@@ -5,11 +5,11 @@ import { ref as dbRef, push, set, get, query, orderByChild, equalTo, remove } fr
 /**
  * Uploads a file to Firebase Storage and saves its metadata in RTDB.
  */
-export const uploadDocument = async (file, user, department = 'Global') => {
+export const uploadDocument = async (file, user, department = 'Global', court = 'Global', purpose = '', projectName = '') => {
   try {
     const timestamp = Date.now();
     const filename = `${timestamp}_${file.name}`;
-    const fileRef = storageRef(storage, `documents/${department}/${filename}`);
+    const fileRef = storageRef(storage, `documents/${court}/${department}/${filename}`);
 
     // Upload to Firebase Storage
     const snapshot = await uploadBytes(fileRef, file);
@@ -23,6 +23,9 @@ export const uploadDocument = async (file, user, department = 'Global') => {
       size: file.size,
       type: file.type,
       department: department,
+      court: court,
+      purpose: purpose,
+      projectName: projectName,
       uploadedBy: user.uid,
       uploaderName: user.displayName || user.email || 'Unknown',
       uploadedAt: new Date().toISOString(),
@@ -39,20 +42,12 @@ export const uploadDocument = async (file, user, department = 'Global') => {
 };
 
 /**
- * Fetches documents from RTDB.
- * If department is provided, filters by department. Otherwise fetches all (or global).
+ * Fetches all documents from RTDB.
  */
-export const getDocuments = async (department = null) => {
+export const getDocuments = async () => {
   try {
     let docsRef = dbRef(rtdb, 'documents');
-    let snapshot;
-
-    if (department && department !== 'Global') {
-      const q = query(docsRef, orderByChild('department'), equalTo(department));
-      snapshot = await get(q);
-    } else {
-      snapshot = await get(docsRef);
-    }
+    const snapshot = await get(docsRef);
 
     if (snapshot.exists()) {
       const data = snapshot.val();

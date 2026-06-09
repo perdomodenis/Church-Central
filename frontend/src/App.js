@@ -69,6 +69,8 @@ function App() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [openDocUploadOnMount, setOpenDocUploadOnMount] = useState(false);
+  const [openAddScheduleOnMount, setOpenAddScheduleOnMount] = useState(false);
   const [scope, setScope] = useState('News');
   const [selectedMember, setSelectedMember] = useState(null);
   const toast = useToast();
@@ -253,8 +255,14 @@ function App() {
   const handleFab = (action) => {
     if (action === 'upload' || action === 'post') {
       setUploadOpen(true);
+    } else if (action === 'upload_doc') {
+      setOpenDocUploadOnMount(true);
+      setRoute('documents');
     } else if (action === 'feedback') {
       setRoute('feedback');
+    } else if (action === 'add_schedule') {
+      setOpenAddScheduleOnMount(true);
+      setRoute('schedule');
     }
   };
 
@@ -329,9 +337,20 @@ function App() {
   } else if (route === 'messages') {
     body = <MessagesScreen user={user} />;
   } else if (route === 'documents') {
-    body = level >= 2 ? <DocumentsScreen user={user} /> : <AccessDenied requiredLevel={2} />;
+    body = level >= 2 ? (
+      <DocumentsScreen 
+        user={user} 
+        openUploadOnMount={openDocUploadOnMount} 
+        onCloseUploadOnMount={() => setOpenDocUploadOnMount(false)} 
+      />
+    ) : <AccessDenied requiredLevel={2} />;
   } else if (route === 'schedule') {
-    body = level >= 2 ? <ScheduleScreen /> : <AccessDenied requiredLevel={2} />;
+    body = level >= 2 ? (
+      <ScheduleScreen 
+        openAddEventOnMount={openAddScheduleOnMount}
+        onCloseAddEventOnMount={() => setOpenAddScheduleOnMount(false)}
+      />
+    ) : <AccessDenied requiredLevel={2} />;
   } else if (route === 'appointment') {
     body = <AppointmentScreen />;
   } else if (route === 'events') {
@@ -399,7 +418,7 @@ function App() {
         {body}
       </div>
 
-      {!inAuth && <FabMenu onAction={handleFab} />}
+      {!inAuth && <FabMenu onAction={handleFab} user={user} />}
 
       <MenuDrawer
         open={menuOpen}
