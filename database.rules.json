@@ -48,6 +48,62 @@
           ".indexOn": "timestamp"
         }
       }
+    },
+    "feed": {
+      ".read": "auth != null",
+      "$postId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (!data.exists() || data.child('authorId').val() === auth.uid)"
+      }
+    },
+    "feed_likes": {
+      ".read": "auth != null",
+      "$postId": {
+        "$userId": {
+          ".write": "auth != null && auth.uid === $userId"
+        }
+      }
+    },
+    "feed_comments": {
+      ".read": "auth != null",
+      "$postId": {
+        "$commentId": {
+          ".write": "auth != null && (newData.exists() ? newData.child('authorId').val() === auth.uid : data.child('authorId').val() === auth.uid)"
+        }
+      }
+    },
+    "inbox": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$messageId": {
+          ".write": "auth != null && (auth.uid === $uid || (!data.exists() && newData.exists() && newData.child('senderId').val() === auth.uid))"
+        }
+      }
+    },
+    "events": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "baptisms": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "events": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "nls": {
+      "events": {
+        ".read": "auth != null",
+        "$eventId": {
+          ".write": "auth != null && (!data.exists() || data.child('createdBy').val() === auth.uid || auth.uid === 'pastor_001' || (newData.child('attendees').exists() && newData.child('attendees').val() === (data.child('attendees').exists() ? data.child('attendees').val() : 0) + 1) || (newData.child('attendees').exists() && newData.child('attendees').val() === (data.child('attendees').exists() ? data.child('attendees').val() : 0) - 1))",
+          "registrations": {
+            "$userId": {
+              ".write": "auth != null && auth.uid === $userId"
+            }
+          }
+        }
+      }
     }
   }
 }
