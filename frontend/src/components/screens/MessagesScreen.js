@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import { listMembers } from '../../lib/dataconnect';
 import {
   getDirectChats,
@@ -9,6 +10,7 @@ import {
 import ChatWindow from './ChatWindow';
 
 const MessagesScreen = ({ user }) => {
+  const { t } = useLanguage();
   const [directChats, setDirectChats] = useState([]);
   const [groupChats, setGroupChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -116,10 +118,10 @@ const MessagesScreen = ({ user }) => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '0 0 4px 0', color: '#111' }}>
-              Messages
+              {t('messages')}
             </h2>
             <p style={{ color: '#666', fontSize: '0.85rem', margin: 0 }}>
-              Chat with friends & groups
+              {t('chatWithFriends')}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -161,7 +163,7 @@ const MessagesScreen = ({ user }) => {
         {/* New Chat Form */}
         {showNewChat && (
           <div style={cardStyle}>
-            <h3 style={sectionTitleStyle}>Start a Conversation</h3>
+            <h3 style={sectionTitleStyle}>{t('startConversation')}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {allUsers.map((u) => (
                 <button
@@ -191,10 +193,10 @@ const MessagesScreen = ({ user }) => {
         {/* New Group Form */}
         {showNewGroup && (
           <div style={cardStyle}>
-            <h3 style={sectionTitleStyle}>Create Group</h3>
+            <h3 style={sectionTitleStyle}>{t('createGroup')}</h3>
             <input
               type="text"
-              placeholder="Group Name"
+              placeholder={t('groupName')}
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
               style={{
@@ -209,7 +211,7 @@ const MessagesScreen = ({ user }) => {
               }}
             />
             <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '8px' }}>
-              Select members:
+              {t('selectMembers')}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px', maxHeight: '200px', overflowY: 'auto' }}>
               {allUsers.map((u) => (
@@ -244,7 +246,7 @@ const MessagesScreen = ({ user }) => {
                 cursor: !groupName || selectedUsers.length === 0 ? 'not-allowed' : 'pointer'
               }}
             >
-              Create Group
+              {t('createGroup')}
             </button>
           </div>
         )}
@@ -253,7 +255,7 @@ const MessagesScreen = ({ user }) => {
         {directChats.length > 0 && (
           <div style={{ marginBottom: '24px' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
-              Direct Messages
+              {t('directMessages')}
             </h3>
             {directChats.map((chat) => {
               const otherUserId = chat.participants.find(id => id !== user?.uid);
@@ -290,7 +292,7 @@ const MessagesScreen = ({ user }) => {
         {groupChats.length > 0 && (
           <div>
             <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
-              Groups ({groupChats.length})
+              {t('groups')} ({groupChats.length})
             </h3>
             {groupChats.map((group) => (
               <button
@@ -314,13 +316,13 @@ const MessagesScreen = ({ user }) => {
                 onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
               >
                 <div style={{ fontWeight: '600', color: '#111' }}>👥 {group.name}</div>
-                <div style={{ fontSize: '0.85rem', color: '#999' }}>{group.members.length} members</div>
+                <div style={{ fontSize: '0.85rem', color: '#999' }}>{group.members.length} {t('members').toLowerCase()}</div>
               </button>
             ))}
           </div>
         )}
 
-        {loading && <p style={{ color: '#999' }}>Loading chats...</p>}
+        {loading && <p style={{ color: '#999' }}>{t('loadingChats')}</p>}
 
         {!loading && directChats.length === 0 && groupChats.length === 0 && (
           <div style={{
@@ -330,9 +332,9 @@ const MessagesScreen = ({ user }) => {
             border: '1px solid #e0f0ff',
             marginBottom: '24px'
           }}>
-            <p style={{ fontSize: '1.5rem', marginBottom: '12px', color: '#667eea', fontWeight: 'bold' }}>👋 Bienvenido a Mensajes</p>
+            <p style={{ fontSize: '1.5rem', marginBottom: '12px', color: '#667eea', fontWeight: 'bold' }}>👋 {t('welcomeMessages')}</p>
             <p style={{ color: '#555', fontSize: '0.95rem', marginBottom: '12px', lineHeight: '1.5' }}>
-              Aquí puedes comunicarte con miembros de tu iglesia y crear grupos para discusiones.
+              {t('messagesSubtitle')}
             </p>
             <div style={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
               <button
@@ -352,7 +354,7 @@ const MessagesScreen = ({ user }) => {
                   fontSize: '0.95rem'
                 }}
               >
-                💬 Iniciar una conversación
+                💬 {t('startConversation')}
               </button>
               <button
                 onClick={() => setShowNewGroup(!showNewGroup)}
@@ -372,7 +374,7 @@ const MessagesScreen = ({ user }) => {
                   opacity: 0.8
                 }}
               >
-                👥 Crear un grupo
+                👥 {t('createGroup')}
               </button>
             </div>
           </div>
@@ -391,7 +393,7 @@ const MessagesScreen = ({ user }) => {
           }}>
             <span style={{ fontSize: '1.3rem' }}>💡</span>
             <p style={{ margin: 0, color: '#555', fontSize: '0.9rem' }}>
-              Clic en un chat para abrir la conversación
+              {t('clickToOpenChat')}
             </p>
           </div>
         )}

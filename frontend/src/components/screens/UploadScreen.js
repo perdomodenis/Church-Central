@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { createAnnouncement } from '../../lib/dataconnect';
 import { storage } from '../../services/firebase';
@@ -7,6 +8,7 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 const SCOPE_OPTIONS = ['News', 'Department', 'District', 'Court', 'Leaders', 'Reverends', 'Admins', 'All'];
 
 const UploadScreen = ({ onCancel, onDone }) => {
+  const { t } = useLanguage();
   const [content, setContent] = useState('');
   const [scope, setScope] = useState('News');
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -115,7 +117,7 @@ const UploadScreen = ({ onCancel, onDone }) => {
       overflowY: 'auto'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>Create a Post</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>{t('createPost')}</h2>
         <button
           onClick={onCancel}
           style={{
@@ -138,7 +140,7 @@ const UploadScreen = ({ onCancel, onDone }) => {
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div>
-          <label style={labelStyle}>Share with:</label>
+          <label style={labelStyle}>{t('shareWith')}</label>
           <div style={{
             display: 'flex',
             overflowX: 'auto',
@@ -166,18 +168,18 @@ const UploadScreen = ({ onCancel, onDone }) => {
                   transition: 'all 0.2s'
                 }}
               >
-                {opt}
+                {t(opt.toLowerCase())}
               </button>
             ))}
           </div>
         </div>
 
         <div>
-          <label style={labelStyle}>Message</label>
+          <label style={labelStyle}>{t('message')}</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Write something to the community..."
+            placeholder={t('writeSomethingCommunity')}
             style={{
               width: '100%',
               minHeight: '120px',
@@ -208,13 +210,13 @@ const UploadScreen = ({ onCancel, onDone }) => {
             style={secondaryButtonStyle}
             onClick={() => fileInputRef.current?.click()}
           >
-            Add Document
+            {t('addDocument')}
           </button>
         </div>
 
         {attachments.length > 0 && (
           <div>
-            <label style={labelStyle}>Attachments ({attachments.length})</label>
+            <label style={labelStyle}>{t('attachments')} ({attachments.length})</label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px' }}>
               {attachments.map(att => (
                 <div key={att.id} style={{ position: 'relative' }}>
@@ -281,12 +283,12 @@ const UploadScreen = ({ onCancel, onDone }) => {
             style={{ transform: 'scale(1.2)', accentColor: 'var(--accent)', cursor: 'pointer' }}
           />
           <label htmlFor="anonymousToggle" style={{ fontSize: '0.9rem', fontWeight: '600', color: '#555', cursor: 'pointer' }}>
-            Post Anonymously
+            {t('postAnonymously')}
           </label>
         </div>
 
         <button type="submit" disabled={loading} style={submitButtonStyle}>
-          {loading ? 'Posting...' : `Post to ${scope}`}
+          {loading ? t('posting') : `${t('postTo')} ${t(scope.toLowerCase())}`}
         </button>
       </form>
     </div>

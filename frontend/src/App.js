@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext';
 import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from './services/firebase';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { seedLiveData } from './services/liveData';
+import { useLanguage } from './context/LanguageContext';
 
 // Auth Screens
 import { LoginScreen, SignupScreen, WelcomeScreen, ForgotScreen, ForgotSent } from './components/auth';
@@ -46,6 +47,7 @@ const ACCENT_PRESETS = [
 
 function App() {
   const { user: authUser, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
 
   // Route state machine
   const [route, setRoute] = useState(() => localStorage.getItem('lastRoute') || 'login');
@@ -53,6 +55,17 @@ function App() {
   useEffect(() => {
     localStorage.setItem('lastRoute', route);
   }, [route]);
+
+  const [refreshKey, setRefreshKey] = useState(0);
+  const triggerRefresh = () => setRefreshKey(prev => prev + 1);
+
+  const handleNavigate = (newRoute) => {
+    if (newRoute === 'home' && route === 'home') {
+      triggerRefresh();
+    } else {
+      setRoute(newRoute);
+    }
+  };
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -153,20 +166,20 @@ function App() {
   }, [accentColor, darkMode]);
 
   // Auto-load live data on first mount (only once per device)
-  useEffect(() => {
-    const hasLoadedData = localStorage.getItem('liveDataLoaded');
-    if (!hasLoadedData && authUser) {
-      // Set the flag synchronously *before* the async call to prevent
-      // React 18 StrictMode or rapid refreshes from triggering it twice.
-      localStorage.setItem('liveDataLoaded', 'true');
-      
-      seedLiveData().then(() => {
-        console.log('✅ Live data loaded automatically');
-      }).catch(err => {
-        console.error('Error loading live data:', err);
-      });
-    }
-  }, [authUser]);
+  // useEffect(() => {
+  //   const hasLoadedData = localStorage.getItem('liveDataLoaded');
+  //   if (!hasLoadedData && authUser) {
+  //     // Set the flag synchronously *before* the async call to prevent
+  //     // React 18 StrictMode or rapid refreshes from triggering it twice.
+  //     localStorage.setItem('liveDataLoaded', 'true');
+  //     
+  //     seedLiveData().then(() => {
+  //       console.log('✅ Live data loaded automatically');
+  //     }).catch(err => {
+  //       console.error('Error loading live data:', err);
+  //     });
+  //   }
+  // }, [authUser]);
 
   const handleLogin = async ({ email, password }) => {
     try {
@@ -240,8 +253,6 @@ function App() {
   const handleFab = (action) => {
     if (action === 'upload' || action === 'post') {
       setUploadOpen(true);
-    } else if (action === 'member') {
-      toast.show('Invite link copied');
     } else if (action === 'feedback') {
       setRoute('feedback');
     }
@@ -310,9 +321,9 @@ function App() {
       />
     );
   } else if (route === 'welcome') {
-    body = <WelcomeScreen name={signupData.first || 'friend'} onContinue={() => setRoute('home')} />;
+    body = <WelcomeScreen name={signupData.first || 'friend'} onContinue={() => handleNavigate('home')} />;
   } else if (route === 'home') {
-    body = <FeedScreen scope={scope} onScope={setScope} onAction={onAction} user={user} />;
+    body = <FeedScreen scope={scope} onScope={setScope} onAction={onAction} user={user} refreshKey={refreshKey} />;
   } else if (route === 'inbox') {
     body = <InboxScreen />;
   } else if (route === 'messages') {
@@ -328,7 +339,7 @@ function App() {
   } else if (route === 'mgmt') {
     body = level >= 3 ? <ManagementScreen /> : <AccessDenied requiredLevel={3} />;
   } else if (route === 'upload') {
-    body = <UploadScreen onCancel={() => setRoute('home')} onDone={() => setRoute('home')} />;
+    body = <UploadScreen onCancel={() => handleNavigate('home')} onDone={() => { handleNavigate('home'); triggerRefresh(); }} />;
   } else if (route === 'feedback') {
     body = <FeedbackScreen />;
   } else if (route === 'baptism') {
@@ -338,24 +349,24 @@ function App() {
   } else if (route === 'group') {
     body = <SimpleScreen icon={<Icon.Spark />} title="New Life Steps" subtitle="Your discipleship journey" />;
   } else if (route === 'profile') {
-    body = <ProfileScreen user={user} onUpdateUser={setUser} onSettings={() => setRoute('settings')} onLogout={() => { auth.signOut(); setRoute('login'); }} />;
+    body = <ProfileScreen user={user} onUpdateUser={setUser} onSettings={() => handleNavigate('settings')} onLogout={() => { auth.signOut(); handleNavigate('login'); }} />;
   } else if (route === 'settings') {
     body = (
       <SettingsScreen
         user={user}
-        onBack={() => setRoute('profile')}
+        onBack={() => handleNavigate('profile')}
         accentColor={accentColor} setAccentColor={setAccentColor}
         darkMode={darkMode} setDarkMode={setDarkMode}
       />
     );
   } else if (route === 'members') {
-    body = level >= 3 ? <MemberSearchScreen user={user} onSelectMember={(m) => { setSelectedMember(m); setRoute('member-profile'); }} onNavigate={setRoute} /> : <AccessDenied requiredLevel={3} />;
+    body = level >= 3 ? <MemberSearchScreen user={user} onSelectMember={(m) => { setSelectedMember(m); handleNavigate('member-profile'); }} onNavigate={handleNavigate} /> : <AccessDenied requiredLevel={3} />;
   } else if (route === 'member-profile') {
-    body = level >= 3 ? <MemberProfileScreen member={selectedMember} user={user} onBack={() => setRoute('members')} onMessage={() => setRoute('messages')} onNavigate={setRoute} /> : <AccessDenied requiredLevel={3} />;
+    body = level >= 3 ? <MemberProfileScreen member={selectedMember} user={user} onBack={() => handleNavigate('members')} onMessage={() => handleNavigate('messages')} onNavigate={handleNavigate} /> : <AccessDenied requiredLevel={3} />;
   } else if (route === 'debug') {
-    body = level >= 4 ? <DebugScreen onBack={() => setRoute('home')} /> : <AccessDenied requiredLevel={4} />;
+    body = level >= 4 ? <DebugScreen onBack={() => handleNavigate('home')} /> : <AccessDenied requiredLevel={4} />;
   } else {
-    body = <FeedScreen scope={scope} onScope={setScope} onAction={onAction} user={user} />;
+    body = <FeedScreen scope={scope} onScope={setScope} onAction={onAction} user={user} refreshKey={refreshKey} />;
   }
 
   return (
@@ -363,27 +374,27 @@ function App() {
       {!inAuth && (
         <TopBar
           route={route}
-          onNavigate={setRoute}
+          onNavigate={handleNavigate}
           scope={scope}
           scopeOptions={route === 'home' ? scopeOptions : null}
           user={user}
           title={
-            route === 'inbox' ? 'Inbox' :
-            route === 'messages' ? 'Messages' :
-            route === 'schedule' ? 'Schedule' :
-            route === 'appointment' ? 'Appointment' :
-            route === 'events' ? 'Events' :
-            route === 'mgmt' ? 'Management' :
-            route === 'baptism' ? 'Baptism' :
-            route === 'profile' ? 'Profile' :
-            route === 'settings' ? 'Settings' :
-            route === 'upload' ? 'Share' :
-            route === 'feedback' ? 'Feedback' :
-            route === 'nls' ? 'New Steps' : ''
+            route === 'inbox' ? t('inbox') :
+            route === 'messages' ? t('messages') :
+            route === 'schedule' ? t('schedule') :
+            route === 'appointment' ? t('appointments') :
+            route === 'events' ? t('events') :
+            route === 'mgmt' ? t('management') :
+            route === 'baptism' ? t('baptism') :
+            route === 'profile' ? t('profile') :
+            route === 'settings' ? t('settings') :
+            route === 'upload' ? t('upload') :
+            route === 'feedback' ? t('feedback') :
+            route === 'nls' ? t('nls') : ''
           }
           onScope={setScope}
           onMenu={() => setMenuOpen(true)}
-          onProfile={() => setRoute('profile')}
+          onProfile={() => handleNavigate('profile')}
         />
       )}
 
@@ -397,13 +408,13 @@ function App() {
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
         route={route}
-        onNavigate={setRoute}
-        onLogout={() => { setMenuOpen(false); auth.signOut(); setRoute('login'); }}
+        onNavigate={handleNavigate}
+        onLogout={() => { setMenuOpen(false); auth.signOut(); handleNavigate('login'); }}
         user={user}
       />
 
       <Sheet open={uploadOpen} onClose={() => setUploadOpen(false)} height="92%">
-        {uploadOpen && <UploadScreen onCancel={() => setUploadOpen(false)} onDone={() => { setUploadOpen(false); toast.show('Shared with the family!'); }} />}
+        {uploadOpen && <UploadScreen onCancel={() => setUploadOpen(false)} onDone={() => { setUploadOpen(false); triggerRefresh(); toast.show('Shared with the family!'); }} />}
       </Sheet>
 
       {toast.node}

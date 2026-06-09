@@ -3,8 +3,10 @@ import { getAllEvents, deleteEvent } from '../../services/eventService';
 import { useAuth } from '../../context/AuthContext';
 import AddEventModal from './AddEventModal';
 import { formatEventDate, formatEventTime } from '../../services/calendarService';
+import { useLanguage } from '../../context/LanguageContext';
 
 const ScheduleScreen = () => {
+  const { t } = useLanguage();
   const { user: authUser } = useAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,16 +30,16 @@ const ScheduleScreen = () => {
 
   const handleDeleteEvent = async (eventId, createdBy) => {
     if (createdBy !== authUser?.uid) {
-      alert('You can only delete your own events');
+      alert(t('onlyDeleteOwnEvents'));
       return;
     }
 
-    if (window.confirm('Delete this event?')) {
+    if (window.confirm(t('deleteEventConfirm'))) {
       try {
         await deleteEvent(eventId);
         setEvents(prev => prev.filter(e => e.id !== eventId));
       } catch (error) {
-        alert('Error deleting event: ' + error.message);
+        alert(t('errorDeletingEvent') + error.message);
       }
     }
   };
@@ -76,9 +78,9 @@ const ScheduleScreen = () => {
       return (
         <div style={{ marginTop: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0, color: '#111' }}>Upcoming Service Program</h3>
+            <h3 style={{ margin: 0, color: '#111' }}>{t('upcomingServiceProgram')}</h3>
             <button
-              onClick={() => alert('Testimony request sent to admin!')}
+              onClick={() => alert(t('testimonySentAlert'))}
               style={{
                 backgroundColor: 'var(--accent)',
                 color: 'white',
@@ -90,7 +92,7 @@ const ScheduleScreen = () => {
                 cursor: 'pointer'
               }}
             >
-              Submit Testimony
+              {t('submitTestimony')}
             </button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -111,7 +113,7 @@ const ScheduleScreen = () => {
     if (activeTab === 'department') {
       return (
         <div style={{ marginTop: '16px' }}>
-          <h3 style={{ marginBottom: '16px', color: '#111' }}>Department Members</h3>
+          <h3 style={{ marginBottom: '16px', color: '#111' }}>{t('departmentMembers')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {departmentMembers.map(member => (
               <div key={member.id} style={{ ...cardStyle, padding: '12px 16px', gap: '12px', alignItems: 'center' }}>
@@ -120,13 +122,13 @@ const ScheduleScreen = () => {
                   height: '12px',
                   borderRadius: '50%',
                   backgroundColor: member.present ? '#4caf50' : '#f44336'
-                }} title={member.present ? 'Present' : 'Absent'} />
+                }} title={member.present ? t('present') : t('absent')} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: '600', color: '#111' }}>{member.name}</div>
                   <div style={{ fontSize: '0.85rem', color: '#666' }}>{member.role}</div>
                 </div>
                 <div style={{ fontSize: '0.85rem', fontWeight: '600', color: member.present ? '#4caf50' : '#f44336' }}>
-                  {member.present ? 'Present' : 'Absent'}
+                  {member.present ? t('present') : t('absent')}
                 </div>
               </div>
             ))}
@@ -140,10 +142,10 @@ const ScheduleScreen = () => {
       <>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
-            <h3 style={{ margin: 0, color: '#111' }}>My Schedule</h3>
+            <h3 style={{ margin: 0, color: '#111' }}>{t('mySchedule')}</h3>
             {totalHours > 0 && (
               <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: '600' }}>
-                Total Hours Logged: <strong style={{ color: 'var(--accent)' }}>{totalHours}h</strong>
+                {t('totalHoursLogged')}<strong style={{ color: 'var(--accent)' }}>{totalHours}h</strong>
               </span>
             )}
           </div>
@@ -157,23 +159,23 @@ const ScheduleScreen = () => {
               fontSize: '1.2rem',
               cursor: 'pointer'
             }}>
-            + Add
+            + {t('add')}
           </button>
         </div>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
-            Loading events...
+            {t('loadingEvents')}
           </div>
         ) : validEvents.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
-            No events yet. Click + to add one! 📅
+            {t('noEvents')} 📅
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {workShifts.length > 0 && (
               <div>
-                <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Work Shifts</h4>
+                <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('workShifts')}</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {workShifts.map(event => renderEventCard(event))}
                 </div>
@@ -182,7 +184,7 @@ const ScheduleScreen = () => {
             
             {personalEvents.length > 0 && (
               <div>
-                <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Personal Events</h4>
+                <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('personalEvents')}</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {personalEvents.map(event => renderEventCard(event))}
                 </div>
@@ -231,10 +233,10 @@ const ScheduleScreen = () => {
                     <div>
                       <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '4px', color: '#111' }}>{event.title}</h3>
                       {event.createdByName && event.createdByName !== 'TBD' && (
-                        <span style={{ fontSize: '0.75rem', color: '#999' }}>by {event.createdByName}</span>
+                        <span style={{ fontSize: '0.75rem', color: '#999' }}>{t('by')} {event.createdByName}</span>
                       )}
                     </div>
-                    {shouldShow.category && <span style={tagStyle}>{event.category}</span>}
+                    {shouldShow.category && <span style={tagStyle}>{t(event.category.toLowerCase())}</span>}
                   </div>
 
                   {shouldShow.time && (
@@ -254,7 +256,7 @@ const ScheduleScreen = () => {
                   {event.dressCode && (
                     <div style={infoRowStyle}>
                       <span style={{ fontSize: '0.9rem' }}>👔</span>
-                      <span style={infoTextStyle}>Dress Code: <strong style={{ color: 'var(--accent)' }}>{event.dressCode}</strong></span>
+                      <span style={infoTextStyle}>{t('dressCode')}: <strong style={{ color: 'var(--accent)' }}>{event.dressCode}</strong></span>
                     </div>
                   )}
 
@@ -285,7 +287,7 @@ const ScheduleScreen = () => {
                             gap: '4px'
                           }}
                         >
-                          <span style={{ fontSize: '1rem' }}>▶</span> Watch Stream
+                          <span style={{ fontSize: '1rem' }}>▶</span> {t('watchStream')}
                         </a>
                       )}
                       {event.videoConferenceUrl && (
@@ -306,7 +308,7 @@ const ScheduleScreen = () => {
                             gap: '4px'
                           }}
                         >
-                          <span style={{ fontSize: '1rem' }}>📹</span> Join Meeting
+                          <span style={{ fontSize: '1rem' }}>📹</span> {t('joinMeeting')}
                         </a>
                       )}
                     </div>
@@ -326,7 +328,7 @@ const ScheduleScreen = () => {
                         cursor: 'pointer',
                         fontWeight: '600'
                       }}>
-                      Delete
+                      {t('delete')}
                     </button>
                   )}
                 </div>
@@ -354,11 +356,10 @@ const ScheduleScreen = () => {
               fontSize: '0.9rem',
               cursor: 'pointer',
               boxShadow: activeTab === tab ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
-              transition: 'all 0.2s',
-              textTransform: 'capitalize'
+              transition: 'all 0.2s'
             }}
           >
-            {tab}
+            {t(tab)}
           </button>
         ))}
       </div>

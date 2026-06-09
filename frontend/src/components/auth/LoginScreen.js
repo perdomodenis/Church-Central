@@ -118,7 +118,7 @@ const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
       <div style={{ marginTop: '24px', position: 'relative', backgroundColor: 'white', padding: '28px', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
           <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
-          <span style={{ fontSize: '0.85rem', color: '#999' }}>or</span>
+          <span style={{ fontSize: '0.85rem', color: '#999' }}>{t('or')}</span>
           <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
         </div>
 
@@ -143,17 +143,17 @@ const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
           }}
         >
           <span style={{ fontSize: '1.2rem' }}>🔵</span>
-          {loading ? 'Signing in...' : 'Sign in with Google'}
+          {loading ? t('signingIn') : t('signInWithGoogle')}
         </button>
 
         <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '0.9rem' }}>
           <button onClick={onForgot} style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline', fontSize: '0.9rem' }}>
-            Forgot your password?
+            {t('forgotPassword')}
           </button>
           <p style={{ marginTop: '12px', color: '#666' }}>
-            Don't have an account? {' '}
+            {t('dontHaveAccount')} {' '}
             <button onClick={onSignup} style={{ background: 'none', border: 'none', color: 'var(--accent)', fontWeight: 'bold', cursor: 'pointer' }}>
-              Sign up here
+              {t('signUpHere')}
             </button>
           </p>
         </div>

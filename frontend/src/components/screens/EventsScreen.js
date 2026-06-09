@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { addEvent, getAllEvents, deleteEvent } from '../../services/eventService';
+import { useLanguage } from '../../context/LanguageContext';
 
 const EventsScreen = ({ user }) => {
+  const { t, language } = useLanguage();
   const [events, setEvents] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -85,10 +87,10 @@ const EventsScreen = ({ user }) => {
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>📅</div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '0 0 4px 0', color: '#111' }}>
-            Community Events
+            {t('communityEvents')}
           </h2>
           <p style={{ color: '#666', fontSize: '0.85rem', margin: 0 }}>
-            Create & discover events
+            {t('createDiscoverEvents')}
           </p>
         </div>
       </div>
@@ -101,7 +103,7 @@ const EventsScreen = ({ user }) => {
           marginBottom: '24px'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <h3 style={{ ...sectionTitleStyle, margin: 0 }}>Create Event</h3>
+            <h3 style={{ ...sectionTitleStyle, margin: 0 }}>{t('createEvent')}</h3>
             <button
               onClick={() => setShowForm(!showForm)}
               style={{
@@ -122,7 +124,7 @@ const EventsScreen = ({ user }) => {
               <input
                 type="text"
                 name="title"
-                placeholder="Event Title*"
+                placeholder={t('eventTitle') + '*'}
                 value={formData.title}
                 onChange={handleInputChange}
                 style={inputStyle}
@@ -130,7 +132,7 @@ const EventsScreen = ({ user }) => {
 
               <textarea
                 name="description"
-                placeholder="Description (optional)"
+                placeholder={t('descriptionOptional')}
                 value={formData.description}
                 onChange={handleInputChange}
                 style={{...inputStyle, minHeight: '60px', resize: 'vertical'}}
@@ -143,7 +145,7 @@ const EventsScreen = ({ user }) => {
                 style={inputStyle}
               >
                 {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat} value={cat}>{t(cat.toLowerCase())}</option>
                 ))}
               </select>
 
@@ -167,7 +169,7 @@ const EventsScreen = ({ user }) => {
               <input
                 type="text"
                 name="location"
-                placeholder="Location*"
+                placeholder={t('locationPlaceholder')}
                 value={formData.location}
                 onChange={handleInputChange}
                 style={inputStyle}
@@ -188,7 +190,7 @@ const EventsScreen = ({ user }) => {
                   cursor: creating || !formData.title || !formData.date || !formData.location ? 'not-allowed' : 'pointer'
                 }}
               >
-                {creating ? 'Creating...' : 'Create Event'}
+                {creating ? t('creating') : t('createEvent')}
               </button>
             </div>
           )}
@@ -197,11 +199,11 @@ const EventsScreen = ({ user }) => {
         {/* Events List */}
         <div>
           <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#111', margin: '0 0 16px 0' }}>
-            Upcoming Events ({events.length})
+            {t('upcomingEvents')} ({events.length})
           </h3>
 
           {loading ? (
-            <p style={{ color: '#999' }}>Loading events...</p>
+            <p style={{ color: '#999' }}>{t('loadingEvents')}</p>
           ) : events.length === 0 ? (
             <div style={{
               textAlign: 'center',
@@ -209,7 +211,7 @@ const EventsScreen = ({ user }) => {
               color: '#999'
             }}>
               <p style={{ fontSize: '2rem', marginBottom: '8px' }}>📭</p>
-              <p>No events yet. Create one to get started!</p>
+              <p>{t('noEventsYet')}</p>
             </div>
           ) : (
             events.map((event) => (
@@ -229,11 +231,11 @@ const EventsScreen = ({ user }) => {
                         fontSize: '0.75rem',
                         fontWeight: '600'
                       }}>
-                        {event.category}
+                        {t(event.category.toLowerCase())}
                       </span>
                     </div>
                     <p style={{ color: '#666', fontSize: '0.85rem', margin: 0 }}>
-                      by {event.createdBy}
+                      {t('by')} {event.createdBy}
                     </p>
                   </div>
                   {event.userId === user?.uid && (
@@ -269,7 +271,7 @@ const EventsScreen = ({ user }) => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <span style={{ fontSize: '1rem' }}>📅</span>
                     <span style={{ color: '#333', fontSize: '0.9rem' }}>
-                      {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {new Date(event.date).toLocaleDateString(language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : language, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                     {event.time && (
                       <>
@@ -299,7 +301,7 @@ const EventsScreen = ({ user }) => {
                     cursor: 'pointer'
                   }}
                 >
-                  Attend Event
+                  {t('attendEvent')}
                 </button>
               </div>
             ))

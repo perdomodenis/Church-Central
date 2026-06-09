@@ -1,7 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import { searchMembers } from '../../services/memberService';
 
+const toCamelCase = (str) => {
+  if (!str) return '';
+  return str
+    .replace(/[^a-zA-Z0-9\s-]/g, '')
+    .split(/[\s-]+/)
+    .map((word, index) => {
+      if (index === 0) return word.toLowerCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join('');
+};
+
 const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
+  const { t } = useLanguage();
   const [members, setMembers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,13 +42,13 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
   return (
     <div style={{ padding: '24px', paddingBottom: '100px' }}>
       <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '24px', color: '#111' }}>
-        Members
+        {t('members')}
       </h2>
 
       <div style={{ marginBottom: '24px' }}>
         <input
           type="text"
-          placeholder="Search by name, email or department..."
+          placeholder={t('searchMembersPlaceholder')}
           value={searchQuery}
           onChange={(e) => handleSearch(e.target.value)}
           style={{
@@ -51,7 +65,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
       </div>
 
       {loading ? (
-        <p style={{ textAlign: 'center', color: '#999' }}>Loading members...</p>
+        <p style={{ textAlign: 'center', color: '#999' }}>{t('loadingMembers')}</p>
       ) : members.length > 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {members.map((member) => (
@@ -110,7 +124,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
                 )}
                 {member.dept && (
                   <div style={{ fontSize: '0.8rem', color: '#999', marginTop: '2px' }}>
-                    {member.dept} {member.position && `• ${member.position}`}
+                    {t(toCamelCase(member.dept)) || member.dept} {member.position && `• ${t(toCamelCase(member.position)) || member.position}`}
                   </div>
                 )}
               </div>
@@ -121,7 +135,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
         </div>
       ) : (
         <div style={{ textAlign: 'center', padding: '40px', opacity: 0.5 }}>
-          <p>No members found.</p>
+          <p>{t('noMembersFound')}</p>
         </div>
       )}
     </div>

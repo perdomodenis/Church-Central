@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { addEvent, extractCategory } from '../../services/eventService';
+import { useLanguage } from '../../context/LanguageContext';
 
 const AddEventModal = ({ onClose, onEventAdded, user }) => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     title: '',
     startTime: '',
@@ -39,19 +41,19 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
     setLoading(true);
 
     if (!formData.title.trim()) {
-      setError('Event title is required');
+      setError(t('titleRequired'));
       setLoading(false);
       return;
     }
 
     if (!formData.startTime) {
-      setError('Start date/time is required');
+      setError(t('startRequired'));
       setLoading(false);
       return;
     }
 
     if (!formData.endTime) {
-      setError('End date/time is required');
+      setError(t('endRequired'));
       setLoading(false);
       return;
     }
@@ -65,7 +67,7 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
       onEventAdded(newEvent);
       onClose();
     } catch (err) {
-      setError('Error adding event: ' + err.message);
+      setError(t('errorAddingEvent') + err.message);
     } finally {
       setLoading(false);
     }
@@ -75,7 +77,7 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
     <div style={overlayStyle} onClick={onClose}>
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
         <div style={headerStyle}>
-          <h2 style={{ margin: 0, color: '#111' }}>Add Event</h2>
+          <h2 style={{ margin: 0, color: '#111' }}>{t('addEvent')}</h2>
           <button onClick={onClose} style={closeButtonStyle}>✕</button>
         </div>
 
@@ -90,7 +92,7 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
                 onChange={handleChange}
                 style={{ accentColor: 'var(--accent)' }}
               />
-              Personal Event
+              {t('personalEvent')}
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '600' }}>
               <input
@@ -101,25 +103,25 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
                 onChange={handleChange}
                 style={{ accentColor: 'var(--accent)' }}
               />
-              Work Shift
+              {t('workShift')}
             </label>
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Event Title *</label>
+            <label style={labelStyle}>{t('eventTitle')} *</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="e.g., Sunday Service"
+              placeholder={t('eventTitlePlaceholder')}
               style={inputStyle}
             />
           </div>
 
           <div style={rowStyle}>
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Start Date/Time *</label>
+              <label style={labelStyle}>{t('startDate')}</label>
               <input
                 type="datetime-local"
                 name="startTime"
@@ -130,7 +132,7 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>End Date/Time *</label>
+              <label style={labelStyle}>{t('endDate')}</label>
               <input
                 type="datetime-local"
                 name="endTime"
@@ -143,7 +145,7 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
 
           {formData.type === 'Work Shift' && (
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Hours Logged</label>
+              <label style={labelStyle}>{t('hoursLogged')}</label>
               <input
                 type="number"
                 name="hours"
@@ -158,59 +160,59 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
           )}
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Location</label>
+            <label style={labelStyle}>{t('location')}</label>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              placeholder="e.g., Main Sanctuary"
+              placeholder={t('locationPlaceholder')}
               style={inputStyle}
             />
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Description</label>
+            <label style={labelStyle}>{t('description')}</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Event details..."
+              placeholder={t('descriptionPlaceholder')}
               style={{...inputStyle, minHeight: '80px', fontFamily: 'inherit'}}
             />
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Category</label>
+            <label style={labelStyle}>{t('category')}</label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
               style={inputStyle}
             >
-              <option>Worship</option>
-              <option>Youth</option>
-              <option>Study</option>
-              <option>Community</option>
-              <option>Baptism</option>
-              <option>Event</option>
+              <option value="Worship">{t('worship')}</option>
+              <option value="Youth">{t('youth')}</option>
+              <option value="Study">{t('study')}</option>
+              <option value="Community">{t('community')}</option>
+              <option value="Baptism">{t('baptism')}</option>
+              <option value="Event">{t('event')}</option>
             </select>
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Dress Code (optional)</label>
+            <label style={labelStyle}>{t('dressCodeOptional')}</label>
             <input
               type="text"
               name="dressCode"
               value={formData.dressCode}
               onChange={handleChange}
-              placeholder="e.g., Casual, Formal, Choir Robes"
+              placeholder={t('dressCodePlaceholder')}
               style={inputStyle}
             />
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Live Stream URL (optional)</label>
+            <label style={labelStyle}>{t('liveStreamOptional')}</label>
             <input
               type="url"
               name="streamUrl"
@@ -222,7 +224,7 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Video Conference Link (optional)</label>
+            <label style={labelStyle}>{t('videoConferenceOptional')}</label>
             <input
               type="url"
               name="videoConferenceUrl"
@@ -248,10 +250,10 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
 
           <div style={buttonGroupStyle}>
             <button type="button" onClick={onClose} style={cancelButtonStyle}>
-              Cancel
+              {t('cancel')}
             </button>
             <button type="submit" disabled={loading} style={submitButtonStyle(loading)}>
-              {loading ? 'Adding...' : 'Add Event'}
+              {loading ? t('creating') : t('addEvent')}
             </button>
           </div>
         </form>

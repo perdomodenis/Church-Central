@@ -4,9 +4,11 @@ import { ref, onValue } from 'firebase/database';
 import { useAuth } from '../../context/AuthContext';
 import { registerForBaptism, unregisterFromBaptism, checkBaptismRegistration } from '../../services/baptismService';
 import AddBaptismModal from './AddBaptismModal';
+import { useLanguage } from '../../context/LanguageContext';
 
 const BaptismScreen = ({ user }) => {
   const { user: authUser } = useAuth();
+  const { t } = useLanguage();
   const [events, setEvents] = useState([]);
   const [registrations, setRegistrations] = useState({});
   const [loading, setLoading] = useState(true);
@@ -82,8 +84,8 @@ const BaptismScreen = ({ user }) => {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: '#111' }}>💧 Water Baptism</h2>
-          <p style={{ color: '#666', fontSize: '0.9rem', margin: '4px 0 0 0' }}>Register for baptism ceremonies</p>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: '#111' }}>💧 {t('waterBaptism')}</h2>
+          <p style={{ color: '#666', fontSize: '0.9rem', margin: '4px 0 0 0' }}>{t('registerForBaptismEvent')}</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
@@ -98,26 +100,26 @@ const BaptismScreen = ({ user }) => {
             fontSize: '0.9rem'
           }}
         >
-          + Add Event
+          + {t('addEvent')}
         </button>
       </div>
 
       {/* Info Section */}
       <div style={infoCardStyle}>
-        <h3 style={{ margin: '0 0 12px 0', fontSize: '1rem', fontWeight: '700' }}>What is Water Baptism?</h3>
+        <h3 style={{ margin: '0 0 12px 0', fontSize: '1rem', fontWeight: '700' }}>{t('whatIsBaptism')}</h3>
         <p style={{ margin: 0, color: '#555', fontSize: '0.9rem', lineHeight: '1.5' }}>
-          Water baptism is a public declaration of your faith in Jesus Christ. It represents your commitment to follow Christ and be part of our church community.
+          {t('baptismDescription')}
         </p>
       </div>
 
       {/* Events List */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
-          Loading baptism events...
+          {t('loading')}
         </div>
       ) : events.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
-          No baptism events scheduled yet. Check back soon! 📅
+          {t('noBaptismEvents')}
         </div>
       ) : (
         events.map(event => (
@@ -134,7 +136,7 @@ const BaptismScreen = ({ user }) => {
                 fontSize: '0.85rem',
                 fontWeight: '600'
               }}>
-                👥 {event.attendees || 0} attending
+                👥 {event.attendees || 0} {t('attending')}
               </div>
             </div>
 
@@ -165,7 +167,7 @@ const BaptismScreen = ({ user }) => {
                     fontSize: '0.95rem'
                   }}
                 >
-                  ✓ Registered - Click to Cancel
+                  ✓ {t('registeredBaptism')} - {t('cancelRegistration')}
                 </button>
               ) : (
                 <button
@@ -182,7 +184,7 @@ const BaptismScreen = ({ user }) => {
                     fontSize: '0.95rem'
                   }}
                 >
-                  Register for Baptism
+                  {t('registerForBaptism')}
                 </button>
               )}
             </div>

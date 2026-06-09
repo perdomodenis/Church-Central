@@ -1,6 +1,8 @@
 import React from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const WelcomeScreen = ({ name, onContinue }) => {
+  const { t } = useLanguage();
   return (
     <div className="welcome-screen" style={{ 
       padding: '40px 20px', 
@@ -22,11 +24,11 @@ const WelcomeScreen = ({ name, onContinue }) => {
       </div>
       
       <h1 style={{ color: 'var(--accent)', fontSize: '2.5rem', marginBottom: '16px' }}>
-        Welcome, {name}!
+        {t('welcomeUser').replace('{name}', name)}
       </h1>
       
       <p style={{ opacity: 0.8, fontSize: '1.1rem', marginBottom: '32px', lineHeight: '1.5' }}>
-        We're so glad you've joined the Church Central family. Your account has been successfully created and you're ready to start connecting with your community.
+        {t('welcomeUserMessage')}
       </p>
 
       <button 
@@ -44,7 +46,7 @@ const WelcomeScreen = ({ name, onContinue }) => {
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
         }}
       >
-        Get Started
+        {t('getStarted')}
       </button>
     </div>
   );

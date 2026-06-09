@@ -8,6 +8,10 @@
       ".read": "auth != null",
       ".write": "auth != null"
     },
+    "departmentRequests": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
     "documents": {
       ".read": "auth != null",
       ".write": "auth != null",
@@ -27,7 +31,8 @@
         ".write": "auth != null",
         "messages": {
           ".read": "auth != null",
-          ".write": "auth != null"
+          ".write": "auth != null",
+          ".indexOn": "timestamp"
         }
       }
     },
@@ -39,7 +44,8 @@
         ".write": "auth != null",
         "messages": {
           ".read": "auth != null",
-          ".write": "auth != null"
+          ".write": "auth != null",
+          ".indexOn": "timestamp"
         }
       }
     }

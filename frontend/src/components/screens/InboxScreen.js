@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const InboxScreen = () => {
+  const { t } = useLanguage();
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [messages, setMessages] = useState([]);
 
@@ -26,12 +28,12 @@ const InboxScreen = () => {
             marginBottom: '16px'
           }}
         >
-          ← Back
+          ← {t('back')}
         </button>
 
         <div style={cardStyle}>
           <div style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '16px' }}>
-            <p style={{ color: '#666', fontSize: '0.9rem', margin: '0 0 8px 0' }}>From: {message.sender}</p>
+            <p style={{ color: '#666', fontSize: '0.9rem', margin: '0 0 8px 0' }}>{t('from')}: {message.sender}</p>
             <h2 style={{ margin: '0 0 8px 0', color: '#111', fontSize: '1.3rem', fontWeight: '700' }}>
               {message.subject}
             </h2>
@@ -54,7 +56,7 @@ const InboxScreen = () => {
   return (
     <div className="inbox-screen" style={{ padding: '24px', paddingBottom: '100px' }}>
       <h2 style={{ margin: '0 0 20px 0', color: '#111', fontSize: '1.5rem', fontWeight: '700' }}>
-        Inbox
+        {t('inbox')}
       </h2>
 
       {messages.length > 0 ? (
@@ -94,7 +96,7 @@ const InboxScreen = () => {
         ))
       ) : (
         <div style={{ textAlign: 'center', padding: '40px', opacity: 0.5 }}>
-          <p>Your inbox is empty.</p>
+          <p>{t('emptyInbox')}</p>
         </div>
       )}
     </div>

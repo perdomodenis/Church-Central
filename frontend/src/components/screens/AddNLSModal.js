@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { createNLSEvent } from '../../services/nlsService';
+import { useLanguage } from '../../context/LanguageContext';
 
 const AddNLSModal = ({ onClose, onEventAdded, user }) => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
-    title: 'New Life School Class',
+    title: t('nlsClassDefault'),
     date: '',
     time: '',
-    location: 'Church Campus',
+    location: t('nlsLocationDefault'),
     description: ''
   });
   const [loading, setLoading] = useState(false);
@@ -26,13 +28,13 @@ const AddNLSModal = ({ onClose, onEventAdded, user }) => {
     setLoading(true);
 
     if (!formData.date) {
-      setError('Date is required');
+      setError(t('dateRequired'));
       setLoading(false);
       return;
     }
 
     if (!formData.time) {
-      setError('Time is required');
+      setError(t('timeRequired'));
       setLoading(false);
       return;
     }
@@ -42,7 +44,7 @@ const AddNLSModal = ({ onClose, onEventAdded, user }) => {
       onEventAdded(newEvent);
       onClose();
     } catch (err) {
-      setError('Error creating class: ' + err.message);
+      setError(t('errorCreatingClass') + err.message);
     } finally {
       setLoading(false);
     }
@@ -52,26 +54,26 @@ const AddNLSModal = ({ onClose, onEventAdded, user }) => {
     <div style={overlayStyle} onClick={onClose}>
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
         <div style={headerStyle}>
-          <h2 style={{ margin: 0, color: '#111' }}>Create NLS Class</h2>
+          <h2 style={{ margin: 0, color: '#111' }}>{t('createNlsClass')}</h2>
           <button onClick={onClose} style={closeButtonStyle}>✕</button>
         </div>
 
         <form onSubmit={handleSubmit} style={formStyle}>
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Class Title</label>
+            <label style={labelStyle}>{t('classTitle')}</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="e.g., NLS Level 1"
+              placeholder={t('nlsPlaceholder')}
               style={inputStyle}
             />
           </div>
 
           <div style={rowStyle}>
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Date *</label>
+              <label style={labelStyle}>{t('date')} *</label>
               <input
                 type="date"
                 name="date"
@@ -83,7 +85,7 @@ const AddNLSModal = ({ onClose, onEventAdded, user }) => {
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Time *</label>
+              <label style={labelStyle}>{t('time')} *</label>
               <input
                 type="time"
                 name="time"
@@ -96,24 +98,24 @@ const AddNLSModal = ({ onClose, onEventAdded, user }) => {
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Location</label>
+            <label style={labelStyle}>{t('location')}</label>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              placeholder="e.g., Church Campus"
+              placeholder={t('nlsLocationDefault')}
               style={inputStyle}
             />
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Description</label>
+            <label style={labelStyle}>{t('description')}</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Additional details..."
+              placeholder={t('additionalDetails')}
               style={{...inputStyle, minHeight: '80px', fontFamily: 'inherit'}}
             />
           </div>
@@ -133,10 +135,10 @@ const AddNLSModal = ({ onClose, onEventAdded, user }) => {
 
           <div style={buttonGroupStyle}>
             <button type="button" onClick={onClose} style={cancelButtonStyle}>
-              Cancel
+              {t('cancel')}
             </button>
             <button type="submit" disabled={loading} style={submitButtonStyle(loading)}>
-              {loading ? 'Creating...' : 'Create Class'}
+              {loading ? t('creating') : t('createClass')}
             </button>
           </div>
         </form>

@@ -2,8 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getDocuments, uploadDocument, deleteDocument } from '../../services/documentService';
 import * as Icon from '../common/Icons';
+import { useLanguage } from '../../context/LanguageContext';
+
+const toCamelCase = (str) => {
+  if (!str) return '';
+  return str
+    .replace(/[^a-zA-Z0-9\s-]/g, '')
+    .split(/[\s-]+/)
+    .map((word, index) => {
+      if (index === 0) return word.toLowerCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join('');
+};
 
 const DocumentsScreen = ({ user }) => {
+  const { t } = useLanguage();
   const { user: authUser } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,9 +51,9 @@ const DocumentsScreen = ({ user }) => {
     try {
       const newDoc = await uploadDocument(file, authUser, filterDept === 'All' ? 'Global' : filterDept);
       setDocuments(prev => [newDoc, ...prev]);
-      alert('Document uploaded successfully!');
+      alert(t('docUploadedSuccess'));
     } catch (err) {
-      alert('Error uploading document: ' + err.message);
+      alert(t('docUploadError') + ': ' + err.message);
     } finally {
       setUploading(false);
       e.target.value = null; // Reset input
@@ -48,16 +62,16 @@ const DocumentsScreen = ({ user }) => {
 
   const handleDelete = async (docId, storagePath, uploaderId) => {
     if (uploaderId !== authUser.uid && user?.position !== 'Admin') {
-      alert('You can only delete your own documents.');
+      alert(t('deleteOwnDocsOnly'));
       return;
     }
 
-    if (window.confirm('Are you sure you want to delete this document?')) {
+    if (window.confirm(t('deleteDocConfirm'))) {
       try {
         await deleteDocument(docId, storagePath);
         setDocuments(prev => prev.filter(d => d.id !== docId));
       } catch (err) {
-        alert('Error deleting document: ' + err.message);
+        alert(t('deleteDocError') + ': ' + err.message);
       }
     }
   };
@@ -74,8 +88,8 @@ const DocumentsScreen = ({ user }) => {
     <div style={{ padding: '16px', paddingBottom: '100px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: '#111' }}>📁 Documents</h2>
-          <p style={{ color: '#666', fontSize: '0.9rem', margin: '4px 0 0 0' }}>Share and access files</p>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: '#111' }}>📁 {t('documents')}</h2>
+          <p style={{ color: '#666', fontSize: '0.9rem', margin: '4px 0 0 0' }}>{t('shareAccessFiles')}</p>
         </div>
         
         <div>
@@ -99,7 +113,7 @@ const DocumentsScreen = ({ user }) => {
               opacity: uploading ? 0.7 : 1
             }}
           >
-            {uploading ? 'Uploading...' : '+ Upload'}
+            {uploading ? t('uploading') : t('uploadButton')}
           </label>
         </div>
       </div>
@@ -110,7 +124,7 @@ const DocumentsScreen = ({ user }) => {
           onClick={() => setFilterDept('All')}
           style={filterButtonStyle(filterDept === 'All')}
         >
-          All
+          {t('all')}
         </button>
         {departments.map(dept => (
           <button 
@@ -118,17 +132,17 @@ const DocumentsScreen = ({ user }) => {
             onClick={() => setFilterDept(dept)}
             style={filterButtonStyle(filterDept === dept)}
           >
-            {dept}
+            {t(toCamelCase(dept)) || dept}
           </button>
         ))}
       </div>
 
       {/* Documents List */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>Loading documents...</div>
+        <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>{t('loading')}</div>
       ) : documents.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
-          No documents found in this section.
+          {t('noDocsFound')}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -185,7 +199,7 @@ const DocumentsScreen = ({ user }) => {
                       backgroundColor: 'rgba(91, 63, 187, 0.05)'
                     }}
                   >
-                    Download
+                    {t('download')}
                   </a>
                   
                   {isOwnerOrAdmin && (
@@ -201,7 +215,7 @@ const DocumentsScreen = ({ user }) => {
                         padding: '4px 8px'
                       }}
                     >
-                      Delete
+                      {t('delete')}
                     </button>
                   )}
                 </div>

@@ -3,8 +3,22 @@ import { uploadPhoto, getUserPhotos, deletePhoto } from '../../services/photoSer
 import { updateProfilePhoto, updateUserProfile, getUserProfile } from '../../services/userService';
 import { COURTS, DEPARTMENTS, ROLES, getAccessLevel } from '../../services/churchConstants';
 import { requestDepartmentJoin } from '../../services/departmentService';
+import { useLanguage } from '../../context/LanguageContext';
+
+const toCamelCase = (str) => {
+  if (!str) return '';
+  return str
+    .replace(/[^a-zA-Z0-9\s-]/g, '')
+    .split(/[\s-]+/)
+    .map((word, index) => {
+      if (index === 0) return word.toLowerCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join('');
+};
 
 const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
+  const { t } = useLanguage();
   const initials = `${user.first?.[0] || ''}${user.last?.[0] || ''}`.toUpperCase() || '??';
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -127,7 +141,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
 
       if (editUser.dept !== user.dept) {
         await requestDepartmentJoin(user.uid, `${editUser.first} ${editUser.last}`, editUser.dept);
-        alert(`A request to join the ${editUser.dept} department has been sent for approval.`);
+        alert(t('deptJoinSuccessSent').replace('{dept}', editUser.dept));
         setEditUser(prev => ({ ...prev, dept: user.dept }));
       } else {
         updates.dept = editUser.dept;
@@ -136,6 +150,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
       await updateUserProfile(user.uid, updates);
       
       const updatedUser = { 
+        ...user,
         ...editUser, 
         dept: editUser.dept !== user.dept ? user.dept : editUser.dept,
         accessLevel: getAccessLevel(editUser.position || 'Member')
@@ -218,7 +233,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
       {/* Church Details Card */}
       <div style={cardStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ ...sectionTitleStyle, margin: 0 }}>Community Info</h3>
+          <h3 style={{ ...sectionTitleStyle, margin: 0 }}>{t('communityInfo')}</h3>
           <button
             onClick={() => {
               if (isEditingProfile) {
@@ -236,14 +251,14 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               fontSize: '0.85rem'
             }}
           >
-            {isEditingProfile ? 'Save' : 'Edit'}
+            {isEditingProfile ? t('save') : t('edit')}
           </button>
         </div>
 
         {isEditingProfile ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div>
-              <label style={labelStyle}>First Name</label>
+              <label style={labelStyle}>{t('firstName')}</label>
               <input
                 type="text"
                 value={editUser.first}
@@ -252,7 +267,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               />
             </div>
             <div>
-              <label style={labelStyle}>Last Name</label>
+              <label style={labelStyle}>{t('lastName')}</label>
               <input
                 type="text"
                 value={editUser.last}
@@ -261,41 +276,41 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               />
             </div>
             <div>
-              <label style={labelStyle}>Location / Court</label>
+              <label style={labelStyle}>{t('locationCourt')}</label>
               <select
                 value={editUser.court}
                 onChange={(e) => setEditUser(prev => ({ ...prev, court: e.target.value }))}
                 style={selectStyle}
               >
-                <option value="" disabled>Select Location / Court</option>
+                <option value="" disabled>{t('selectLocationCourt')}</option>
                 {COURTS.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
+                  <option key={opt} value={opt}>{t(toCamelCase(opt)) || opt}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label style={labelStyle}>Department</label>
+              <label style={labelStyle}>{t('department')}</label>
               <select
                 value={editUser.dept}
                 onChange={(e) => setEditUser(prev => ({ ...prev, dept: e.target.value }))}
                 style={selectStyle}
               >
-                <option value="" disabled>Select Department</option>
+                <option value="" disabled>{t('selectDepartment')}</option>
                 {DEPARTMENTS.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
+                  <option key={opt} value={opt}>{t(toCamelCase(opt)) || opt}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label style={labelStyle}>Position</label>
+              <label style={labelStyle}>{t('positionLabel')}</label>
               <select
                 value={editUser.position}
                 onChange={(e) => setEditUser(prev => ({ ...prev, position: e.target.value }))}
                 style={selectStyle}
               >
-                <option value="" disabled>Select Position</option>
+                <option value="" disabled>{t('selectPosition')}</option>
                 {ROLES.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
+                  <option key={opt} value={opt}>{t(toCamelCase(opt)) || opt}</option>
                 ))}
               </select>
             </div>
@@ -303,23 +318,23 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
         ) : (
           <>
             <div style={infoRowStyle}>
-              <span style={labelStyle}>Name</span>
+              <span style={labelStyle}>{t('name')}</span>
               <span style={valueStyle}>{editUser.first} {editUser.last}</span>
             </div>
 
             <div style={infoRowStyle}>
-              <span style={labelStyle}>Location / Court</span>
-              <span style={valueStyle}>{editUser.court || 'Not specified'}</span>
+              <span style={labelStyle}>{t('locationCourt')}</span>
+              <span style={valueStyle}>{editUser.court ? t(toCamelCase(editUser.court)) : t('notSpecified')}</span>
             </div>
 
             <div style={infoRowStyle}>
-              <span style={labelStyle}>Department</span>
-              <span style={valueStyle}>{editUser.dept || 'Not specified'}</span>
+              <span style={labelStyle}>{t('department')}</span>
+              <span style={valueStyle}>{editUser.dept ? t(toCamelCase(editUser.dept)) : t('notSpecified')}</span>
             </div>
 
             <div style={infoRowStyle}>
-              <span style={labelStyle}>Position</span>
-              <span style={valueStyle}>{editUser.position || 'Not specified'}</span>
+              <span style={labelStyle}>{t('positionLabel')}</span>
+              <span style={valueStyle}>{editUser.position ? t(toCamelCase(editUser.position)) : t('notSpecified')}</span>
             </div>
           </>
         )}
@@ -328,7 +343,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
       {/* Bio Section */}
       <div style={cardStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={{ ...sectionTitleStyle, margin: 0 }}>About Me</h3>
+          <h3 style={{ ...sectionTitleStyle, margin: 0 }}>{t('aboutMe')}</h3>
           <button
             onClick={() => {
               if (isEditMode) {
@@ -346,7 +361,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               fontSize: '0.85rem'
             }}
           >
-            {isEditMode ? 'Save' : 'Edit'}
+            {isEditMode ? t('save') : t('edit')}
           </button>
         </div>
 
@@ -354,7 +369,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
           <textarea
             value={editBio}
             onChange={(e) => setEditBio(e.target.value)}
-            placeholder="Write something about yourself..."
+            placeholder={t('writeAboutSelf')}
             style={{
               width: '100%',
               minHeight: '100px',
@@ -375,7 +390,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
             margin: 0,
             fontStyle: profileData.bio ? 'normal' : 'italic'
           }}>
-            {profileData.bio || 'No description yet. Click Edit to add one.'}
+            {profileData.bio || t('noDescriptionYet')}
           </p>
         )}
       </div>
@@ -383,7 +398,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
       {/* Interests Section */}
       <div style={{ marginBottom: '32px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={sectionTitleStyle}>Interests</h3>
+          <h3 style={sectionTitleStyle}>{t('interests')}</h3>
           <button
             onClick={() => setIsEditingProfile(isEditingProfile ? false : 'interests')}
             style={{
@@ -395,7 +410,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               fontSize: '0.85rem'
             }}
           >
-            {isEditingProfile ? 'Done' : 'Edit'}
+            {isEditingProfile ? t('done') : t('edit')}
           </button>
         </div>
 
@@ -406,7 +421,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
                 type="text"
                 value={newInterest}
                 onChange={(e) => setNewInterest(e.target.value)}
-                placeholder="Add new interest"
+                placeholder={t('addNewInterest')}
                 onKeyPress={(e) => e.key === 'Enter' && handleAddInterest()}
                 style={{...inputStyle, flex: 1}}
               />
@@ -446,7 +461,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
                   </div>
                 ))
               ) : (
-                <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>No interests added yet.</p>
+                <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>{t('noInterestsYet')}</p>
               )}
             </div>
           </div>
@@ -459,7 +474,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
                 </span>
               ))
             ) : (
-              <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>No interests added yet.</p>
+              <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>{t('noInterestsYet')}</p>
             )}
           </div>
         )}
@@ -467,12 +482,12 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
 
       {/* Notifications Section */}
       <div style={cardStyle}>
-        <h3 style={sectionTitleStyle}>Notification Preferences</h3>
+        <h3 style={sectionTitleStyle}>{t('notificationPreferences')}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <span style={labelStyle}>Specific Events</span>
-              <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>Get notified about special events in your area</p>
+              <span style={labelStyle}>{t('specificEvents')}</span>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>{t('getNotifiedEvents')}</p>
             </div>
             <input 
               type="checkbox" 
@@ -483,8 +498,8 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <span style={labelStyle}>Video Conferences</span>
-              <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>Get links for upcoming video meetings</p>
+              <span style={labelStyle}>{t('videoConferences')}</span>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>{t('getLinksVideo')}</p>
             </div>
             <input 
               type="checkbox" 
@@ -495,8 +510,8 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <span style={labelStyle}>General News</span>
-              <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>Updates on the news feed</p>
+              <span style={labelStyle}>{t('generalNews')}</span>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>{t('updatesNewsFeed')}</p>
             </div>
             <input 
               type="checkbox" 
@@ -510,7 +525,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
 
       {/* Photos Section */}
       <div style={{ marginBottom: '32px' }}>
-        <h3 style={sectionTitleStyle}>My Photos</h3>
+        <h3 style={sectionTitleStyle}>{t('myPhotos')}</h3>
 
         <label style={{ display: 'block', marginBottom: '16px' }}>
           <input
@@ -531,12 +546,12 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
             fontWeight: '600',
             fontSize: '0.95rem'
           }}>
-            {uploading ? 'Uploading...' : '+ Add Photo'}
+            {uploading ? t('uploading') : t('addPhoto')}
           </div>
         </label>
 
         {loading ? (
-          <p style={{ color: '#999', fontSize: '0.9rem' }}>Loading photos...</p>
+          <p style={{ color: '#999', fontSize: '0.9rem' }}>{t('loadingPhotos')}</p>
         ) : photos.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px' }}>
             {photos.map((photo, index) => (
@@ -566,7 +581,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
             ))}
           </div>
         ) : (
-          <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>No photos yet.</p>
+          <p style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>{t('noPhotosYet')}</p>
         )}
       </div>
 
@@ -647,8 +662,10 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               <button
                 onClick={() => {
                   const photoToDelete = photos[selectedPhotoIndex].name;
-                  handleDeletePhoto(photoToDelete);
-                  setSelectedPhotoIndex(null);
+                  if (window.confirm(t('deletePhotoConfirm'))) {
+                    handleDeletePhoto(photoToDelete);
+                    setSelectedPhotoIndex(null);
+                  }
                 }}
                 style={{
                   backgroundColor: '#e74c3c',
@@ -665,7 +682,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#c0392b'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#e74c3c'}
               >
-                🗑️ Delete
+                🗑️ {t('delete')}
               </button>
 
               {/* Next Button */}
@@ -724,10 +741,10 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
       {/* Actions */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <button onClick={onSettings} style={primaryButtonStyle}>
-          Account Settings
+          {t('accountSettings')}
         </button>
         <button onClick={onLogout} style={logoutButtonStyle}>
-          Sign Out
+          {t('signOut')}
         </button>
       </div>
     </div>

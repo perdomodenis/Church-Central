@@ -85,6 +85,9 @@ const SettingsScreen = ({ user, onBack, accentColor, setAccentColor, darkMode, s
                 {language === 'es' && '🇪🇸 Español'}
                 {language === 'de' && '🇩🇪 Deutsch'}
                 {language === 'fr' && '🇫🇷 Français'}
+                {language === 'it' && '🇮🇹 Italiano'}
+                {language === 'pt' && '🇵🇹 Português'}
+                {language === 'ln' && '🇨🇩 Lingala'}
               </p>
             </div>
             <button

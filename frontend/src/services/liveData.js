@@ -664,16 +664,16 @@ export const seedLiveData = async () => {
     console.log(`✅ ${LIVE_MEMBERS.length} miembros activos inyectados en PostgreSQL`);
 
     // PostgreSQL Announcements
-    for (const post of LIVE_FEED_POSTS) {
-      await createAnnouncement({
-        content: post.content,
-        scope: post.scope,
-        category: post.category,
-        imageUrl: post.image || '',
-        authorUid: post.authorId
-      });
-    }
-    console.log(`✅ ${LIVE_FEED_POSTS.length} posts recientes inyectados en PostgreSQL`);
+    // for (const post of LIVE_FEED_POSTS) {
+    //   await createAnnouncement({
+    //     content: post.content,
+    //     scope: post.scope,
+    //     category: post.category,
+    //     imageUrl: post.image || '',
+    //     authorUid: post.authorId
+    //   });
+    // }
+    // console.log(`✅ ${LIVE_FEED_POSTS.length} posts recientes inyectados en PostgreSQL`);
 
     // PostgreSQL Events
     for (const event of LIVE_CHURCH_EVENTS) {

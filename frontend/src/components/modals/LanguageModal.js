@@ -13,7 +13,10 @@ const LanguageModal = ({ onClose }) => {
     { code: 'en', name: '🇬🇧 English', flag: '🇬🇧' },
     { code: 'es', name: '🇪🇸 Español', flag: '🇪🇸' },
     { code: 'de', name: '🇩🇪 Deutsch', flag: '🇩🇪' },
-    { code: 'fr', name: '🇫🇷 Français', flag: '🇫🇷' }
+    { code: 'fr', name: '🇫🇷 Français', flag: '🇫🇷' },
+    { code: 'it', name: '🇮🇹 Italiano', flag: '🇮🇹' },
+    { code: 'pt', name: '🇵🇹 Português', flag: '🇵🇹' },
+    { code: 'ln', name: '🇨🇩 Lingala', flag: '🇨🇩' }
   ];
 
   return (
@@ -23,8 +26,8 @@ const LanguageModal = ({ onClose }) => {
           <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: '#111' }}>
             Choose Language
           </h2>
-          <p style={{ color: '#666', fontSize: '0.9rem', margin: '8px 0 0 0' }}>
-            Selecciona un idioma / Wähle eine Sprache / Choisir une langue
+          <p style={{ color: '#666', fontSize: '0.85rem', margin: '8px 0 0 0', lineHeight: '1.4' }}>
+            Select language / Selecciona un idioma / Wähle eine Sprache / Choisir une langue / Seleziona una lingua / Selecione um idioma / Pona lokota
           </p>
         </div>
 

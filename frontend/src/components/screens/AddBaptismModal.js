@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { createBaptismEvent } from '../../services/baptismService';
+import { useLanguage } from '../../context/LanguageContext';
 
 const AddBaptismModal = ({ onClose, onEventAdded, user }) => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
-    title: 'Water Baptism',
+    title: t('waterBaptism'),
     date: '',
     time: '',
-    location: 'Church Baptismal Pool',
+    location: t('defaultBaptismLocation'),
     description: ''
   });
   const [loading, setLoading] = useState(false);
@@ -26,13 +28,13 @@ const AddBaptismModal = ({ onClose, onEventAdded, user }) => {
     setLoading(true);
 
     if (!formData.date) {
-      setError('Date is required');
+      setError(t('dateRequired'));
       setLoading(false);
       return;
     }
 
     if (!formData.time) {
-      setError('Time is required');
+      setError(t('timeRequired'));
       setLoading(false);
       return;
     }
@@ -42,7 +44,7 @@ const AddBaptismModal = ({ onClose, onEventAdded, user }) => {
       onEventAdded(newEvent);
       onClose();
     } catch (err) {
-      setError('Error creating event: ' + err.message);
+      setError(t('errorCreatingEvent') + err.message);
     } finally {
       setLoading(false);
     }
@@ -52,26 +54,26 @@ const AddBaptismModal = ({ onClose, onEventAdded, user }) => {
     <div style={overlayStyle} onClick={onClose}>
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
         <div style={headerStyle}>
-          <h2 style={{ margin: 0, color: '#111' }}>Create Baptism Event</h2>
+          <h2 style={{ margin: 0, color: '#111' }}>{t('createBaptismEvent')}</h2>
           <button onClick={onClose} style={closeButtonStyle}>✕</button>
         </div>
 
         <form onSubmit={handleSubmit} style={formStyle}>
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Event Title</label>
+            <label style={labelStyle}>{t('baptismEventTitle')}</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="e.g., Water Baptism"
+              placeholder={t('waterBaptism')}
               style={inputStyle}
             />
           </div>
 
           <div style={rowStyle}>
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Date *</label>
+              <label style={labelStyle}>{t('baptismDate')}</label>
               <input
                 type="date"
                 name="date"
@@ -83,7 +85,7 @@ const AddBaptismModal = ({ onClose, onEventAdded, user }) => {
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Time *</label>
+              <label style={labelStyle}>{t('baptismTime')}</label>
               <input
                 type="time"
                 name="time"
@@ -96,24 +98,24 @@ const AddBaptismModal = ({ onClose, onEventAdded, user }) => {
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Location</label>
+            <label style={labelStyle}>{t('baptismLocation')}</label>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              placeholder="e.g., Church Baptismal Pool"
+              placeholder={t('baptismLocationPlaceholder')}
               style={inputStyle}
             />
           </div>
 
           <div style={formGroupStyle}>
-            <label style={labelStyle}>Description</label>
+            <label style={labelStyle}>{t('baptismDescriptionLabel')}</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Additional details..."
+              placeholder={t('additionalDetails')}
               style={{...inputStyle, minHeight: '80px', fontFamily: 'inherit'}}
             />
           </div>
@@ -133,10 +135,10 @@ const AddBaptismModal = ({ onClose, onEventAdded, user }) => {
 
           <div style={buttonGroupStyle}>
             <button type="button" onClick={onClose} style={cancelButtonStyle}>
-              Cancel
+              {t('cancel')}
             </button>
             <button type="submit" disabled={loading} style={submitButtonStyle(loading)}>
-              {loading ? 'Creating...' : 'Create Event'}
+              {loading ? t('creating') : t('createBaptismEvent')}
             </button>
           </div>
         </form>

@@ -2,6 +2,19 @@ import React, { useState, useEffect } from 'react';
 import * as Icon from '../common/Icons';
 import { listFeedPosts } from '../../lib/dataconnect';
 import './FeedScreen.css';
+import { useLanguage } from '../../context/LanguageContext';
+
+const toCamelCase = (str) => {
+  if (!str) return '';
+  return str
+    .replace(/[^a-zA-Z0-9\s-]/g, '')
+    .split(/[\s-]+/)
+    .map((word, index) => {
+      if (index === 0) return word.toLowerCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join('');
+};
 
 const isPdfUrl = (url) => {
   if (!url) return false;
@@ -13,7 +26,8 @@ const isPdfUrl = (url) => {
   }
 };
 
-const FeedScreen = ({ scope, onScope, onAction, user }) => {
+const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
+  const { t } = useLanguage();
   const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
   const [posts, setPosts] = useState([]);
   const [postComments, setPostComments] = useState({});
@@ -38,10 +52,10 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
 
   // Mock events for the right sidebar
   const upcomingEvents = [
-    { id: 'ev1', title: 'Sunday Worship Service', date: '07', month: 'Jun', time: '10:00 AM', loc: 'Main Sanctuary' },
-    { id: 'ev2', title: 'Midweek Bible Study', date: '10', month: 'Jun', time: '07:30 PM', loc: 'Fellowship Hall' },
-    { id: 'ev3', title: 'Youth Group Night', date: '12', month: 'Jun', time: '06:30 PM', loc: 'Youth Room' },
-    { id: 'ev4', title: 'Community Soup Kitchen', date: '13', month: 'Jun', time: '09:00 AM', loc: 'Dining Area' }
+    { id: 'ev1', title: t('worship'), date: '07', month: 'Jun', time: '10:00 AM', loc: 'Main Sanctuary' },
+    { id: 'ev2', title: t('study'), date: '10', month: 'Jun', time: '07:30 PM', loc: 'Fellowship Hall' },
+    { id: 'ev3', title: t('youth'), date: '12', month: 'Jun', time: '06:30 PM', loc: 'Youth Room' },
+    { id: 'ev4', title: t('social'), date: '13', month: 'Jun', time: '09:00 AM', loc: 'Dining Area' }
   ];
 
   // Sync prayed posts to localStorage
@@ -58,7 +72,7 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
   useEffect(() => {
     const loadPosts = async () => {
       try {
-        const response = await listFeedPosts();
+        const response = await listFeedPosts({ fetchPolicy: 'SERVER_ONLY' });
         const announcements = response.data?.announcements || [];
         const mapped = announcements.map(post => ({
           id: post.id,
@@ -80,7 +94,7 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
       }
     };
     loadPosts();
-  }, []);
+  }, [refreshKey]);
 
   const handlePrayClick = (postId, e) => {
     e.stopPropagation();
@@ -192,32 +206,32 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
           </div>
           <div>
             <h4 style={{ fontWeight: '700', fontSize: '1rem' }}>
-              {user?.first ? `${user.first} ${user.last}` : 'Welcome Guest'}
+              {user?.first ? `${user.first} ${user.last}` : t('welcomeGuest')}
             </h4>
             <span className="post-scope-tag" style={{ marginTop: '4px', display: 'inline-block', fontSize: '0.65rem' }}>
-              {user?.position || 'Member'}
+              {user?.position ? (t(toCamelCase(user.position)) || user.position) : t('member')}
             </span>
           </div>
         </div>
 
         <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div className="profile-meta-item">
-            <span>📍</span> <span>{user?.court || 'Main Campus'}</span>
+            <span>📍</span> <span>{user?.court ? (t(toCamelCase(user.court)) || user.court) : t('court')}</span>
           </div>
           <div className="profile-meta-item">
-            <span>👥</span> <span>{user?.dept || 'General Dept'}</span>
+            <span>👥</span> <span>{user?.dept ? (t(toCamelCase(user.dept)) || user.dept) : t('department')}</span>
           </div>
         </div>
 
         <div style={{ marginTop: '12px', padding: '14px', borderRadius: '14px', backgroundColor: 'var(--accent-soft)', border: '1px solid var(--line-2)' }}>
           <h5 style={{ fontWeight: '800', color: 'var(--accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
-            Daily Devotional
+            {t('dailyDevotional')}
           </h5>
           <p className="serif" style={{ fontSize: '1.05rem', fontStyle: 'italic', lineHeight: '1.4', color: 'var(--ink)' }}>
-            "For I know the plans I have for you," declares the Lord, "plans to prosper you and not to harm you, plans to give you hope and a future."
+            {t('devotionalVerse')}
           </p>
           <span style={{ display: 'block', textAlign: 'right', fontSize: '0.75rem', marginTop: '6px', fontWeight: '600', color: 'var(--ink-2)' }}>
-            Jeremiah 29:11
+            {t('devotionalRef')}
           </span>
         </div>
       </aside>
@@ -234,7 +248,7 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
                 onClick={() => onScope(opt)}
                 className={`scope-tab-button ${scope === opt ? 'active' : ''}`}
               >
-                {opt}
+                {t(opt.toLowerCase())}
               </button>
             ))}
           </div>
@@ -252,18 +266,18 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
         }}>
           <div style={{ position: 'relative', zIndex: 2 }}>
             <h2 className="serif" style={{ margin: '0 0 8px 0', fontSize: '2.2rem', fontWeight: '400' }}>
-              ⛪ Grace Community Church
+              ⛪ {t('graceCommunityChurch')}
             </h2>
             <p style={{ margin: '0 0 20px 0', opacity: 0.9, fontSize: '0.95rem', maxWidth: '480px', lineHeight: '1.5' }}>
-              A vibrant community of believers dedicated to spiritual growth and serving our city.
+              {t('churchSubtitle')}
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxWidth: '360px' }}>
               <div style={{ backgroundColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)', padding: '12px 16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: '0.75rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Main Service</div>
-                <div style={{ fontWeight: '700', fontSize: '1.05rem', marginTop: '2px' }}>Sunday 10 AM</div>
+                <div style={{ fontSize: '0.75rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('mainService')}</div>
+                <div style={{ fontWeight: '700', fontSize: '1.05rem', marginTop: '2px' }}>{t('sunday10am')}</div>
               </div>
               <div style={{ backgroundColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)', padding: '12px 16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: '0.75rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Active Members</div>
+                <div style={{ fontSize: '0.75rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('activeMembers')}</div>
                 <div style={{ fontWeight: '700', fontSize: '1.05rem', marginTop: '2px' }}>1,250+</div>
               </div>
             </div>
@@ -306,7 +320,7 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
                       <div style={{ fontSize: '0.75rem', color: 'var(--ink-3)', marginTop: '2px' }}>{post.time}</div>
                     </div>
                   </div>
-                  <span className="post-scope-tag">{post.scope}</span>
+                  <span className="post-scope-tag">{t(post.scope.toLowerCase())}</span>
                 </div>
 
                 <p style={{ lineHeight: '1.6', marginBottom: '16px', fontSize: '0.95rem', color: 'var(--ink)' }}>
@@ -320,8 +334,8 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
                         <div className="pdf-info-left">
                           <div className="pdf-icon-frame">📄</div>
                           <div>
-                            <div className="pdf-meta-name">Weekly Announcement Document</div>
-                            <div className="pdf-meta-size">PDF File Attachment</div>
+                            <div className="pdf-meta-name">{t('weeklyAnnouncement')}</div>
+                            <div className="pdf-meta-size">{t('pdfAttachment')}</div>
                           </div>
                         </div>
                         <div style={{ display: 'flex', gap: '8px' }}>
@@ -329,7 +343,7 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
                             onClick={() => setViewingPdfInline(prev => ({ ...prev, [post.id]: !prev[post.id] }))}
                             className="pdf-download-btn"
                           >
-                            👁️ {showPdfInline ? 'Hide' : 'View'}
+                            👁️ {showPdfInline ? t('hide') : t('view')}
                           </button>
                           <a
                             href={`${backendUrl}/api/download?url=${encodeURIComponent(post.image)}`}
@@ -337,7 +351,7 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
                             className="pdf-download-btn"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            📥 Download
+                            📥 {t('download')}
                           </a>
                         </div>
                       </div>
@@ -370,7 +384,7 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
                     className={`post-action-button ${hasPrayed ? 'prayed' : ''} ${heartbeatActive[post.id] ? 'heartbeat-active' : ''}`}
                   >
                     <span>{hasPrayed ? '🙏' : '🙌'}</span>
-                    <span>{totalPrayers} Prayers</span>
+                    <span>{totalPrayers} {totalPrayers === 1 ? t('prayer') : t('prayers')}</span>
                   </button>
                   
                   <button
@@ -378,12 +392,12 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
                     className="post-action-button"
                   >
                     <span>💬</span>
-                    <span>{commentCount(post.id)} Comments</span>
+                    <span>{commentCount(post.id)} {commentCount(post.id) === 1 ? t('comment') : t('comments')}</span>
                   </button>
                   
                   <button onClick={() => onAction('share')} className="post-action-button">
                     <span>🔗</span>
-                    <span>Share</span>
+                    <span>{t('share')}</span>
                   </button>
                 </div>
 
@@ -401,7 +415,7 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <input
                         type="text"
-                        placeholder="Add a comment to the family..."
+                        placeholder={t('addCommentPlaceholder')}
                         value={commentText[post.id] || ''}
                         onChange={(e) => setCommentText(prev => ({ ...prev, [post.id]: e.target.value }))}
                         onKeyDown={(e) => e.key === 'Enter' && handleAddComment(post.id)}
@@ -421,7 +435,7 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
                         className="btn btn-primary"
                         style={{ padding: '10px 16px', borderRadius: '12px', fontSize: '0.85rem' }}
                       >
-                        Send
+                        {t('send')}
                       </button>
                     </div>
                   </div>
@@ -432,7 +446,7 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
         ) : (
           <div style={{ textAlign: 'center', padding: '60px 40px', backgroundColor: 'var(--surface)', borderRadius: '24px', border: '1px solid var(--line-2)' }}>
             <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '12px' }}>🔔</span>
-            <p style={{ color: 'var(--ink-3)', fontWeight: '600' }}>No updates in this channel yet.</p>
+            <p style={{ color: 'var(--ink-3)', fontWeight: '600' }}>{t('noUpdates')}</p>
           </div>
         )}
       </main>
@@ -441,10 +455,10 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
       <aside className="sidebar-widget right-sidebar">
         <div>
           <h3 className="serif" style={{ fontSize: '1.5rem', fontWeight: '400', marginBottom: '4px' }}>
-            📅 Upcoming Events
+            📅 {t('upcomingEventsTitle')}
           </h3>
           <p style={{ fontSize: '0.8rem', color: 'var(--ink-3)', marginBottom: '12px' }}>
-            Connect and fellowship with the community
+            {t('connectFellowship')}
           </p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -466,13 +480,13 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
                         onClick={() => handleRSVP(event.id, 'going')}
                         className={`rsvp-btn ${rsvp === 'going' ? 'selected' : ''}`}
                       >
-                        Going
+                        {t('going')}
                       </button>
                       <button
                         onClick={() => handleRSVP(event.id, 'maybe')}
                         className={`rsvp-btn ${rsvp === 'maybe' ? 'selected' : ''}`}
                       >
-                        Maybe
+                        {t('maybe')}
                       </button>
                     </div>
                   </div>
@@ -488,7 +502,7 @@ const FeedScreen = ({ scope, onScope, onAction, user }) => {
             className="btn btn-primary"
             style={{ width: '100%', justifyContent: 'center' }}
           >
-            ➕ Compose Announcement
+            ➕ {t('composeAnnouncement')}
           </button>
         </div>
       </aside>

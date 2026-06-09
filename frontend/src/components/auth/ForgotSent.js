@@ -1,6 +1,11 @@
 import React from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const ForgotSent = ({ email, onBack }) => {
+  const { t } = useLanguage();
+  const resetLinkText = t('resetLinkSent');
+  const parts = resetLinkText.split('{email}');
+
   return (
     <div className="forgot-sent" style={{ 
       padding: '40px 20px', 
@@ -15,12 +20,12 @@ const ForgotSent = ({ email, onBack }) => {
     }}>
       <div style={{ fontSize: '4rem', marginBottom: '20px' }}>✉️</div>
       
-      <h1 style={{ color: 'var(--accent)', fontSize: '2.5rem', marginBottom: '16px' }}>Check your email</h1>
+      <h1 style={{ color: 'var(--accent)', fontSize: '2.5rem', marginBottom: '16px' }}>{t('checkEmail')}</h1>
       
       <p style={{ opacity: 0.8, fontSize: '1.1rem', marginBottom: '32px', lineHeight: '1.5' }}>
-        We've sent a password reset link to <strong>{email}</strong>. Please check your inbox and follow the instructions to reset your password.
+        {parts[0]}<strong>{email}</strong>{parts[1]}
       </p>
-
+ 
       <button 
         onClick={onBack}
         style={{ 
@@ -36,7 +41,7 @@ const ForgotSent = ({ email, onBack }) => {
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
         }}
       >
-        Return to Sign In
+        {t('returnToSignIn')}
       </button>
     </div>
   );

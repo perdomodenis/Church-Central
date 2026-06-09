@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import * as Icon from './Icons';
+import { useLanguage } from '../../context/LanguageContext';
 
 // --- TopBar Component ---
 export const TopBar = ({ route, onNavigate, scope, scopeOptions, title, onScope, onMenu, onProfile, user, hasNewInbox = false, hasNewMessages = false }) => {
+  const { t } = useLanguage();
   const level = user?.accessLevel || 1;
   const navItems = [
-    { id: 'home', label: 'Home' },
-    ...(level >= 3 ? [{ id: 'members', label: 'Members' }] : []),
-    ...(level >= 2 ? [{ id: 'documents', label: 'Documents' }] : []),
-    ...(level >= 2 ? [{ id: 'schedule', label: 'Schedule' }] : []),
-    { id: 'appointment', label: 'Appointments' },
-    { id: 'events', label: 'Events' },
-    ...(level >= 3 ? [{ id: 'mgmt', label: 'Management' }] : []),
-    { id: 'baptism', label: 'Baptism' },
+    { id: 'home', label: t('home') },
+    ...(level >= 3 ? [{ id: 'members', label: t('members') }] : []),
+    ...(level >= 2 ? [{ id: 'documents', label: t('documents') }] : []),
+    ...(level >= 2 ? [{ id: 'schedule', label: t('schedule') }] : []),
+    { id: 'appointment', label: t('appointments') },
+    { id: 'events', label: t('events') },
+    ...(level >= 3 ? [{ id: 'mgmt', label: t('management') }] : []),
+    { id: 'baptism', label: t('baptism') },
   ];
 
   const redDotStyle = {
@@ -132,6 +134,7 @@ export const TopBar = ({ route, onNavigate, scope, scopeOptions, title, onScope,
 
 // --- MenuDrawer Component ---
 export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout, user }) => {
+  const { t } = useLanguage();
   const handleNavigate = (newRoute) => {
     onNavigate(newRoute);
     onClose();
@@ -151,20 +154,20 @@ export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout, user })
           <h3 style={{ margin: 0, color: 'var(--accent)' }}>Church Central</h3>
         </div>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '0 20px' }}>
-          <MenuItem label="Home" active={route === 'home'} onClick={() => handleNavigate('home')} />
-          {level >= 3 && <MenuItem label="Members" active={route === 'members'} onClick={() => handleNavigate('members')} />}
-          {level >= 2 && <MenuItem label="Documents" active={route === 'documents'} onClick={() => handleNavigate('documents')} />}
-          {level >= 2 && <MenuItem label="Schedule" active={route === 'schedule'} onClick={() => handleNavigate('schedule')} />}
-          <MenuItem label="Appointments" active={route === 'appointment'} onClick={() => handleNavigate('appointment')} />
-          <MenuItem label="Events" active={route === 'events'} onClick={() => handleNavigate('events')} />
-          {level >= 3 && <MenuItem label="Management" active={route === 'mgmt'} onClick={() => handleNavigate('mgmt')} />}
-          <MenuItem label="Baptism" active={route === 'baptism'} onClick={() => handleNavigate('baptism')} />
-          <MenuItem label="New Life School" active={route === 'nls'} onClick={() => handleNavigate('nls')} />
-          <MenuItem label="Profile" active={route === 'profile'} onClick={() => handleNavigate('profile')} />
-          <MenuItem label="Feedback" active={route === 'feedback'} onClick={() => handleNavigate('feedback')} />
-          {level >= 4 && <MenuItem label="Debug" active={route === 'debug'} onClick={() => handleNavigate('debug')} />}
+          <MenuItem label={t('home')} active={route === 'home'} onClick={() => handleNavigate('home')} />
+          {level >= 3 && <MenuItem label={t('members')} active={route === 'members'} onClick={() => handleNavigate('members')} />}
+          {level >= 2 && <MenuItem label={t('documents')} active={route === 'documents'} onClick={() => handleNavigate('documents')} />}
+          {level >= 2 && <MenuItem label={t('schedule')} active={route === 'schedule'} onClick={() => handleNavigate('schedule')} />}
+          <MenuItem label={t('appointments')} active={route === 'appointment'} onClick={() => handleNavigate('appointment')} />
+          <MenuItem label={t('events')} active={route === 'events'} onClick={() => handleNavigate('events')} />
+          {level >= 3 && <MenuItem label={t('management')} active={route === 'mgmt'} onClick={() => handleNavigate('mgmt')} />}
+          <MenuItem label={t('baptism')} active={route === 'baptism'} onClick={() => handleNavigate('baptism')} />
+          <MenuItem label={t('nls')} active={route === 'nls'} onClick={() => handleNavigate('nls')} />
+          <MenuItem label={t('profile')} active={route === 'profile'} onClick={() => handleNavigate('profile')} />
+          <MenuItem label={t('feedback')} active={route === 'feedback'} onClick={() => handleNavigate('feedback')} />
+          {level >= 4 && <MenuItem label={t('debug')} active={route === 'debug'} onClick={() => handleNavigate('debug')} />}
           <div style={{ borderTop: '1px solid #eee', marginTop: '20px', paddingTop: '20px' }}>
-            <MenuItem label="Sign Out" onClick={handleLogout} />
+            <MenuItem label={t('signOut')} onClick={handleLogout} />
           </div>
         </nav>
       </div>
@@ -199,6 +202,7 @@ const MenuItem = ({ icon, label, active, onClick }) => (
 // --- FabMenu Component ---
 export const FabMenu = ({ onAction }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useLanguage();
 
   const handleActionClick = (action) => {
     onAction(action);
@@ -209,9 +213,8 @@ export const FabMenu = ({ onAction }) => {
     <div style={fabContainerStyle}>
       {isOpen && (
         <div style={fabActionsStyle}>
-          <FabAction icon="⬆️" label="Upload" onClick={() => handleActionClick('upload')} />
-          <FabAction icon="👥" label="Invite Member" onClick={() => handleActionClick('member')} />
-          <FabAction icon="💡" label="Feedback" onClick={() => handleActionClick('feedback')} />
+          <FabAction icon="⬆️" label={t('upload')} onClick={() => handleActionClick('upload')} />
+          <FabAction icon="💡" label={t('feedback')} onClick={() => handleActionClick('feedback')} />
         </div>
       )}
       <button onClick={() => setIsOpen(!isOpen)} style={fabButtonStyle}>

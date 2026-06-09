@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const CATEGORIES = ['Suggestion', 'Bug Report', 'Praise', 'Other'];
 
 const FeedbackScreen = () => {
+  const { t } = useLanguage();
   const [category, setCategory] = useState('Suggestion');
   const [rating, setRating] = useState(0);
   const [message, setMessage] = useState('');
@@ -29,9 +31,9 @@ const FeedbackScreen = () => {
         minHeight: '60vh'
       }}>
         <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🙏</div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '12px' }}>Thank You!</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '12px' }}>{t('thankYou')}</h2>
         <p style={{ opacity: 0.7, lineHeight: '1.5', maxWidth: '300px' }}>
-          Your feedback helps us make Church Central better for everyone in our community.
+          {t('feedbackSuccessMessage')}
         </p>
         <button 
           onClick={() => {
@@ -50,7 +52,7 @@ const FeedbackScreen = () => {
             cursor: 'pointer'
           }}
         >
-          Send More Feedback
+          {t('sendMoreFeedback')}
         </button>
       </div>
     );
@@ -59,13 +61,13 @@ const FeedbackScreen = () => {
   return (
     <div className="feedback-screen" style={{ padding: '24px', paddingBottom: '100px' }}>
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '8px' }}>Share Feedback</h2>
-        <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>We value your thoughts on how to improve our digital home.</p>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '8px' }}>{t('shareFeedback')}</h2>
+        <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>{t('valueThoughts')}</p>
       </div>
 
       <form onSubmit={handleSubmit} style={cardStyle}>
         <div style={{ marginBottom: '20px' }}>
-          <label style={labelStyle}>Rate your Experience</label>
+          <label style={labelStyle}>{t('rateExperience')}</label>
           <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
             {[1, 2, 3, 4, 5].map((star) => (
               <span
@@ -85,7 +87,7 @@ const FeedbackScreen = () => {
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={labelStyle}>Category</label>
+          <label style={labelStyle}>{t('category')}</label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
             {CATEGORIES.map(cat => (
               <button
@@ -105,25 +107,25 @@ const FeedbackScreen = () => {
                   transition: 'all 0.2s'
                 }}
               >
-                {cat}
+                {t(cat === 'Suggestion' ? 'suggestion' : cat === 'Bug Report' ? 'bugReport' : cat === 'Praise' ? 'praise' : 'other')}
               </button>
             ))}
           </div>
         </div>
 
         <div style={{ marginBottom: '24px' }}>
-          <label style={labelStyle}>Message</label>
+          <label style={labelStyle}>{t('message')}</label>
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Tell us what's on your mind..."
+            placeholder={t('tellUsMind')}
             required
             style={textareaStyle}
           />
         </div>
 
         <button type="submit" style={submitButtonStyle}>
-          Submit Feedback
+          {t('submitFeedback')}
         </button>
       </form>
     </div>

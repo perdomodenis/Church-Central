@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   sendMessage,
   sendGroupMessage,
@@ -9,6 +10,7 @@ import {
 } from '../../services/chatService';
 
 const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState('');
   const [sending, setSending] = useState(false);
@@ -101,7 +103,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
           </h3>
           {chatType === 'group' && chat?.members && (
             <p style={{ margin: 0, fontSize: '0.8rem', color: '#999' }}>
-              {chat.members.length} members
+              {chat.members.length} {t('members').toLowerCase()}
             </p>
           )}
         </div>
@@ -126,7 +128,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
             color: '#999',
             textAlign: 'center'
           }}>
-            <p>No messages yet. Start the conversation!</p>
+            <p>{t('noMessagesYet')}</p>
           </div>
         ) : (
           messages.map((msg) => (
@@ -216,7 +218,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
               handleSendMessage();
             }
           }}
-          placeholder="Type a message..."
+          placeholder={t('typeMessage')}
           style={{
             flex: 1,
             padding: '12px',

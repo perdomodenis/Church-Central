@@ -1,36 +1,39 @@
 import React, { useState } from 'react';
-
-const STAFF_MEMBERS = [
-  { name: 'James Peterson', role: 'Senior Pastor' },
-  { name: 'Rachel Thompson', role: 'Worship Pastor' },
-  { name: 'Juan Rivera', role: 'Youth Director' },
-  { name: 'Sofia Garcia', role: 'Community Outreach Coordinator' },
-  { name: 'Mark Anderson', role: 'Bible Study Leader' },
-  { name: 'Patricia White', role: 'Prayer Coordinator' }
-];
-
-const RECENT_APPOINTMENTS = [
-  {
-    id: 1,
-    staff: 'James Peterson',
-    date: 'Jun 2, 2025',
-    time: '3:00 PM',
-    status: 'Confirmed',
-    type: 'Pastoral Counseling',
-    notes: 'Follow-up discussion'
-  },
-  {
-    id: 2,
-    staff: 'Rachel Thompson',
-    date: 'Jun 5, 2025',
-    time: '2:30 PM',
-    status: 'Scheduled',
-    type: 'Worship Discussion',
-    notes: 'Summer worship planning'
-  }
-];
+import { useLanguage } from '../../context/LanguageContext';
 
 const AppointmentScreen = () => {
+  const { t } = useLanguage();
+
+  const staffMembers = [
+    { name: 'James Peterson', role: t('seniorPastor') },
+    { name: 'Rachel Thompson', role: t('worshipPastor') },
+    { name: 'Juan Rivera', role: t('youthDirector') },
+    { name: 'Sofia Garcia', role: t('outreachCoordinator') },
+    { name: 'Mark Anderson', role: t('bibleStudyLeader') },
+    { name: 'Patricia White', role: t('prayerCoordinator') }
+  ];
+
+  const recentAppointments = [
+    {
+      id: 1,
+      staff: 'James Peterson',
+      date: 'Jun 2, 2025',
+      time: '3:00 PM',
+      status: t('confirmed'),
+      type: t('pastoralCounseling'),
+      notes: 'Follow-up discussion'
+    },
+    {
+      id: 2,
+      staff: 'Rachel Thompson',
+      date: 'Jun 5, 2025',
+      time: '2:30 PM',
+      status: t('scheduled'),
+      type: t('worshipDiscussion'),
+      notes: 'Summer worship planning'
+    }
+  ];
+
   const [booking, setBooking] = useState({
     staff: '',
     date: '',
@@ -41,34 +44,34 @@ const AppointmentScreen = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Booking appointment:', booking);
-    alert('Your appointment request has been submitted for review.');
+    alert(t('appointmentRequestSubmitted'));
     setBooking({ staff: '', date: '', time: '', reason: '' });
   };
 
   return (
     <div className="appointment-screen" style={{ padding: '16px', paddingBottom: '80px' }}>
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>Book an Appointment</h2>
-        <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>Schedule a time with our leaders for guidance, prayer, or counseling.</p>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>{t('bookAppointment')}</h2>
+        <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>{t('scheduleLeaderGuidance')}</p>
       </div>
 
       <form onSubmit={handleSubmit} style={formCardStyle}>
         <div style={{ marginBottom: '16px' }}>
-          <label style={labelStyle}>Select Leader</label>
+          <label style={labelStyle}>{t('selectLeader')}</label>
           <select 
             value={booking.staff} 
             onChange={(e) => setBooking({...booking, staff: e.target.value})}
             style={inputStyle}
             required
           >
-            <option value="">Choose a person...</option>
-            {STAFF_MEMBERS.map(s => <option key={s.name} value={s.name}>{s.name} - {s.role}</option>)}
+            <option value="">{t('choosePerson')}</option>
+            {staffMembers.map(s => <option key={s.name} value={s.name}>{s.name} - {s.role}</option>)}
           </select>
         </div>
 
         <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>Date</label>
+            <label style={labelStyle}>{t('date')}</label>
             <input 
               type="date" 
               value={booking.date} 
@@ -78,7 +81,7 @@ const AppointmentScreen = () => {
             />
           </div>
           <div style={{ flex: 1 }}>
-            <label style={labelStyle}>Time</label>
+            <label style={labelStyle}>{t('time')}</label>
             <input 
               type="time" 
               value={booking.time} 
@@ -90,30 +93,30 @@ const AppointmentScreen = () => {
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={labelStyle}>Reason for Appointment</label>
+          <label style={labelStyle}>{t('reasonAppointment')}</label>
           <textarea 
             value={booking.reason} 
             onChange={(e) => setBooking({...booking, reason: e.target.value})}
-            placeholder="How can we help you?"
+            placeholder={t('howCanWeHelp')}
             style={{ ...inputStyle, height: '80px', resize: 'none', fontFamily: 'inherit' }}
           />
         </div>
 
-        <button type="submit" style={submitButtonStyle}>Request Appointment</button>
+        <button type="submit" style={submitButtonStyle}>{t('requestAppointment')}</button>
       </form>
 
       <div style={{ marginTop: '32px' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '16px' }}>Your Appointments</h3>
-        {RECENT_APPOINTMENTS.length === 0 ? (
+        <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '16px' }}>{t('yourAppointments')}</h3>
+        {recentAppointments.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px', color: '#999' }}>
-            No appointments scheduled yet
+            {t('noAppointmentsYet')}
           </div>
-        ) : RECENT_APPOINTMENTS.map(app => (
+        ) : recentAppointments.map(app => (
           <div key={app.id} style={appointmentCardStyle}>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 'bold', color: '#111' }}>{app.staff}</div>
               <div style={{ fontSize: '0.85rem', color: '#666' }}>{app.type}</div>
-              <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>📅 {app.date} at {app.time}</div>
+              <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>📅 {app.date} {t('at')} {app.time}</div>
             </div>
             <div style={{ 
               fontSize: '0.75rem', 
