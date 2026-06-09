@@ -40,7 +40,7 @@ const getMinutesSinceMidnight = (timeStr) => {
   return hours * 60 + minutes;
 };
 
-const ScheduleScreen = ({ openAddEventOnMount, onCloseAddEventOnMount }) => {
+const ScheduleScreen = ({ user: userProp, openAddEventOnMount, onCloseAddEventOnMount }) => {
   const { t } = useLanguage();
   const { user: authUser } = useAuth();
   const [events, setEvents] = useState([]);
@@ -105,8 +105,7 @@ const ScheduleScreen = ({ openAddEventOnMount, onCloseAddEventOnMount }) => {
   };
 
   const ongoingId = getOngoingItemId();
-  const isSimulated = ongoingId === null;
-  const activeOngoingId = ongoingId || 2; // Default to Worship (ID 2) for preview if service is offline
+  const isServiceOffline = ongoingId === null;
 
   const validEvents = events.filter(isValidEvent);
   const personalEvents = validEvents.filter(e => e.type !== 'Work Shift');
@@ -117,7 +116,7 @@ const ScheduleScreen = ({ openAddEventOnMount, onCloseAddEventOnMount }) => {
     if (activeTab === 'church') {
       return (
         <div style={{ marginTop: '16px' }}>
-          {isSimulated && (
+          {isServiceOffline && (
             <div style={{
               backgroundColor: '#fff8e1',
               color: '#b78103',
@@ -132,7 +131,7 @@ const ScheduleScreen = ({ openAddEventOnMount, onCloseAddEventOnMount }) => {
               gap: '8px'
             }}>
               <span>ℹ️</span>
-              <span>Sunday Service is currently offline (Schedules run Sundays 10:00 AM - 12:15 PM). Showing simulated preview.</span>
+              <span>Sunday Service is currently offline (Schedules run Sundays 10:00 AM – 12:15 PM). No item is currently ongoing.</span>
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -155,7 +154,7 @@ const ScheduleScreen = ({ openAddEventOnMount, onCloseAddEventOnMount }) => {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {SERVICE_PROGRAM.map((item) => {
-              const isOngoing = item.id === activeOngoingId;
+              const isOngoing = item.id === ongoingId;
               return (
                 <div 
                   key={item.id} 
@@ -233,6 +232,7 @@ const ScheduleScreen = ({ openAddEventOnMount, onCloseAddEventOnMount }) => {
     }
 
     // Default: 'me' tab
+    const canAddSchedule = (userProp?.accessLevel || 1) >= 3;
     return (
       <>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -244,18 +244,20 @@ const ScheduleScreen = ({ openAddEventOnMount, onCloseAddEventOnMount }) => {
               </span>
             )}
           </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--accent)',
-              fontWeight: '600',
-              fontSize: '1.2rem',
-              cursor: 'pointer'
-            }}>
-            + {t('add')}
-          </button>
+          {canAddSchedule && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--accent)',
+                fontWeight: '600',
+                fontSize: '1.2rem',
+                cursor: 'pointer'
+              }}>
+              + {t('add')}
+            </button>
+          )}
         </div>
 
         {loading ? (

@@ -347,6 +347,7 @@ function App() {
   } else if (route === 'schedule') {
     body = level >= 2 ? (
       <ScheduleScreen 
+        user={user}
         openAddEventOnMount={openAddScheduleOnMount}
         onCloseAddEventOnMount={() => setOpenAddScheduleOnMount(false)}
       />
