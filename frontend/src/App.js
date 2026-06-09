@@ -251,6 +251,7 @@ function App() {
     if (kind === 'comment') toast.show('Comments will be available soon');
     else if (kind === 'pray') toast.show('🙏 Praying with you');
     else if (kind === 'share') toast.show('Link copied');
+    else if (kind === 'compose') setUploadOpen(true);
   };
 
   const level = user?.accessLevel || 1;
@@ -311,7 +312,7 @@ function App() {
   } else if (route === 'welcome') {
     body = <WelcomeScreen name={signupData.first || 'friend'} onContinue={() => setRoute('home')} />;
   } else if (route === 'home') {
-    body = <FeedScreen scope={scope} onAction={onAction} user={user} />;
+    body = <FeedScreen scope={scope} onScope={setScope} onAction={onAction} user={user} />;
   } else if (route === 'inbox') {
     body = <InboxScreen />;
   } else if (route === 'messages') {
@@ -331,7 +332,7 @@ function App() {
   } else if (route === 'feedback') {
     body = <FeedbackScreen />;
   } else if (route === 'baptism') {
-    body = <BaptismScreen user={user} />;
+    body = level >= 2 ? <BaptismScreen user={user} /> : <AccessDenied requiredLevel={2} />;
   } else if (route === 'nls') {
     body = <NLSScreen user={user} />;
   } else if (route === 'group') {
@@ -354,7 +355,7 @@ function App() {
   } else if (route === 'debug') {
     body = level >= 4 ? <DebugScreen onBack={() => setRoute('home')} /> : <AccessDenied requiredLevel={4} />;
   } else {
-    body = <FeedScreen scope={scope} onAction={onAction} user={user} />;
+    body = <FeedScreen scope={scope} onScope={setScope} onAction={onAction} user={user} />;
   }
 
   return (
