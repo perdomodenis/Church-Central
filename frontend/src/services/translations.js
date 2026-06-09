@@ -423,7 +423,9 @@ const translations = {
     authControlDesc: 'Authorize this member to post announcements on behalf of groups:',
     postAsChurch: 'Post as Church',
     postAsDept: 'Post as Department',
-    postAsDistrict: 'Post as District'
+    postAsDistrict: 'Post as District',
+    savePermissions: 'Save Permissions',
+    permissionsSavedAlert: 'Permissions updated successfully!'
   }
 };
 export default translations;

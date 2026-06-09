@@ -16,13 +16,14 @@ const toCamelCase = (str) => {
     .join('');
 };
 
-const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) => {
+const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUpdateMember }) => {
   const { t } = useLanguage();
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(null);
   const [messaging, setMessaging] = useState(false);
   const [memberState, setMemberState] = useState(member);
+  const [savingPermissions, setSavingPermissions] = useState(false);
 
   useEffect(() => {
     setMemberState(member);
@@ -32,28 +33,41 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
     loadPhotos();
   }, [memberState]);
 
-  const handleTogglePermission = async (field, val) => {
-    try {
-      const updatedProfile = {
-        ...memberState,
-        [field]: val
-      };
-      setMemberState(updatedProfile);
+  const handleToggleCheckbox = (field, checked) => {
+    setMemberState(prev => ({
+      ...prev,
+      [field]: checked
+    }));
+  };
 
+  const handleSavePermissions = async () => {
+    setSavingPermissions(true);
+    try {
       await updateUserProfile(memberState.uid, {
-        [field]: val
+        authorizedPostAsChurch: !!memberState.authorizedPostAsChurch,
+        authorizedPostAsDept: !!memberState.authorizedPostAsDept,
+        authorizedPostAsCourt: !!memberState.authorizedPostAsCourt
       });
+      alert(t('permissionsSavedAlert'));
+      if (onUpdateMember) {
+        onUpdateMember({
+          ...member,
+          ...memberState
+        });
+      }
     } catch (error) {
-      console.error(`Error toggling permission ${field}:`, error);
-      alert('Failed to update permission settings');
-      setMemberState(memberState);
+      console.error('Error saving permissions:', error);
+      alert('Failed to save permissions');
+    } finally {
+      setSavingPermissions(false);
     }
   };
 
   const loadPhotos = async () => {
+    if (!memberState?.uid) return;
     setLoading(true);
     try {
-      const userPhotos = await getUserPhotos(member.uid);
+      const userPhotos = await getUserPhotos(memberState.uid);
       setPhotos(userPhotos);
     } catch (error) {
       console.error('Error loading photos:', error);
@@ -62,9 +76,10 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
   };
 
   const handleStartChat = async () => {
+    if (!memberState?.uid) return;
     setMessaging(true);
     try {
-      await createDirectChat(user.uid, member.uid, `${user.first} ${user.last}`, `${member.first} ${member.last}`);
+      await createDirectChat(user.uid, memberState.uid, `${user.first} ${user.last}`, `${memberState.first} ${memberState.last}`);
       onMessage();
     } catch (error) {
       console.error('Error starting chat:', error);
@@ -73,6 +88,10 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
   };
 
   const isAdmin = user && (user.accessLevel >= 4 || ['Bishop', 'Reverend', 'Admin'].includes(user.position));
+
+  if (!memberState) {
+    return <div style={{ padding: '24px', textAlign: 'center' }}>{t('loading')}</div>;
+  }
 
   return (
     <div style={{ paddingBottom: '100px' }}>
@@ -264,7 +283,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
                   <input
                     type="checkbox"
                     checked={!!memberState.authorizedPostAsChurch}
-                    onChange={(e) => handleTogglePermission('authorizedPostAsChurch', e.target.checked)}
+                    onChange={(e) => handleToggleCheckbox('authorizedPostAsChurch', e.target.checked)}
                     style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
                   />
                   📢 {t('postAsChurch')}
@@ -274,7 +293,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
                   <input
                     type="checkbox"
                     checked={!!memberState.authorizedPostAsDept}
-                    onChange={(e) => handleTogglePermission('authorizedPostAsDept', e.target.checked)}
+                    onChange={(e) => handleToggleCheckbox('authorizedPostAsDept', e.target.checked)}
                     style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
                   />
                   💼 {t('postAsDept')} ({memberState.dept || 'General'})
@@ -284,12 +303,34 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate }) =>
                   <input
                     type="checkbox"
                     checked={!!memberState.authorizedPostAsCourt}
-                    onChange={(e) => handleTogglePermission('authorizedPostAsCourt', e.target.checked)}
+                    onChange={(e) => handleToggleCheckbox('authorizedPostAsCourt', e.target.checked)}
                     style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
                   />
                   District ({memberState.court || memberState.campus || 'Main Campus'})
                 </label>
               </div>
+
+              <button
+                type="button"
+                onClick={handleSavePermissions}
+                disabled={savingPermissions}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: savingPermissions ? '#ccc' : 'var(--accent)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: '700',
+                  fontSize: '0.9rem',
+                  cursor: savingPermissions ? 'not-allowed' : 'pointer',
+                  marginTop: '8px',
+                  boxShadow: 'var(--shadow-1)',
+                  transition: 'opacity 0.2s'
+                }}
+              >
+                {savingPermissions ? 'Saving...' : t('savePermissions')}
+              </button>
             </div>
           )}
 

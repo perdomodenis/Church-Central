@@ -391,7 +391,7 @@ function App() {
   } else if (route === 'members') {
     body = level >= 3 ? <MemberSearchScreen user={user} onSelectMember={(m) => { setSelectedMember(m); handleNavigate('member-profile'); }} onNavigate={handleNavigate} /> : <AccessDenied requiredLevel={3} />;
   } else if (route === 'member-profile') {
-    body = level >= 3 ? <MemberProfileScreen member={selectedMember} user={user} onBack={() => handleNavigate('members')} onMessage={() => handleNavigate('messages')} onNavigate={handleNavigate} /> : <AccessDenied requiredLevel={3} />;
+    body = level >= 3 ? <MemberProfileScreen member={selectedMember} user={user} onBack={() => handleNavigate('members')} onMessage={() => handleNavigate('messages')} onNavigate={handleNavigate} onUpdateMember={(m) => setSelectedMember(m)} /> : <AccessDenied requiredLevel={3} />;
   } else if (route === 'debug') {
     body = level >= 4 ? <DebugScreen onBack={() => handleNavigate('home')} /> : <AccessDenied requiredLevel={4} />;
   } else {
