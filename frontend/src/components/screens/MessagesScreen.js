@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { listMembers } from '../../lib/dataconnect';
+import { dataConnect } from '../../services/firebase';
 import {
   getDirectChats,
   getGroupChats,
@@ -42,7 +43,7 @@ const MessagesScreen = ({ user }) => {
 
   const loadAllUsers = async () => {
     try {
-      const response = await listMembers();
+      const response = await listMembers(dataConnect);
       const members = response.data?.users || [];
       const mapped = members.reduce((acc, m) => {
         if (m.uid !== user?.uid) {

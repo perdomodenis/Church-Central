@@ -3,6 +3,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { rtdb } from '../../services/firebase';
 import { ref, onValue, set as rtdbSet } from 'firebase/database';
+import { approveAppointment, rejectAppointment } from '../../services/appointmentService';
+import { sendInboxNotificationByEmail } from '../../services/notificationService';
 
 const InboxScreen = () => {
   const { t } = useLanguage();
@@ -32,6 +34,65 @@ const InboxScreen = () => {
     setSelectedMessage(messageId);
     if (user) {
       rtdbSet(ref(rtdb, `inbox/${user.uid}/${messageId}/read`), true);
+    }
+  };
+
+  const handleApproveFromInbox = async (appointmentId, selectedSlot, date, time) => {
+    try {
+      await approveAppointment(appointmentId, user?.displayName || user?.email || 'Admin', selectedSlot, date, time);
+      
+      const message = messages.find(m => m.id === selectedMessage);
+      if (message) {
+        await rtdbSet(ref(rtdb, `inbox/${user.uid}/${selectedMessage}/appointmentStatus`), 'approved');
+        await rtdbSet(ref(rtdb, `inbox/${user.uid}/${selectedMessage}/body`), 
+          message.body + `\n\n✅ Status: Approved for ${date} at ${time}.`
+        );
+        
+        if (message.requesterEmail) {
+          await sendInboxNotificationByEmail(message.requesterEmail, {
+            sender: user?.displayName || 'CCI Staff',
+            senderId: user?.uid || 'system',
+            subject: 'Appointment Approved',
+            preview: `Your appointment request has been approved for ${date} at ${time}.`,
+            body: `Hi!\n\nYour appointment request has been approved.\n\nScheduled Date & Time:\n- Date: ${date}\n- Time: ${time}\n\nThank you!`
+          });
+        }
+      }
+
+      alert('Appointment approved!');
+      setSelectedMessage(null);
+    } catch (error) {
+      alert('Error approving appointment: ' + error.message);
+    }
+  };
+
+  const handleRejectFromInbox = async (appointmentId) => {
+    try {
+      const reason = 'Not approved at this time';
+      await rejectAppointment(appointmentId, user?.displayName || user?.email || 'Admin', reason);
+
+      const message = messages.find(m => m.id === selectedMessage);
+      if (message) {
+        await rtdbSet(ref(rtdb, `inbox/${user.uid}/${selectedMessage}/appointmentStatus`), 'rejected');
+        await rtdbSet(ref(rtdb, `inbox/${user.uid}/${selectedMessage}/body`), 
+          message.body + `\n\n❌ Status: Declined.`
+        );
+
+        if (message.requesterEmail) {
+          await sendInboxNotificationByEmail(message.requesterEmail, {
+            sender: user?.displayName || 'CCI Staff',
+            senderId: user?.uid || 'system',
+            subject: 'Appointment Declined',
+            preview: `Your appointment request was declined.`,
+            body: `Hi!\n\nYour appointment request could not be scheduled at this time.\n\nReason: ${reason}`
+          });
+        }
+      }
+
+      alert('Appointment rejected.');
+      setSelectedMessage(null);
+    } catch (error) {
+      alert('Error rejecting appointment: ' + error.message);
     }
   };
 
@@ -71,6 +132,46 @@ const InboxScreen = () => {
             }}>
               {message.body}
             </div>
+
+            {message.isAppointmentRequest && !message.appointmentStatus && (
+              <div style={{ marginTop: '24px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
+                <p style={{ fontWeight: '700', fontSize: '0.9rem', color: '#666', marginBottom: '12px' }}>
+                  Select slot option to approve directly:
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {message.date1 && message.time1 && (
+                    <button
+                      onClick={() => handleApproveFromInbox(message.appointmentId, 1, message.date1, message.time1)}
+                      style={inboxSlotButtonStyle}
+                    >
+                      Option 1: {message.date1} at {message.time1}
+                    </button>
+                  )}
+                  {message.date2 && message.time2 && (
+                    <button
+                      onClick={() => handleApproveFromInbox(message.appointmentId, 2, message.date2, message.time2)}
+                      style={inboxSlotButtonStyle}
+                    >
+                      Option 2: {message.date2} at {message.time2}
+                    </button>
+                  )}
+                  {message.date3 && message.time3 && (
+                    <button
+                      onClick={() => handleApproveFromInbox(message.appointmentId, 3, message.date3, message.time3)}
+                      style={inboxSlotButtonStyle}
+                    >
+                      Option 3: {message.date3} at {message.time3}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleRejectFromInbox(message.appointmentId)}
+                    style={inboxDeclineButtonStyle}
+                  >
+                    ❌ Decline Request
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -144,5 +245,36 @@ const messageCardStyle = (read) => ({
   borderLeft: read ? 'none' : '4px solid var(--accent)',
   border: 'none'
 });
+
+const inboxSlotButtonStyle = {
+  backgroundColor: '#f4f2ff',
+  color: 'var(--accent)',
+  border: '1px solid var(--accent)',
+  borderRadius: '12px',
+  padding: '12px 16px',
+  fontSize: '0.9rem',
+  fontWeight: '600',
+  textAlign: 'left',
+  cursor: 'pointer',
+  transition: 'background-color 0.2s, color 0.2s',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: '8px'
+};
+
+const inboxDeclineButtonStyle = {
+  backgroundColor: 'transparent',
+  color: '#d32f2f',
+  border: '1px solid #d32f2f',
+  borderRadius: '12px',
+  padding: '12px 16px',
+  fontSize: '0.9rem',
+  fontWeight: '600',
+  textAlign: 'center',
+  cursor: 'pointer',
+  marginTop: '8px',
+  transition: 'background-color 0.2s'
+};
 
 export default InboxScreen;

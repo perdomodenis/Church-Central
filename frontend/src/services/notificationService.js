@@ -13,11 +13,13 @@ import { getAllMembers } from './memberService';
  * @param {string} details.preview - Short preview text.
  * @param {string} details.body - Complete text of the notification.
  */
-export const sendInboxNotification = async (targetUid, { sender, senderId, subject, preview, body }) => {
+export const sendInboxNotification = async (targetUid, details) => {
   if (!targetUid) {
     console.error('sendInboxNotification: targetUid is required');
     return false;
   }
+
+  const { sender, senderId, subject, preview, body, ...metadata } = details;
 
   try {
     const notificationRef = ref(rtdb, `inbox/${targetUid}`);
@@ -36,7 +38,8 @@ export const sendInboxNotification = async (targetUid, { sender, senderId, subje
       body: body || '',
       time: timeFormatted,
       timestamp: Date.now(),
-      read: false
+      read: false,
+      ...metadata
     });
     return true;
   } catch (error) {
@@ -44,6 +47,7 @@ export const sendInboxNotification = async (targetUid, { sender, senderId, subje
     return false;
   }
 };
+
 
 /**
  * Resolves a user's UID using their email, then sends the notification.

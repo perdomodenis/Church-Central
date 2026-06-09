@@ -1,8 +1,9 @@
 import { listMembers, getUserProfile } from '../lib/dataconnect';
+import { dataConnect } from './firebase';
 
 export const getAllMembers = async () => {
   try {
-    const response = await listMembers();
+    const response = await listMembers(dataConnect);
     return response.data?.users || [];
   } catch (error) {
     console.error('Error fetching members:', error);
@@ -39,10 +40,11 @@ export const searchMembers = async (query) => {
 
 export const getMemberProfile = async (userId) => {
   try {
-    const response = await getUserProfile({ uid: userId });
+    const response = await getUserProfile(dataConnect, { uid: userId });
     return response.data?.user || null;
   } catch (error) {
     console.error('Error fetching member profile:', error);
     return null;
   }
 };
+

@@ -26,7 +26,7 @@ export const TopBar = ({ route, onNavigate, scope, scopeOptions, title, onScope,
     ...(level >= 2 ? [{ id: 'schedule', label: t('schedule') }] : []),
     { id: 'appointment', label: t('appointments') },
     { id: 'events', label: t('events') },
-    ...(level >= 3 ? [{ id: 'mgmt', label: t('management') }] : []),
+    ...((level >= 3 || user?.isPA) ? [{ id: 'mgmt', label: t('management') }] : []),
     { id: 'baptism', label: t('baptism') },
   ];
 
@@ -135,7 +135,7 @@ export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout, user })
           {level >= 2 && <MenuItem label={t('schedule')} active={route === 'schedule'} onClick={() => handleNavigate('schedule')} />}
           <MenuItem label={t('appointments')} active={route === 'appointment'} onClick={() => handleNavigate('appointment')} />
           <MenuItem label={t('events')} active={route === 'events'} onClick={() => handleNavigate('events')} />
-          {level >= 3 && <MenuItem label={t('management')} active={route === 'mgmt'} onClick={() => handleNavigate('mgmt')} />}
+          {(level >= 3 || user?.isPA) && <MenuItem label={t('management')} active={route === 'mgmt'} onClick={() => handleNavigate('mgmt')} />}
           <MenuItem label={t('baptism')} active={route === 'baptism'} onClick={() => handleNavigate('baptism')} />
           <MenuItem label={t('nls')} active={route === 'nls'} onClick={() => handleNavigate('nls')} />
           <MenuItem label={t('profile')} active={route === 'profile'} onClick={() => handleNavigate('profile')} />

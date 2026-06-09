@@ -86,7 +86,7 @@ const AppointmentScreen = ({ user }) => {
       // Send the request. Set paUid to leader's PA if they have one.
       const paUid = selectedLeader.pa?.uid || null;
 
-      await createAppointmentRequest(
+      const appointmentId = await createAppointmentRequest(
         requesterName,
         requesterEmail,
         `${selectedLeader.first} ${selectedLeader.last}`,
@@ -104,7 +104,16 @@ const AppointmentScreen = ({ user }) => {
         senderId: user ? user.uid : 'guest',
         subject: 'New Appointment Request',
         preview: `${requesterName} requested an appointment: "${reason.substring(0, 40)}${reason.length > 40 ? '...' : ''}"`,
-        body: `Hi ${recipientName}!\n\n${requesterName} has requested an appointment with ${selectedLeader.first} ${selectedLeader.last}.\n\nReason: "${reason}"\n\nSuggested slots:\n- Option 1: ${slots[0].date} at ${slots[0].time}\n- Option 2: ${slots[1].date} at ${slots[1].time}\n- Option 3: ${slots[2].date} at ${slots[2].time}\n\nPlease review and approve/reject this request in the Management tab.`
+        body: `Hi ${recipientName}!\n\n${requesterName} has requested an appointment with ${selectedLeader.first} ${selectedLeader.last}.\n\nReason: "${reason}"\n\nSuggested slots:\n- Option 1: ${slots[0].date} at ${slots[0].time}\n- Option 2: ${slots[1].date} at ${slots[1].time}\n- Option 3: ${slots[2].date} at ${slots[2].time}\n\nPlease review and approve/reject this request.`,
+        isAppointmentRequest: true,
+        appointmentId,
+        requesterEmail,
+        date1: slots[0].date,
+        time1: slots[0].time,
+        date2: slots[1].date,
+        time2: slots[1].time,
+        date3: slots[2].date,
+        time3: slots[2].time
       });
 
       alert(t('appointmentRequestSubmitted'));
