@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 
-const SCOPE_OPTIONS = ['News', 'Department', 'District', 'Court', 'Leaders', 'Reverends', 'Admins', 'All'];
+// SCOPE_OPTIONS has been replaced by dynamic allowedScopes based on user.accessLevel
 
 const UploadScreen = ({ onCancel, onDone, user }) => {
   const { t } = useLanguage();
@@ -10,6 +10,18 @@ const UploadScreen = ({ onCancel, onDone, user }) => {
   const [postAs, setPostAs] = useState('myself'); // 'myself', 'church', 'dept', 'court'
   const [attachments, setAttachments] = useState([]);
   const fileInputRef = useRef(null);
+
+  const level = user?.accessLevel || 1;
+  let allowedScopes = ['News', 'District', 'Court'];
+  if (level >= 2) {
+    allowedScopes = ['News', 'Department', 'District', 'Court'];
+  }
+  if (level >= 3) {
+    allowedScopes.push('Leaders');
+  }
+  if (level >= 4) {
+    allowedScopes.push('All');
+  }
 
   // Authorization checks
   const userPosition = user?.position || 'Member';
@@ -188,7 +200,7 @@ const UploadScreen = ({ onCancel, onDone, user }) => {
               scrollbarWidth: 'none',
               msOverflowStyle: 'none'
             }}>
-              {SCOPE_OPTIONS.map(opt => (
+              {allowedScopes.map(opt => (
                 <button
                   key={opt}
                   type="button"

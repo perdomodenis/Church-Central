@@ -103,33 +103,6 @@ export const TopBar = ({ route, onNavigate, scope, scopeOptions, title, onScope,
           <Icon.User />
         </button>
       </div>
-
-      {/* Secondary Navbar for Channels / Scope (Desktop Only) */}
-      {scopeOptions && (
-        <div className="desktop-only" style={{ display: 'flex', overflowX: 'auto', padding: '8px 16px', gap: '10px', backgroundColor: '#f9f9f9', borderTop: '1px solid #eee' }}>
-          {scopeOptions.map(option => (
-            <button
-              key={option}
-              onClick={() => onScope(option)}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: scope === option ? 'bold' : 'normal',
-                color: scope === option ? 'var(--accent)' : '#666',
-                fontSize: '0.95rem',
-                padding: '6px 12px',
-                borderRadius: '20px',
-                backgroundColor: scope === option ? 'var(--accent-light, #EFE9FF)' : 'transparent',
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

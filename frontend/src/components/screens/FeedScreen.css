@@ -386,3 +386,70 @@
   color: white;
   border-color: var(--green);
 }
+
+/* Custom Liked State Style */
+.post-action-button.liked {
+  color: var(--accent);
+}
+.post-action-button.liked:hover {
+  background-color: var(--accent-soft);
+}
+
+/* Comments Mention Dropdown */
+.mention-dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  width: 250px;
+  background-color: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: 16px;
+  box-shadow: var(--shadow-2);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  animation: slideUp 0.15s ease-out;
+}
+
+.mention-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mention-dropdown-item:hover {
+  background-color: var(--line-2);
+}
+
+.mention-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light, #9A7CF0));
+  color: white;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+
+.mention-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Comment Reply Button Hover Effects */
+.reply-btn-hover:hover {
+  background-color: var(--line-2);
+  color: var(--accent-dark, #4026A0) !important;
+}

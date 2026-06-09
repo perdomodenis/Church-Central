@@ -26,6 +26,20 @@ const isPdfUrl = (url) => {
   }
 };
 
+const handleShareClick = (post, e, onAction) => {
+  e.stopPropagation();
+  if (navigator.share) {
+    navigator.share({
+      title: 'Church Central',
+      text: post.content,
+      url: window.location.origin + '?post=' + post.id
+    }).catch((error) => console.log('Error sharing:', error));
+  } else {
+    navigator.clipboard.writeText(window.location.origin + '?post=' + post.id);
+    if (onAction) onAction('share');
+  }
+};
+
 const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
   const { t } = useLanguage();
   const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -36,17 +50,35 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
   const [selectedPost, setSelectedPost] = useState(null);
 
   // High fidelity UI states
-  const [prayedPosts, setPrayedPosts] = useState(() => {
-    const saved = localStorage.getItem('prayedPosts');
+  const [likedPosts, setLikedPosts] = useState(() => {
+    const saved = localStorage.getItem('likedPosts:v1');
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
   const [floatingEmojis, setFloatingEmojis] = useState([]);
   const [heartbeatActive, setHeartbeatActive] = useState({});
   const [viewingPdfInline, setViewingPdfInline] = useState({});
+  const [members, setMembers] = useState([]);
+  const [mentioningPostId, setMentioningPostId] = useState(null);
+  const [mentionSearch, setMentionSearch] = useState('');
+  const [mentionStartIndex, setMentionStartIndex] = useState(-1);
+
+  // Load members for mentions
+  useEffect(() => {
+    const loadMembers = async () => {
+      try {
+        const { getAllMembers } = await import('../../services/memberService');
+        const list = await getAllMembers();
+        setMembers(list);
+      } catch (err) {
+        console.error('Error loading members:', err);
+      }
+    };
+    loadMembers();
+  }, []);
   
   // RSVP state for events
   const [eventRSVPs, setEventRSVPs] = useState(() => {
-    const saved = localStorage.getItem('eventRSVPs');
+    const saved = localStorage.getItem('eventRSVPs:v1');
     return saved ? JSON.parse(saved) : {};
   });
 
@@ -58,14 +90,14 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
     { id: 'ev4', title: t('social'), date: '13', month: 'Jun', time: '09:00 AM', loc: 'Dining Area' }
   ];
 
-  // Sync prayed posts to localStorage
+  // Sync liked posts to localStorage
   useEffect(() => {
-    localStorage.setItem('prayedPosts', JSON.stringify(Array.from(prayedPosts)));
-  }, [prayedPosts]);
+    localStorage.setItem('likedPosts:v1', JSON.stringify(Array.from(likedPosts)));
+  }, [likedPosts]);
 
   // Sync RSVPs to localStorage
   useEffect(() => {
-    localStorage.setItem('eventRSVPs', JSON.stringify(eventRSVPs));
+    localStorage.setItem('eventRSVPs:v1', JSON.stringify(eventRSVPs));
   }, [eventRSVPs]);
 
   // Load posts from SQL Connect
@@ -84,7 +116,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
           scope: post.scope,
           category: post.category,
           image: post.imageUrl || null,
-          prayers: post.likes || 0,
+          likes: post.likes || 0,
           comments: []
         }));
         setPosts(mapped);
@@ -96,7 +128,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
     loadPosts();
   }, [refreshKey]);
 
-  const handlePrayClick = (postId, e) => {
+  const handleLikeClick = (postId, e) => {
     e.stopPropagation();
 
     // Trigger heartbeat animation on button
@@ -105,15 +137,15 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
       setHeartbeatActive(prev => ({ ...prev, [postId]: false }));
     }, 350);
 
-    const updated = new Set(prayedPosts);
-    const wasPrayed = updated.has(postId);
+    const updated = new Set(likedPosts);
+    const wasLiked = updated.has(postId);
 
-    if (wasPrayed) {
+    if (wasLiked) {
       updated.delete(postId);
     } else {
       updated.add(postId);
       
-      // Spawn floating prayer emoji at mouse click position (or button center if keyboard)
+      // Spawn floating like emoji at mouse click position (or button center if keyboard)
       const rect = e.currentTarget.getBoundingClientRect();
       const clickX = e.clientX || (rect.left + rect.width / 2);
       const clickY = e.clientY || rect.top;
@@ -135,7 +167,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
       if (onAction) onAction('pray');
     }
 
-    setPrayedPosts(updated);
+    setLikedPosts(updated);
   };
 
   const handleRSVP = (eventId, status) => {
@@ -181,7 +213,72 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
       ...prev,
       [postId]: ''
     }));
+
+    setMentioningPostId(null);
   };
+
+  const handleCommentChange = (postId, value) => {
+    setCommentText(prev => ({ ...prev, [postId]: value }));
+
+    const inputEl = document.getElementById(`comment-input-${postId}`);
+    if (!inputEl) return;
+
+    const selectionStart = inputEl.selectionStart || value.length;
+    const textBeforeCursor = value.substring(0, selectionStart);
+    const lastAtIdx = textBeforeCursor.lastIndexOf('@');
+
+    if (lastAtIdx !== -1) {
+      const charBeforeAt = lastAtIdx > 0 ? textBeforeCursor[lastAtIdx - 1] : ' ';
+      const textAfterAt = textBeforeCursor.substring(lastAtIdx + 1);
+      
+      if ((charBeforeAt === ' ' || charBeforeAt === '\n') && !textAfterAt.includes(' ')) {
+        setMentioningPostId(postId);
+        setMentionSearch(textAfterAt);
+        setMentionStartIndex(lastAtIdx);
+        return;
+      }
+    }
+    setMentioningPostId(null);
+  };
+
+  const handleSelectMention = (postId, member) => {
+    const currentText = commentText[postId] || '';
+    const textBefore = currentText.substring(0, mentionStartIndex);
+    const textAfter = currentText.substring(mentionStartIndex + mentionSearch.length + 1);
+    const newText = textBefore + `@${member.first} ${member.last} ` + textAfter;
+
+    setCommentText(prev => ({ ...prev, [postId]: newText }));
+    setMentioningPostId(null);
+
+    setTimeout(() => {
+      const inputEl = document.getElementById(`comment-input-${postId}`);
+      if (inputEl) {
+        inputEl.focus();
+        const cursorPosition = textBefore.length + member.first.length + member.last.length + 2;
+        inputEl.setSelectionRange(cursorPosition, cursorPosition);
+      }
+    }, 0);
+  };
+
+  const handleReplyToComment = (postId, authorName) => {
+    setCommentText(prev => {
+      const current = prev[postId] || '';
+      const prefix = `@${authorName} `;
+      return {
+        ...prev,
+        [postId]: prefix + current.replace(new RegExp(`^@${authorName}\\s*`), '')
+      };
+    });
+
+    setTimeout(() => {
+      const inputEl = document.getElementById(`comment-input-${postId}`);
+      if (inputEl) {
+        inputEl.focus();
+      }
+    }, 0);
+  };
+
+
 
   const getPostComments = (postId) => {
     return postComments[postId] || posts.find(p => p.id === postId)?.comments || [];
@@ -190,10 +287,21 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
   const commentCount = (postId) => getPostComments(postId).length;
 
   const level = user?.accessLevel || 1;
-  const scopeOptions = ['All', 'News', 'District', 'Court'];
-  if (level >= 2) scopeOptions.splice(2, 0, 'Department');
-  if (level >= 3) scopeOptions.push('Leaders', 'Admins');
-  if (level >= 4) scopeOptions.push('Reverends');
+  let scopeOptions = ['News', 'District', 'Court'];
+  if (level >= 2) {
+    scopeOptions = ['News', 'Department', 'District', 'Court'];
+  }
+  if (level >= 3) {
+    scopeOptions.push('Leaders');
+  }
+  if (level >= 4) {
+    scopeOptions.push('All');
+  }
+
+  const matchingMembers = members.filter(m => {
+    const fullName = `${m.first} ${m.last}`.toLowerCase();
+    return fullName.includes(mentionSearch.toLowerCase()) || m.email.toLowerCase().includes(mentionSearch.toLowerCase());
+  }).slice(0, 5);
 
   return (
     <div className="feed-screen-container">
@@ -286,22 +394,22 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
           <div style={{ position: 'absolute', right: '-40px', bottom: '-40px', width: '200px', height: '200px', borderRadius: '50%', background: 'var(--gold)', opacity: 0.15, filter: 'blur(40px)', zIndex: 1 }}></div>
         </div>
 
-        {/* Floating elements for prayer triggers */}
+        {/* Floating elements for like triggers */}
         {floatingEmojis.map(emoji => (
           <div
             key={emoji.id}
             className="prayer-emoji-rising"
             style={{ left: emoji.x, top: emoji.y }}
           >
-            🙏
+            ❤️
           </div>
         ))}
 
         {/* Announcements List */}
         {filteredPosts.length > 0 ? (
           filteredPosts.map(post => {
-            const hasPrayed = prayedPosts.has(post.id);
-            const totalPrayers = post.prayers + (hasPrayed ? 1 : 0);
+            const hasLiked = likedPosts.has(post.id);
+            const totalLikes = post.likes + (hasLiked ? 1 : 0);
             const isPdf = isPdfUrl(post.image);
             const showPdfInline = viewingPdfInline[post.id];
 
@@ -380,11 +488,11 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
 
                 <div className="post-actions-row">
                   <button
-                    onClick={(e) => handlePrayClick(post.id, e)}
-                    className={`post-action-button ${hasPrayed ? 'prayed' : ''} ${heartbeatActive[post.id] ? 'heartbeat-active' : ''}`}
+                    onClick={(e) => handleLikeClick(post.id, e)}
+                    className={`post-action-button ${hasLiked ? 'liked' : ''} ${heartbeatActive[post.id] ? 'heartbeat-active' : ''}`}
                   >
-                    <span>{hasPrayed ? '🙏' : '🙌'}</span>
-                    <span>{totalPrayers} {totalPrayers === 1 ? t('prayer') : t('prayers')}</span>
+                    <span>{hasLiked ? '❤️' : '🤍'}</span>
+                    <span>{totalLikes} {totalLikes === 1 ? t('like') : t('likes')}</span>
                   </button>
                   
                   <button
@@ -395,7 +503,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
                     <span>{commentCount(post.id)} {commentCount(post.id) === 1 ? t('comment') : t('comments')}</span>
                   </button>
                   
-                  <button onClick={() => onAction('share')} className="post-action-button">
+                  <button onClick={(e) => handleShareClick(post, e)} className="post-action-button">
                     <span>🔗</span>
                     <span>{t('share')}</span>
                   </button>
@@ -406,18 +514,57 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
                     <div style={{ maxHeight: '240px', overflowY: 'auto', marginBottom: '12px' }}>
                       {getPostComments(post.id).map(comment => (
                         <div key={comment.id} className="comment-bubble">
-                          <div className="comment-author">{comment.author}</div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <div className="comment-author">{comment.author}</div>
+                            <button
+                              onClick={() => handleReplyToComment(post.id, comment.author)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: 'var(--accent)',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                transition: 'background-color 0.2s'
+                              }}
+                              className="reply-btn-hover"
+                            >
+                              {t('reply')}
+                            </button>
+                          </div>
                           <div className="comment-body">{comment.text}</div>
                         </div>
                       ))}
                     </div>
 
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ position: 'relative', display: 'flex', gap: '8px' }}>
+                      {mentioningPostId === post.id && matchingMembers.length > 0 && (
+                        <div className="mention-dropdown">
+                          {matchingMembers.map(member => (
+                            <div
+                              key={member.uid}
+                              className="mention-dropdown-item"
+                              onClick={() => handleSelectMention(post.id, member)}
+                            >
+                              <div className="mention-avatar">
+                                {member.first[0]}{member.last[0]}
+                              </div>
+                              <div className="mention-name">
+                                {member.first} {member.last}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
                       <input
+                        id={`comment-input-${post.id}`}
                         type="text"
                         placeholder={t('addCommentPlaceholder')}
                         value={commentText[post.id] || ''}
-                        onChange={(e) => setCommentText(prev => ({ ...prev, [post.id]: e.target.value }))}
+                        onChange={(e) => handleCommentChange(post.id, e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAddComment(post.id)}
                         style={{
                           flex: 1,
@@ -479,14 +626,9 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
                       <button
                         onClick={() => handleRSVP(event.id, 'going')}
                         className={`rsvp-btn ${rsvp === 'going' ? 'selected' : ''}`}
+                        style={{ width: '100%' }}
                       >
                         {t('going')}
-                      </button>
-                      <button
-                        onClick={() => handleRSVP(event.id, 'maybe')}
-                        className={`rsvp-btn ${rsvp === 'maybe' ? 'selected' : ''}`}
-                      >
-                        {t('maybe')}
                       </button>
                     </div>
                   </div>

@@ -1,21 +1,40 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 
 const CATEGORIES = ['Suggestion', 'Bug Report', 'Praise', 'Other'];
 
 const FeedbackScreen = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [category, setCategory] = useState('Suggestion');
   const [rating, setRating] = useState(0);
   const [message, setMessage] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!message.trim()) return;
 
+    const feedbackPayload = {
+      category,
+      rating,
+      message,
+      isAnonymous,
+      submittedAt: new Date().toISOString()
+    };
+
+    if (!isAnonymous && user) {
+      feedbackPayload.user = {
+        uid: user.uid,
+        name: `${user.first} ${user.last}`.trim() || user.email || 'Unknown',
+        email: user.email
+      };
+    }
+
     // Logic for sending feedback to a backend or service would go here
-    console.log('Feedback submitted:', { category, rating, message });
+    console.log('Feedback submitted:', feedbackPayload);
     setSubmitted(true);
   };
 
@@ -40,6 +59,7 @@ const FeedbackScreen = () => {
             setSubmitted(false);
             setRating(0);
             setMessage('');
+            setIsAnonymous(false);
           }}
           style={{ 
             marginTop: '32px',
@@ -122,6 +142,27 @@ const FeedbackScreen = () => {
             required
             style={textareaStyle}
           />
+        </div>
+
+        <div 
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', cursor: 'pointer' }}
+          onClick={() => setIsAnonymous(!isAnonymous)}
+        >
+          <input
+            type="checkbox"
+            checked={isAnonymous}
+            onChange={(e) => setIsAnonymous(e.target.checked)}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '18px',
+              height: '18px',
+              accentColor: 'var(--accent)',
+              cursor: 'pointer'
+            }}
+          />
+          <span style={{ fontSize: '0.9rem', color: '#555', userSelect: 'none', fontWeight: '500' }}>
+            {t('submitAnonymously')}
+          </span>
         </div>
 
         <button type="submit" style={submitButtonStyle}>

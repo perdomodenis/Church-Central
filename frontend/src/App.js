@@ -260,7 +260,7 @@ function App() {
 
   const onAction = (kind) => {
     if (kind === 'comment') toast.show('Comments will be available soon');
-    else if (kind === 'pray') toast.show('🙏 Praying with you');
+    else if (kind === 'pray') toast.show('❤️ Post liked');
     else if (kind === 'share') toast.show('Link copied');
     else if (kind === 'compose') setUploadOpen(true);
   };
@@ -269,13 +269,13 @@ function App() {
 
   let scopeOptions = ['News', 'District', 'Court'];
   if (level >= 2) {
-    scopeOptions = ['News', 'Department', 'District', 'Court', 'All'];
+    scopeOptions = ['News', 'Department', 'District', 'Court'];
   }
   if (level >= 3) {
-    scopeOptions.push('Leaders', 'Admins');
+    scopeOptions.push('Leaders');
   }
   if (level >= 4) {
-    scopeOptions.push('Reverends');
+    scopeOptions.push('All');
   }
 
   const inAuth = ['login', 'signup', 'welcome', 'forgot', 'forgot-sent'].includes(route);
