@@ -412,6 +412,7 @@ function App() {
 
       {uploadOpen && (
         <UploadScreen
+          user={user}
           onCancel={() => setUploadOpen(false)}
           onDone={() => {
             setUploadOpen(false);

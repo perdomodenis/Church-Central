@@ -1,3 +1,7 @@
+# React Doctor — finds security, performance, correctness, accessibility,
+# bundle-size, and architecture issues in React codebases.
+# Docs: https://www.react.doctor/ci
+
 name: Build and Deploy
 
 on:
@@ -5,11 +9,44 @@ on:
     branches:
       - main
       - develop
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+  issues: write
+  statuses: write
+
+# Cancel in-flight runs for the same PR or branch when a new commit arrives.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   NODE_VERSION: "20"
 
 jobs:
+  react-doctor:
+    name: React Doctor (Code Quality)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: millionco/react-doctor@v2
+        # Common configuration knobs — uncomment any to override the default.
+        # Full reference: https://www.react.doctor/ci
+        # with:
+        #   blocking: warning        # Gate level: "error" (default) | "warning" | "none" (advisory)
+        #   scope: full              # On PRs, scan the whole project instead of just changed files
+        #   comment: false           # Disable the sticky PR summary comment
+        #   review-comments: false   # Disable inline review comments on changed lines
+        #   commit-status: false     # Disable the commit status (score + counts, links to the run)
+        #   version: "0.4.0"         # Pin to a specific react-doctor version instead of "latest"
+        #   directory: frontend      # Scan a sub-directory (default: ".")
+        #   project: "web,admin"     # In a monorepo, scan specific workspace project(s)
+
   build:
     name: Build React App
     runs-on: ubuntu-latest
@@ -40,6 +77,26 @@ jobs:
           name: build
           path: frontend/build/
           retention-days: 1
+
+  deploy-preview:
+    name: Deploy Preview to Firebase Hosting
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: frontend/build/
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CHURCH_CENTRAL_992A7 }}
+          projectId: church-central-992a7
 
   deploy-production:
     name: Deploy to Firebase (Production)

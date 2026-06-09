@@ -11,7 +11,8 @@
     "test": "cd frontend && npm test",
     "install:frontend": "cd frontend && npm install",
     "install:backend": "cd backend && npm install",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "doctor": "npx react-doctor@latest"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

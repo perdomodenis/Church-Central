@@ -1,15 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { useAuth } from '../../context/AuthContext';
-import { createAnnouncement } from '../../lib/dataconnect';
-import { storage } from '../../services/firebase';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const SCOPE_OPTIONS = ['News', 'Department', 'District', 'Court', 'Leaders', 'Reverends', 'Admins', 'All'];
 
-const UploadScreen = ({ onCancel, onDone }) => {
+const UploadScreen = ({ onCancel, onDone, user }) => {
   const { t } = useLanguage();
-  const { user } = useAuth();
   const [content, setContent] = useState('');
   const [scope, setScope] = useState('News');
   const [postAs, setPostAs] = useState('myself'); // 'myself', 'church', 'dept', 'court'
@@ -25,7 +20,7 @@ const UploadScreen = ({ onCancel, onDone }) => {
   const canPostAsDept = userDept && ['Bishop', 'Reverend', 'Admin', 'Pastor', 'Leader', 'Co-Leader'].includes(userPosition);
   const canPostAsCourt = userCourt && ['Bishop', 'Reverend', 'Admin', 'Pastor', 'Leader', 'Co-Leader'].includes(userPosition);
 
-  const showPostAsSelector = canPostAsChurch || canPostAsDept || canPostAsCourt;
+
 
   const handleFileSelect = (e) => {
     const files = e.target.files;
@@ -158,32 +153,30 @@ const UploadScreen = ({ onCancel, onDone }) => {
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {showPostAsSelector && (
-            <div>
-              <label style={labelStyle}>{t('postAs')}</label>
-              <select
-                value={postAs}
-                onChange={(e) => setPostAs(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid var(--line)',
-                  borderRadius: '8px',
-                  fontSize: '0.95rem',
-                  fontFamily: 'inherit',
-                  backgroundColor: 'var(--surface)',
-                  color: 'var(--ink)',
-                  outlineColor: 'var(--accent)',
-                  marginTop: '4px'
-                }}
-              >
-                <option value="myself">{user ? `${user.first} ${user.last}` : t('myself')}</option>
-                {canPostAsChurch && <option value="church">Grace Community Church</option>}
-                {canPostAsDept && <option value="dept">{`${userDept} ${t('department')}`}</option>}
-                {canPostAsCourt && <option value="court">{`${userCourt} ${t('district')}`}</option>}
-              </select>
-            </div>
-          )}
+          <div>
+            <label style={labelStyle}>{t('postAs')}</label>
+            <select
+              value={postAs}
+              onChange={(e) => setPostAs(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1px solid var(--line)',
+                borderRadius: '8px',
+                fontSize: '0.95rem',
+                fontFamily: 'inherit',
+                backgroundColor: 'var(--surface)',
+                color: 'var(--ink)',
+                outlineColor: 'var(--accent)',
+                marginTop: '4px'
+              }}
+            >
+              <option value="myself">{user ? `${user.first} ${user.last}` : t('myself')}</option>
+              {canPostAsChurch && <option value="church">Grace Community Church</option>}
+              {canPostAsDept && <option value="dept">{`${userDept} ${t('department')}`}</option>}
+              {canPostAsCourt && <option value="court">{`${userCourt} ${t('district')}`}</option>}
+            </select>
+          </div>
 
           <div>
             <label style={labelStyle}>{t('shareWith')}</label>
