@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { uploadPhoto, getUserPhotos, deletePhoto } from '../../services/photoService';
 import { updateProfilePhoto, updateUserProfile, getUserProfile } from '../../services/userService';
-import { COURTS, DEPARTMENTS, ROLES, getAccessLevel } from '../../services/churchConstants';
+import { COURTS, DEPARTMENTS, ROLES, DISTRICTS, getAccessLevel } from '../../services/churchConstants';
 import { requestDepartmentJoin } from '../../services/departmentService';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllMembers } from '../../services/memberService';
@@ -36,7 +36,10 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
     first: user.first || '',
     last: user.last || '',
     court: user.court || '',
+    courts: user.courts || [],
     dept: user.dept || '',
+    depts: user.depts || [],
+    district: user.district || '',
     position: user.position || '',
     interests: user.interests || [],
     paUid: user.pa?.uid || user.paUid || ''
@@ -61,7 +64,10 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
       first: user.first || '',
       last: user.last || '',
       court: user.court || '',
+      courts: user.courts || [],
       dept: user.dept || '',
+      depts: user.depts || [],
+      district: user.district || '',
       position: user.position || '',
       interests: user.interests || [],
       paUid: user.pa?.uid || user.paUid || ''
@@ -159,18 +165,32 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
       const updates = {
         first: editUser.first,
         last: editUser.last,
-        court: editUser.court,
+        courts: editUser.courts || [],
+        court: editUser.courts?.[0] || '',
+        district: editUser.district || '',
         position: editUser.position,
         interests: editUser.interests,
         paUid: editUser.paUid || null
       };
 
-      if (editUser.dept !== user.dept) {
-        await requestDepartmentJoin(user.uid, `${editUser.first} ${editUser.last}`, editUser.dept);
-        alert(t('deptJoinSuccessSent').replace('{dept}', editUser.dept));
-        setEditUser(prev => ({ ...prev, dept: user.dept }));
+      const newDepts = (editUser.depts || []).filter(d => !(user.depts || []).includes(d));
+      if (newDepts.length > 0) {
+        for (const newDept of newDepts) {
+          await requestDepartmentJoin(user.uid, `${editUser.first} ${editUser.last}`, newDept);
+        }
+        alert(`Department join request(s) sent for review: ${newDepts.join(', ')}`);
+        
+        updates.depts = (editUser.depts || []).filter(d => (user.depts || []).includes(d) || d === 'General');
+        updates.dept = updates.depts[0] || 'General';
+        
+        setEditUser(prev => ({
+          ...prev,
+          depts: updates.depts,
+          dept: updates.dept
+        }));
       } else {
-        updates.dept = editUser.dept;
+        updates.depts = editUser.depts;
+        updates.dept = editUser.depts?.[0] || '';
       }
 
       await updateUserProfile(user.uid, updates);
@@ -180,7 +200,8 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
       const updatedUser = {
         ...user,
         ...editUser,
-        dept: editUser.dept !== user.dept ? user.dept : editUser.dept,
+        depts: updates.depts,
+        dept: updates.dept,
         pa: freshProfile.pa || null,
         accessLevel: getAccessLevel(editUser.position || 'Member')
       };
@@ -305,27 +326,73 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               />
             </div>
             <div>
-              <label style={labelStyle}>{t('locationCourt')}</label>
-              <select
-                value={editUser.court}
-                onChange={(e) => setEditUser(prev => ({ ...prev, court: e.target.value }))}
-                style={selectStyle}
-              >
-                <option value="" disabled>{t('selectLocationCourt')}</option>
-                {COURTS.map(opt => (
-                  <option key={opt} value={opt}>{t(toCamelCase(opt)) || opt}</option>
-                ))}
-              </select>
+              <label style={labelStyle}>{t('courts') || 'Courts'}</label>
+              <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
+                {COURTS.map(opt => {
+                  const selected = editUser.courts?.includes(opt);
+                  return (
+                    <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.95rem' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!selected}
+                        onChange={(e) => {
+                          const updated = e.target.checked
+                            ? [...(editUser.courts || []), opt]
+                            : (editUser.courts || []).filter(item => item !== opt);
+                          setEditUser(prev => ({ ...prev, courts: updated }));
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <span>{t(toCamelCase(opt)) || opt}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
             <div>
-              <label style={labelStyle}>{t('department')}</label>
+              <label style={labelStyle}>{t('departments') || 'Departments'}</label>
+              <div style={{
+                maxHeight: '150px',
+                overflowY: 'auto',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                marginTop: '4px',
+                backgroundColor: 'white'
+              }}>
+                {DEPARTMENTS.map(opt => {
+                  const selected = editUser.depts?.includes(opt);
+                  return (
+                    <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.95rem' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!selected}
+                        onChange={(e) => {
+                          const updated = e.target.checked
+                            ? [...(editUser.depts || []), opt]
+                            : (editUser.depts || []).filter(item => item !== opt);
+                          setEditUser(prev => ({ ...prev, depts: updated }));
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <span>{t(toCamelCase(opt)) || opt}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <label style={labelStyle}>{t('district') || 'District'}</label>
               <select
-                value={editUser.dept}
-                onChange={(e) => setEditUser(prev => ({ ...prev, dept: e.target.value }))}
+                value={editUser.district}
+                onChange={(e) => setEditUser(prev => ({ ...prev, district: e.target.value }))}
                 style={selectStyle}
               >
-                <option value="" disabled>{t('selectDepartment')}</option>
-                {DEPARTMENTS.map(opt => (
+                <option value="" disabled>Select District</option>
+                {DISTRICTS.map(opt => (
                   <option key={opt} value={opt}>{t(toCamelCase(opt)) || opt}</option>
                 ))}
               </select>
@@ -367,13 +434,28 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
             </div>
 
             <div style={infoRowStyle}>
-              <span style={labelStyle}>{t('locationCourt')}</span>
-              <span style={valueStyle}>{editUser.court ? t(toCamelCase(editUser.court)) : t('notSpecified')}</span>
+              <span style={labelStyle}>{t('courts') || 'Courts'}</span>
+              <span style={valueStyle}>
+                {editUser.courts && editUser.courts.length > 0
+                  ? editUser.courts.map(c => t(toCamelCase(c)) || c).join(', ')
+                  : editUser.court ? t(toCamelCase(editUser.court)) : t('notSpecified')}
+              </span>
             </div>
 
             <div style={infoRowStyle}>
-              <span style={labelStyle}>{t('department')}</span>
-              <span style={valueStyle}>{editUser.dept ? t(toCamelCase(editUser.dept)) : t('notSpecified')}</span>
+              <span style={labelStyle}>{t('departments') || 'Departments'}</span>
+              <span style={valueStyle}>
+                {editUser.depts && editUser.depts.length > 0
+                  ? editUser.depts.map(d => t(toCamelCase(d)) || d).join(', ')
+                  : editUser.dept ? t(toCamelCase(editUser.dept)) : t('notSpecified')}
+              </span>
+            </div>
+
+            <div style={infoRowStyle}>
+              <span style={labelStyle}>{t('district') || 'District'}</span>
+              <span style={valueStyle}>
+                {editUser.district ? t(toCamelCase(editUser.district)) || editUser.district : t('notSpecified')}
+              </span>
             </div>
 
             <div style={infoRowStyle}>

@@ -2,7 +2,10 @@ query GetUserContext($uid: String!) @auth(level: USER) {
   user(key: { uid: $uid }) {
     uid
     court
+    courts
     dept
+    depts
+    district
     position
     authorizedPostAsChurch
     authorizedPostAsDept
@@ -19,7 +22,10 @@ query GetUserProfile($uid: String!) @auth(level: USER) {
     zip
     city
     court
+    courts
     dept
+    depts
+    district
     position
     bio
     profilePhoto
@@ -48,7 +54,10 @@ query ListMembers @auth(level: USER) {
     zip
     city
     court
+    courts
     dept
+    depts
+    district
     position
     bio
     profilePhoto
@@ -85,7 +94,10 @@ query SearchMembers($query: String!) @auth(level: USER) {
     zip
     city
     court
+    courts
     dept
+    depts
+    district
     position
     bio
     profilePhoto

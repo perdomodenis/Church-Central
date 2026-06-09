@@ -190,7 +190,10 @@ export interface GetUserContextData {
   user?: {
     uid: string;
     court?: string | null;
+    courts?: string[] | null;
     dept?: string | null;
+    depts?: string[] | null;
+    district?: string | null;
     position?: string | null;
     authorizedPostAsChurch?: boolean | null;
     authorizedPostAsDept?: boolean | null;
@@ -211,7 +214,10 @@ export interface GetUserProfileData {
     zip?: string | null;
     city?: string | null;
     court?: string | null;
+    courts?: string[] | null;
     dept?: string | null;
+    depts?: string[] | null;
+    district?: string | null;
     position?: string | null;
     bio?: string | null;
     profilePhoto?: string | null;
@@ -351,7 +357,10 @@ export interface ListMembersData {
     zip?: string | null;
     city?: string | null;
     court?: string | null;
+    courts?: string[] | null;
     dept?: string | null;
+    depts?: string[] | null;
+    district?: string | null;
     position?: string | null;
     bio?: string | null;
     profilePhoto?: string | null;
@@ -479,7 +488,10 @@ export interface SearchMembersData {
     zip?: string | null;
     city?: string | null;
     court?: string | null;
+    courts?: string[] | null;
     dept?: string | null;
+    depts?: string[] | null;
+    district?: string | null;
     position?: string | null;
     bio?: string | null;
     profilePhoto?: string | null;
@@ -531,7 +543,10 @@ export interface UpsertUserProfileVariables {
   zip?: string | null;
   city?: string | null;
   court?: string | null;
+  courts?: string[] | null;
   dept?: string | null;
+  depts?: string[] | null;
+  district?: string | null;
   position?: string | null;
   bio?: string | null;
   profilePhoto?: string | null;

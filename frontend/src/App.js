@@ -92,7 +92,7 @@ function App() {
   const [signupStep, setSignupStep] = useState(1);
   const [signupData, setSignupData] = useState({
     first: '', last: '', email: '', zip: '', city: '', pw: '', pw2: '',
-    court: '', position: '', dept: '', interests: [],
+    court: '', courts: [], position: '', dept: '', depts: [], district: 'Central District', interests: [],
   });
 
   // Update user on authUser change and sync with PostgreSQL
@@ -148,6 +148,13 @@ function App() {
 
           // Guarantee user exists in PostgreSQL to satisfy foreign key constraints
           await updateUserProfile(authUser.uid, dbUserData);
+
+          try {
+            const { syncUserChatGroups } = await import('./services/chatService');
+            await syncUserChatGroups(userData);
+          } catch (err) {
+            console.error('Error syncing groups in App.js:', err);
+          }
         } catch (err) {
           console.error('Error syncing user profile to PostgreSQL:', err);
           // Fallback local state if DB connection fails
@@ -222,8 +229,11 @@ function App() {
         last: signupData.last,
         zip: signupData.zip || '',
         city: signupData.city || '',
-        court: signupData.court || 'Main Campus',
-        dept: signupData.dept || 'General',
+        court: signupData.courts?.[0] || signupData.court || 'Main Campus',
+        courts: signupData.courts || ['Main Campus'],
+        dept: signupData.depts?.[0] || signupData.dept || 'General',
+        depts: signupData.depts || ['General'],
+        district: signupData.district || 'Central District',
         position: signupData.position || 'Member',
         joined: new Date().toISOString().split('T')[0],
         status: 'online',

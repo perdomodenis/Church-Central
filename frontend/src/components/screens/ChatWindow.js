@@ -6,14 +6,48 @@ import {
   listenToMessages,
   listenToGroupMessages,
   deleteMessage,
-  deleteGroupMessage
+  deleteGroupMessage,
+  editMessage,
+  editGroupMessage
 } from '../../services/chatService';
+
+const ContextMenuOption = ({ onClick, children, style }) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width: '100%',
+        backgroundColor: hovered ? '#f5f5f5' : 'transparent',
+        border: 'none',
+        padding: '10px 16px',
+        textAlign: 'left',
+        fontSize: '0.875rem',
+        cursor: 'pointer',
+        color: '#333',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        transition: 'background-color 0.15s ease',
+        outline: 'none',
+        ...style
+      }}
+    >
+      {children}
+    </button>
+  );
+};
 
 const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
   const { t } = useLanguage();
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState('');
   const [sending, setSending] = useState(false);
+  const [contextMenu, setContextMenu] = useState({ x: 0, y: 0, show: false, message: null });
+  const [editingMessage, setEditingMessage] = useState(null);
+  const [replyingToMessage, setReplyingToMessage] = useState(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -32,15 +66,77 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  useEffect(() => {
+    const handleCloseMenu = () => {
+      setContextMenu({ x: 0, y: 0, show: false, message: null });
+    };
+    window.addEventListener('click', handleCloseMenu);
+    return () => {
+      window.removeEventListener('click', handleCloseMenu);
+    };
+  }, []);
+
+  const handleContextMenu = (e, msg) => {
+    e.preventDefault();
+    const menuWidth = 150;
+    const menuHeight = msg.userId === user?.uid ? 130 : 90;
+    let x = e.clientX;
+    let y = e.clientY;
+
+    if (x + menuWidth > window.innerWidth) {
+      x = window.innerWidth - menuWidth - 10;
+    }
+    if (y + menuHeight > window.innerHeight) {
+      y = window.innerHeight - menuHeight - 10;
+    }
+
+    setContextMenu({
+      x,
+      y,
+      show: true,
+      message: msg
+    });
+  };
+
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const handleStartEdit = (msg) => {
+    setEditingMessage(msg);
+    setReplyingToMessage(null);
+    setMessageText(msg.text);
+  };
+
+  const handleStartReply = (msg) => {
+    setReplyingToMessage(msg);
+    setEditingMessage(null);
+  };
+
   const handleSendMessage = async () => {
     if (!messageText.trim()) return;
 
     setSending(true);
     try {
-      if (chatType === 'direct') {
-        await sendMessage(chatId, user.uid, `${user.first} ${user.last}`, messageText);
+      if (editingMessage) {
+        if (chatType === 'direct') {
+          await editMessage(chatId, editingMessage.id, messageText);
+        } else {
+          await editGroupMessage(chatId, editingMessage.id, messageText);
+        }
+        setEditingMessage(null);
       } else {
-        await sendGroupMessage(chatId, user.uid, `${user.first} ${user.last}`, messageText);
+        const replyToPayload = replyingToMessage ? {
+          userName: replyingToMessage.userName,
+          text: replyingToMessage.text
+        } : null;
+
+        if (chatType === 'direct') {
+          await sendMessage(chatId, user.uid, `${user.first} ${user.last}`, messageText, replyToPayload);
+        } else {
+          await sendGroupMessage(chatId, user.uid, `${user.first} ${user.last}`, messageText, replyToPayload);
+        }
+        setReplyingToMessage(null);
       }
       setMessageText('');
     } catch (error) {
@@ -140,6 +236,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
               }}
             >
               <div
+                onContextMenu={(e) => handleContextMenu(e, msg)}
                 style={{
                   backgroundColor: msg.userId === user?.uid ? 'var(--accent)' : '#f0f0f0',
                   color: msg.userId === user?.uid ? 'white' : '#111',
@@ -149,7 +246,9 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
                   borderBottomRightRadius: msg.userId === user?.uid ? '4px' : '16px',
                   position: 'relative',
                   wordBreak: 'break-word',
-                  whiteSpace: 'pre-wrap'
+                  whiteSpace: 'pre-wrap',
+                  cursor: 'context-menu',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
                 }}
               >
                 {chatType === 'group' && msg.userId !== user?.uid && (
@@ -162,44 +261,125 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
                     {msg.userName}
                   </div>
                 )}
+
+                {msg.replyTo && (
+                  <div style={{
+                    backgroundColor: msg.userId === user?.uid ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.05)',
+                    borderLeft: `3px solid ${msg.userId === user?.uid ? 'rgba(255, 255, 255, 0.6)' : 'var(--accent)'}`,
+                    padding: '6px 10px',
+                    borderRadius: '4px',
+                    marginBottom: '8px',
+                    fontSize: '0.8rem',
+                    opacity: 0.95
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '2px' }}>
+                      {msg.replyTo.userName}
+                    </div>
+                    <div style={{
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      fontStyle: 'italic'
+                    }}>
+                      {msg.replyTo.text}
+                    </div>
+                  </div>
+                )}
+
                 <p style={{ margin: 0, fontSize: '0.95rem' }}>
                   {msg.text}
                 </p>
                 <div style={{
                   fontSize: '0.75rem',
                   opacity: 0.6,
-                  marginTop: '4px'
+                  marginTop: '4px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}>
-                  {new Date(msg.timestamp).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+                  <span>
+                    {new Date(msg.timestamp).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                  {msg.isEdited && (
+                    <span style={{ fontSize: '0.7rem', fontStyle: 'italic', opacity: 0.8 }}>
+                      ({t('edited')})
+                    </span>
+                  )}
                 </div>
-
-                {msg.userId === user?.uid && (
-                  <button
-                    onClick={() => handleDeleteMessage(msg.id)}
-                    style={{
-                      position: 'absolute',
-                      top: '2px',
-                      right: '2px',
-                      backgroundColor: 'transparent',
-                      border: 'none',
-                      color: 'rgba(255,255,255,0.5)',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                      padding: '2px 4px'
-                    }}
-                  >
-                    ✕
-                  </button>
-                )}
               </div>
             </div>
           ))
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Banner for Editing/Replying */}
+      {(editingMessage || replyingToMessage) && (
+        <div style={{
+          padding: '8px 24px',
+          backgroundColor: '#f8f9fa',
+          borderTop: '1px solid #eee',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '0.85rem',
+          color: '#555'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {editingMessage ? (
+              <>
+                <span style={{ fontWeight: '600', color: 'var(--accent)' }}>✏️ {t('edit')}:</span>
+                <span style={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: '300px',
+                  fontStyle: 'italic'
+                }}>
+                  "{editingMessage.text}"
+                </span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontWeight: '600', color: 'var(--accent)' }}>↩️ {t('reply')} to {replyingToMessage.userName}:</span>
+                <span style={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: '300px',
+                  fontStyle: 'italic'
+                }}>
+                  "{replyingToMessage.text}"
+                </span>
+              </>
+            )}
+          </div>
+          <button
+            onClick={() => {
+              setEditingMessage(null);
+              setReplyingToMessage(null);
+              if (editingMessage) {
+                setMessageText('');
+              }
+            }}
+            style={{
+              backgroundColor: 'transparent',
+              border: 'none',
+              color: '#999',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: 'bold',
+              padding: '2px 8px'
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Input */}
       <div style={{
@@ -250,6 +430,48 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
           ➤
         </button>
       </div>
+
+      {/* Context Menu */}
+      {contextMenu.show && contextMenu.message && (
+        <div style={{
+          position: 'fixed',
+          top: `${contextMenu.y}px`,
+          left: `${contextMenu.x}px`,
+          backgroundColor: '#ffffff',
+          border: '1px solid #e0e0e0',
+          borderRadius: '12px',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+          zIndex: 10000,
+          width: '150px',
+          padding: '6px 0'
+        }}>
+          {contextMenu.message.userId === user?.uid ? (
+            <>
+              <ContextMenuOption onClick={() => handleCopy(contextMenu.message.text)}>
+                📄 {t('copy')}
+              </ContextMenuOption>
+              <ContextMenuOption onClick={() => handleStartEdit(contextMenu.message)}>
+                ✏️ {t('edit')}
+              </ContextMenuOption>
+              <ContextMenuOption
+                onClick={() => handleDeleteMessage(contextMenu.message.id)}
+                style={{ color: '#ff4d4f' }}
+              >
+                🗑️ {t('delete')}
+              </ContextMenuOption>
+            </>
+          ) : (
+            <>
+              <ContextMenuOption onClick={() => handleStartReply(contextMenu.message)}>
+                ↩️ {t('reply')}
+              </ContextMenuOption>
+              <ContextMenuOption onClick={() => handleCopy(contextMenu.message.text)}>
+                📄 {t('copy')}
+              </ContextMenuOption>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };

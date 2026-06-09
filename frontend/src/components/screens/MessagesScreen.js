@@ -10,6 +10,72 @@ import {
 } from '../../services/chatService';
 import ChatWindow from './ChatWindow';
 
+const renderAvatar = (name, photoUrl) => {
+  if (photoUrl) {
+    return (
+      <img
+        src={photoUrl}
+        alt={name}
+        style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '20px',
+          objectFit: 'cover',
+          marginRight: '12px',
+          minWidth: '40px'
+        }}
+      />
+    );
+  }
+
+  const initial = name ? name[0].toUpperCase() : '?';
+  return (
+    <div
+      style={{
+        width: '40px',
+        height: '40px',
+        borderRadius: '20px',
+        backgroundColor: 'var(--accent)',
+        color: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: 'bold',
+        fontSize: '1.1rem',
+        marginRight: '12px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        minWidth: '40px'
+      }}
+    >
+      {initial}
+    </div>
+  );
+};
+
+const renderGroupAvatar = (name, icon) => {
+  const groupIcon = icon || '👥';
+  return (
+    <div
+      style={{
+        width: '40px',
+        height: '40px',
+        borderRadius: '20px',
+        backgroundColor: '#eef2f6',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '1.3rem',
+        marginRight: '12px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+        border: '1px solid #e2e8f0',
+        minWidth: '40px'
+      }}
+    >
+      {groupIcon}
+    </div>
+  );
+};
+
 const MessagesScreen = ({ user }) => {
   const { t } = useLanguage();
   const [directChats, setDirectChats] = useState([]);
@@ -22,6 +88,7 @@ const MessagesScreen = ({ user }) => {
   const [allUsers, setAllUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [groupName, setGroupName] = useState('');
+  const [selectedGroupIcon, setSelectedGroupIcon] = useState('👥');
 
   useEffect(() => {
     loadChats();
@@ -49,7 +116,8 @@ const MessagesScreen = ({ user }) => {
         if (m.uid !== user?.uid) {
           acc.push({
             uid: m.uid,
-            name: `${m.first} ${m.last}`.trim() || m.email || 'Unknown'
+            name: `${m.first} ${m.last}`.trim() || m.email || 'Unknown',
+            profilePhoto: m.profilePhoto
           });
         }
         return acc;
@@ -80,12 +148,15 @@ const MessagesScreen = ({ user }) => {
       const groupId = await createGroupChat(
         user.uid,
         groupName,
-        [user.uid, ...selectedUsers]
+        [user.uid, ...selectedUsers],
+        false,
+        selectedGroupIcon
       );
       setSelectedChat(groupId);
       setChatType('group');
       setGroupName('');
       setSelectedUsers([]);
+      setSelectedGroupIcon('👥');
       setShowNewGroup(false);
       await loadChats();
     } catch (error) {
@@ -214,6 +285,35 @@ const MessagesScreen = ({ user }) => {
                 fontFamily: 'inherit'
               }}
             />
+            <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '8px', fontWeight: '600' }}>
+              Select Group Icon
+            </p>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', overflowX: 'auto', paddingBottom: '4px' }}>
+              {['👥', '⛪', '💼', '🎶', '📖', '🗣️', '⚙️', '🗺️'].map(icon => (
+                <button
+                  key={icon}
+                  type="button"
+                  onClick={() => setSelectedGroupIcon(icon)}
+                  style={{
+                    fontSize: '1.4rem',
+                    padding: '6px',
+                    borderRadius: '10px',
+                    border: selectedGroupIcon === icon ? '2px solid var(--accent)' : '1px solid #eee',
+                    backgroundColor: selectedGroupIcon === icon ? '#f4f2ff' : 'white',
+                    cursor: 'pointer',
+                    width: '42px',
+                    height: '42px',
+                    minWidth: '42px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {icon}
+                </button>
+              ))}
+            </div>
             <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '8px' }}>
               {t('selectMembers')}
             </p>
@@ -264,6 +364,8 @@ const MessagesScreen = ({ user }) => {
             {directChats.map((chat) => {
               const otherUserId = chat.participants.find(id => id !== user?.uid);
               const otherUserName = chat.participantNames[otherUserId];
+              const otherUser = allUsers.find(u => u.uid === otherUserId);
+              const profilePhoto = otherUser?.profilePhoto;
               return (
                 <button
                   key={chat.id}
@@ -280,12 +382,15 @@ const MessagesScreen = ({ user }) => {
                     marginBottom: '8px',
                     textAlign: 'left',
                     cursor: 'pointer',
-                    transition: 'background-color 0.2s'
+                    transition: 'background-color 0.2s, transform 0.2s',
+                    display: 'flex',
+                    alignItems: 'center'
                   }}
-                  onMouseOver={(e) => e.target.style.backgroundColor = '#f9f9f9'}
-                  onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
                 >
-                  <div style={{ fontWeight: '600', color: '#111' }}>💬 {otherUserName}</div>
+                  {renderAvatar(otherUserName, profilePhoto)}
+                  <div style={{ fontWeight: '600', color: '#111' }}>{otherUserName}</div>
                 </button>
               );
             })}
@@ -298,31 +403,39 @@ const MessagesScreen = ({ user }) => {
             <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
               {t('groups')} ({groupChats.length})
             </h3>
-            {groupChats.map((group) => (
-              <button
-                key={group.id}
-                onClick={() => {
-                  setSelectedChat(group.id);
-                  setChatType('group');
-                }}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: 'white',
-                  border: '1px solid #eee',
-                  borderRadius: '12px',
-                  marginBottom: '8px',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.backgroundColor = '#f9f9f9'}
-                onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
-              >
-                <div style={{ fontWeight: '600', color: '#111' }}>👥 {group.name}</div>
-                <div style={{ fontSize: '0.85rem', color: '#999' }}>{group.members.length} {t('members').toLowerCase()}</div>
-              </button>
-            ))}
+            {groupChats.map((group) => {
+              const groupIcon = group.groupIcon || '👥';
+              return (
+                <button
+                  key={group.id}
+                  onClick={() => {
+                    setSelectedChat(group.id);
+                    setChatType('group');
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    backgroundColor: 'white',
+                    border: '1px solid #eee',
+                    borderRadius: '12px',
+                    marginBottom: '8px',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s, transform 0.2s',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                >
+                  {renderGroupAvatar(group.name, groupIcon)}
+                  <div>
+                    <div style={{ fontWeight: '600', color: '#111' }}>{group.name}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#999', marginTop: '2px' }}>{group.members.length} {t('members').toLowerCase()}</div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         )}
 
@@ -384,23 +497,7 @@ const MessagesScreen = ({ user }) => {
           </div>
         )}
 
-        {!loading && (directChats.length > 0 || groupChats.length > 0) && (
-          <div style={{
-            backgroundColor: '#f0f8ff',
-            borderRadius: '12px',
-            padding: '16px',
-            border: '1px solid #e0f0ff',
-            marginBottom: '20px',
-            display: 'flex',
-            gap: '12px',
-            alignItems: 'center'
-          }}>
-            <span style={{ fontSize: '1.3rem' }}>💡</span>
-            <p style={{ margin: 0, color: '#555', fontSize: '0.9rem' }}>
-              {t('clickToOpenChat')}
-            </p>
-          </div>
-        )}
+
       </div>
     </div>
   );

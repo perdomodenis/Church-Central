@@ -6,7 +6,10 @@ mutation UpsertUserProfile(
   $zip: String
   $city: String
   $court: String
+  $courts: [String!]
   $dept: String
+  $depts: [String!]
+  $district: String
   $position: String
   $bio: String
   $profilePhoto: String
@@ -28,7 +31,10 @@ mutation UpsertUserProfile(
     zip: $zip
     city: $city
     court: $court
+    courts: $courts
     dept: $dept
+    depts: $depts
+    district: $district
     position: $position
     bio: $bio
     profilePhoto: $profilePhoto

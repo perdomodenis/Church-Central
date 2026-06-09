@@ -1,6 +1,6 @@
 import { rtdb } from './firebase';
 import { ref, set, get, update, push } from 'firebase/database';
-import { updateUserProfile } from './userService';
+import { updateUserProfile, getUserProfile } from './userService';
 
 export const requestDepartmentJoin = async (userId, userName, departmentName) => {
   try {
@@ -48,8 +48,18 @@ export const approveDepartmentRequest = async (requestId, userId, departmentName
       decidedAt: new Date().toISOString()
     });
 
-    // Actually update the user's profile to assign them to the department
-    await updateUserProfile(userId, { dept: departmentName });
+    // Actually update the user's profile to assign them to the department list
+    const userProfile = await getUserProfile(userId);
+    const existingDepts = userProfile.depts || [];
+    if (!existingDepts.includes(departmentName)) {
+      const updatedDepts = [...existingDepts, departmentName];
+      await updateUserProfile(userId, {
+        depts: updatedDepts,
+        dept: updatedDepts[0] || ''
+      });
+    } else {
+      await updateUserProfile(userId, { dept: departmentName });
+    }
 
     return true;
   } catch (error) {

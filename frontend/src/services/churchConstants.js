@@ -1,5 +1,7 @@
 export const COURTS = ['Main Campus', 'Downtown Campus'];
 
+export const DISTRICTS = ['Central District', 'North District', 'South District', 'East District', 'West District'];
+
 export const DEPARTMENTS = [
   'Senior Leadership',
   'Worship & Arts',

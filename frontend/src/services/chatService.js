@@ -20,7 +20,7 @@ export const createDirectChat = async (userId1, userId2, user1Name, user2Name) =
   return chatId;
 };
 
-export const createGroupChat = async (creatorId, groupName, memberIds, isPublic = false) => {
+export const createGroupChat = async (creatorId, groupName, memberIds, isPublic = false, groupIcon = '👥') => {
   const groupRef = push(ref(rtdb, 'groups'));
   const groupId = groupRef.key;
 
@@ -38,30 +38,39 @@ export const createGroupChat = async (creatorId, groupName, memberIds, isPublic 
     members: memberIds,
     memberNames,
     isPublic,
+    groupIcon,
     createdAt: new Date().toISOString()
   });
 
   return groupId;
 };
 
-export const sendMessage = async (chatId, userId, userName, message) => {
+export const sendMessage = async (chatId, userId, userName, message, replyTo = null) => {
   const messagesRef = ref(rtdb, `chats/${chatId}/messages`);
-  await push(messagesRef, {
+  const data = {
     userId,
     userName,
     text: message,
     timestamp: new Date().toISOString()
-  });
+  };
+  if (replyTo) {
+    data.replyTo = replyTo;
+  }
+  await push(messagesRef, data);
 };
 
-export const sendGroupMessage = async (groupId, userId, userName, message) => {
+export const sendGroupMessage = async (groupId, userId, userName, message, replyTo = null) => {
   const messagesRef = ref(rtdb, `groups/${groupId}/messages`);
-  await push(messagesRef, {
+  const data = {
     userId,
     userName,
     text: message,
     timestamp: new Date().toISOString()
-  });
+  };
+  if (replyTo) {
+    data.replyTo = replyTo;
+  }
+  await push(messagesRef, data);
 };
 
 export const getDirectChats = async (userId) => {
@@ -201,3 +210,117 @@ export const joinGroup = async (groupId, userId, userName) => {
     throw error;
   }
 };
+
+export const syncUserChatGroups = async (userProfile) => {
+  if (!userProfile || !userProfile.uid) return;
+
+  const displayName = `${userProfile.first} ${userProfile.last}`.trim() || userProfile.email || 'Unknown';
+  
+  const targets = [];
+  
+  // Courts
+  if (userProfile.courts && userProfile.courts.length > 0) {
+    userProfile.courts.forEach(courtName => {
+      if (courtName) {
+        targets.push({
+          category: 'court',
+          name: `${courtName} Court`,
+          key: `system_court_${courtName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+          icon: '⛪'
+        });
+      }
+    });
+  } else if (userProfile.court) {
+    targets.push({
+      category: 'court',
+      name: `${userProfile.court} Court`,
+      key: `system_court_${userProfile.court.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+      icon: '⛪'
+    });
+  }
+  
+  // Departments
+  if (userProfile.depts && userProfile.depts.length > 0) {
+    userProfile.depts.forEach(deptName => {
+      if (deptName && deptName !== 'None' && deptName !== 'General') {
+        targets.push({
+          category: 'department',
+          name: `${deptName} Department`,
+          key: `system_dept_${deptName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+          icon: '💼'
+        });
+      }
+    });
+  } else if (userProfile.dept && userProfile.dept !== 'None' && userProfile.dept !== 'General') {
+    targets.push({
+      category: 'department',
+      name: `${userProfile.dept} Department`,
+      key: `system_dept_${userProfile.dept.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+      icon: '💼'
+    });
+  }
+  
+  // District
+  const districtName = userProfile.district || 'Central District';
+  targets.push({
+    category: 'district',
+    name: districtName,
+    key: `system_district_${districtName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+    icon: '🗺️'
+  });
+
+  for (const target of targets) {
+    try {
+      const groupRef = ref(rtdb, `groups/${target.key}`);
+      const snapshot = await get(groupRef);
+
+      if (!snapshot.exists()) {
+        await set(groupRef, {
+          type: 'group',
+          name: target.name,
+          creatorId: 'system',
+          members: [userProfile.uid],
+          memberNames: {
+            [userProfile.uid]: displayName
+          },
+          isPublic: true,
+          isSystemGroup: true,
+          category: target.category,
+          groupIcon: target.icon,
+          createdAt: new Date().toISOString()
+        });
+      } else {
+        const group = snapshot.val();
+        const members = group.members || [];
+        const memberNames = group.memberNames || {};
+
+        if (!members.includes(userProfile.uid)) {
+          members.push(userProfile.uid);
+          memberNames[userProfile.uid] = displayName;
+
+          await update(groupRef, {
+            members,
+            memberNames
+          });
+        }
+      }
+    } catch (err) {
+      console.error(`Error syncing group ${target.name}:`, err);
+    }
+  }
+};
+
+export const editMessage = async (chatId, messageId, newText) => {
+  await update(ref(rtdb, `chats/${chatId}/messages/${messageId}`), {
+    text: newText,
+    isEdited: true
+  });
+};
+
+export const editGroupMessage = async (groupId, messageId, newText) => {
+  await update(ref(rtdb, `groups/${groupId}/messages/${messageId}`), {
+    text: newText,
+    isEdited: true
+  });
+};
+

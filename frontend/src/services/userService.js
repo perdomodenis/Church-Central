@@ -4,6 +4,7 @@ import {
   getUserProfile as fetchUserProfileFromDb,
   upsertUserProfile as upsertUserProfileInDb
 } from '../lib/dataconnect';
+import { syncUserChatGroups } from './chatService';
 
 export const updateProfilePhoto = async (userId, file) => {
   const photoRef = storageRef(storage, `users/${userId}/profile-photo`);
@@ -23,7 +24,10 @@ export const updateUserProfile = async (userId, data) => {
     zip: currentProfile.zip || data.zip || '',
     city: currentProfile.city || data.city || '',
     court: currentProfile.court || data.court || '',
+    courts: currentProfile.courts || data.courts || [],
     dept: currentProfile.dept || data.dept || '',
+    depts: currentProfile.depts || data.depts || [],
+    district: currentProfile.district || data.district || '',
     position: currentProfile.position || data.position || '',
     bio: currentProfile.bio || data.bio || '',
     profilePhoto: currentProfile.profilePhoto || data.profilePhoto || '',
@@ -38,13 +42,27 @@ export const updateUserProfile = async (userId, data) => {
     ...data
   };
 
+  // Sync backwards compatible single fields
+  if (merged.courts && merged.courts.length > 0) {
+    merged.court = merged.courts[0];
+  }
+  if (merged.depts && merged.depts.length > 0) {
+    merged.dept = merged.depts[0];
+  }
+
   // Clean up fields to avoid potential issues (e.g. converting interests to array)
   if (merged.interests && typeof merged.interests === 'string') {
     merged.interests = merged.interests.split(',').map(i => i.trim()).filter(Boolean);
   }
 
   await upsertUserProfileInDb(merged);
+  try {
+    await syncUserChatGroups(merged);
+  } catch (err) {
+    console.error('Error syncing user chat groups during profile update:', err);
+  }
 };
+
 
 export const getUserProfile = async (userId) => {
   try {

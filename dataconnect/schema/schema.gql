@@ -6,7 +6,10 @@ type User @table(key: "uid") {
   zip: String
   city: String
   court: String
+  courts: [String!]
   dept: String
+  depts: [String!]
+  district: String
   position: String
   bio: String
   profilePhoto: String

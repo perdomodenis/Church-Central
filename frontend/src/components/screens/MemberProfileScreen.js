@@ -199,17 +199,21 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
 
               {/* Department(s) */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Department</span>
+                <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>{t('departments') || 'Departments'}</span>
                 <span style={{ color: '#555', fontSize: '0.9rem' }}>
-                  {memberState.dept || 'General'}
+                  {memberState.depts && memberState.depts.length > 0
+                    ? memberState.depts.map(d => t(toCamelCase(d)) || d).join(', ')
+                    : memberState.dept ? t(toCamelCase(memberState.dept)) || memberState.dept : 'General'}
                 </span>
               </div>
 
               {/* Court(s) */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Court</span>
+                <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>{t('courts') || 'Courts'}</span>
                 <span style={{ color: '#555', fontSize: '0.9rem' }}>
-                  {memberState.court || memberState.campus || 'Main Campus'}
+                  {memberState.courts && memberState.courts.length > 0
+                    ? memberState.courts.map(c => t(toCamelCase(c)) || c).join(', ')
+                    : memberState.court ? t(toCamelCase(memberState.court)) || memberState.court : 'Main Campus'}
                 </span>
               </div>
 
@@ -239,7 +243,9 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                     <span style={{ color: '#666' }}>• District:</span>
-                    <span style={{ fontWeight: '600', color: '#444' }}>{memberState.district || 'Central District'}</span>
+                    <span style={{ fontWeight: '600', color: '#444' }}>
+                      {memberState.district ? t(toCamelCase(memberState.district)) || memberState.district : 'Central District'}
+                    </span>
                   </div>
                 </div>
               </div>

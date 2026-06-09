@@ -1,5 +1,5 @@
 import React from 'react';
-import { COURTS, DEPARTMENTS, ROLES } from '../../services/churchConstants';
+import { COURTS, DEPARTMENTS, ROLES, DISTRICTS } from '../../services/churchConstants';
 import { useLanguage } from '../../context/LanguageContext';
 
 const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
@@ -28,7 +28,35 @@ const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
               <InputField label={t('zipCode')} value={data.zip} onChange={(v) => onChange({ zip: v })} placeholder="12345" />
               <InputField label={t('city')} value={data.city} onChange={(v) => onChange({ city: v })} placeholder="City" />
             </div>
-            <SelectField label={t('courtOrChurch')} value={data.court} onChange={(v) => onChange({ court: v })} options={COURTS} t={t} />
+            
+            <div className="input-group" style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
+                {t('courts') || 'Courts'}
+              </label>
+              <div style={{ display: 'flex', gap: '20px', padding: '4px 0' }}>
+                {COURTS.map(c => {
+                  const selected = data.courts?.includes(c);
+                  return (
+                    <label key={c} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.95rem' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!selected}
+                        onChange={(e) => {
+                          const updated = e.target.checked
+                            ? [...(data.courts || []), c]
+                            : (data.courts || []).filter(item => item !== c);
+                          onChange({ courts: updated });
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <span>{t(toCamelCase(c)) || c}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <SelectField label={t('district') || 'District'} value={data.district} onChange={(v) => onChange({ district: v })} options={DISTRICTS} t={t} />
           </>
         );
       case 3:
@@ -36,7 +64,44 @@ const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
           <>
             <h2 style={{ marginBottom: '20px', fontSize: '1.5rem' }}>{t('yourRole')}</h2>
             <SelectField label={t('positionLabel')} value={data.position} onChange={(v) => onChange({ position: v })} options={ROLES} t={t} />
-            <SelectField label={t('departmentLabel')} value={data.dept} onChange={(v) => onChange({ dept: v })} options={DEPARTMENTS} t={t} />
+            
+            <div className="input-group" style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
+                {t('departments') || 'Departments'}
+              </label>
+              <div style={{
+                maxHeight: '150px',
+                overflowY: 'auto',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                backgroundColor: 'white'
+              }}>
+                {DEPARTMENTS.map(d => {
+                  const selected = data.depts?.includes(d);
+                  return (
+                    <label key={d} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.95rem' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!selected}
+                        onChange={(e) => {
+                          const updated = e.target.checked
+                            ? [...(data.depts || []), d]
+                            : (data.depts || []).filter(item => item !== d);
+                          onChange({ depts: updated });
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <span>{t(toCamelCase(d)) || d}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="input-group">
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>{t('interests')}</label>
               <input
