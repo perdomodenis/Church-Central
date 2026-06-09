@@ -43,7 +43,75 @@ const handleShareClick = (post, e, onAction) => {
   }
 };
 
-const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
+const renderCommentText = (text, members, onSelectMember, level) => {
+  if (!text) return '';
+
+  const regex = /@([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)(?:\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ]+))?/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    const matchIndex = match.index;
+    const matchText = match[0];
+    const firstName = match[1].toLowerCase();
+    const lastName = match[2] ? match[2].toLowerCase() : null;
+
+    let matchedMember = null;
+    let actualMatchText = matchText;
+
+    if (lastName) {
+      matchedMember = members.find(
+        m => m.first.toLowerCase() === firstName && m.last.toLowerCase() === lastName
+      );
+    }
+
+    if (!matchedMember) {
+      const matchedSingle = members.filter(m => m.first.toLowerCase() === firstName);
+      if (matchedSingle.length === 1) {
+        matchedMember = matchedSingle[0];
+        actualMatchText = `@${match[1]}`;
+        regex.lastIndex = matchIndex + actualMatchText.length;
+      }
+    }
+
+    if (matchIndex > lastIndex) {
+      parts.push(text.substring(lastIndex, matchIndex));
+    }
+
+    if (matchedMember) {
+      parts.push(
+        <span
+          key={`mention-${matchIndex}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelectMember && onSelectMember(matchedMember);
+          }}
+          style={{
+            color: 'var(--accent)',
+            fontWeight: '700',
+            cursor: 'pointer',
+            textDecoration: 'underline'
+          }}
+        >
+          {actualMatchText}
+        </span>
+      );
+    } else {
+      parts.push(actualMatchText);
+    }
+
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
+};
+
+const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember }) => {
   const { t } = useLanguage();
   const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
   const [posts, setPosts] = useState([]);
@@ -583,7 +651,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey }) => {
                               {t('reply')}
                             </button>
                           </div>
-                          <div className="comment-body">{comment.text}</div>
+                          <div className="comment-body">{renderCommentText(comment.text, members, onSelectMember, user?.accessLevel || 1)}</div>
                         </div>
                       ))}
                     </div>

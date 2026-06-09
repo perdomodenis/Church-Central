@@ -344,7 +344,19 @@ function App() {
   } else if (route === 'welcome') {
     body = <WelcomeScreen name={signupData.first || 'friend'} onContinue={() => handleNavigate('home')} />;
   } else if (route === 'home') {
-    body = <FeedScreen scope={scope} onScope={setScope} onAction={onAction} user={user} refreshKey={refreshKey} />;
+    body = (
+      <FeedScreen 
+        scope={scope} 
+        onScope={setScope} 
+        onAction={onAction} 
+        user={user} 
+        refreshKey={refreshKey} 
+        onSelectMember={(m) => {
+          setSelectedMember(m);
+          handleNavigate('member-profile');
+        }}
+      />
+    );
   } else if (route === 'inbox') {
     body = <InboxScreen />;
   } else if (route === 'messages') {
@@ -393,7 +405,7 @@ function App() {
   } else if (route === 'members') {
     body = level >= 3 ? <MemberSearchScreen user={user} onSelectMember={(m) => { setSelectedMember(m); handleNavigate('member-profile'); }} onNavigate={handleNavigate} /> : <AccessDenied requiredLevel={3} />;
   } else if (route === 'member-profile') {
-    body = level >= 3 ? <MemberProfileScreen member={selectedMember} user={user} onBack={() => handleNavigate('members')} onMessage={() => handleNavigate('messages')} onNavigate={handleNavigate} onUpdateMember={(m) => setSelectedMember(m)} /> : <AccessDenied requiredLevel={3} />;
+    body = <MemberProfileScreen member={selectedMember} user={user} onBack={() => handleNavigate(level >= 3 ? 'members' : 'home')} onMessage={() => handleNavigate('messages')} onNavigate={handleNavigate} onUpdateMember={(m) => setSelectedMember(m)} />;
   } else if (route === 'debug') {
     body = level >= 4 ? <DebugScreen onBack={() => handleNavigate('home')} /> : <AccessDenied requiredLevel={4} />;
   } else {

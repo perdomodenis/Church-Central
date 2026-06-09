@@ -87,7 +87,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
     setMessaging(false);
   };
 
-  const isAdmin = user && (user.accessLevel >= 4 || ['Bishop', 'Reverend', 'Admin'].includes(user.position));
+  const canAuthorize = user && (user.accessLevel >= 3 || ['Bishop', 'Reverend', 'Admin', 'Pastor', 'Deacon', 'Leader', 'Co-Leader'].includes(user.position));
 
   if (!memberState) {
     return <div style={{ padding: '24px', textAlign: 'center' }}>{t('loading')}</div>;
@@ -178,25 +178,13 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
               gap: '12px'
             }}>
               {/* Active / Absent Status */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: '700', color: '#333', fontSize: '0.9rem' }}>Status</span>
                 <span style={{
-                  backgroundColor: memberState.status === 'offline' ? '#ffebee' : '#e8f5e9',
-                  color: memberState.status === 'offline' ? '#c62828' : '#2e7d32',
-                  fontSize: '0.8rem',
-                  fontWeight: '700',
-                  padding: '4px 10px',
-                  borderRadius: '12px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px'
+                  color: memberState.status === 'offline' ? '#e11d48' : '#16a34a',
+                  fontSize: '0.95rem',
+                  fontWeight: '800'
                 }}>
-                  <span style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: memberState.status === 'offline' ? '#c62828' : '#2e7d32'
-                  }} />
                   {memberState.status === 'offline' ? 'Absent' : 'Active'}
                 </span>
               </div>
@@ -258,7 +246,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
             </div>
 
           {/* Posting Permissions Controls for Administrators */}
-          {isAdmin && user.uid !== memberState.uid && (
+          {canAuthorize && user.uid !== memberState.uid && (
             <div style={{
               backgroundColor: 'rgba(91, 63, 187, 0.04)',
               borderRadius: '16px',
