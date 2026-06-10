@@ -76,7 +76,7 @@
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         "$messageId": {
-          ".write": "auth != null && (auth.uid === $uid || (!data.exists() && newData.exists() && newData.child('senderId').val() === auth.uid))"
+          ".write": "auth != null && (auth.uid === $uid || (!data.exists() && newData.exists()))"
         }
       }
     },

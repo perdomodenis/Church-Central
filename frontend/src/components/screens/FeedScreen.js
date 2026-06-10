@@ -43,65 +43,113 @@ const handleShareClick = (post, e, onAction) => {
   }
 };
 
-const renderCommentText = (text, members, onSelectMember, level) => {
-  if (!text) return '';
+const extractMentions = (text, members) => {
+  if (!text || !members || members.length === 0) return [];
+  
+  // Sort members by full name length descending to match the longest name first
+  const sortedMembers = [...members].map(m => ({
+    member: m,
+    fullName: `${(m.first || '').trim()} ${(m.last || '').trim()}`.trim()
+  })).filter(m => m.fullName.length > 0)
+    .sort((a, b) => b.fullName.length - a.fullName.length);
 
-  const regex = /@([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)(?:\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ]+))?/g;
+  const matches = [];
+  let index = text.indexOf('@');
+  
+  while (index !== -1) {
+    const remainingText = text.substring(index + 1);
+    
+    // Find the first member that matches the start of remainingText
+    const matched = sortedMembers.find(m => {
+      const name = m.fullName.toLowerCase();
+      if (remainingText.toLowerCase().startsWith(name)) {
+        const nextCharIndex = name.length;
+        if (nextCharIndex >= remainingText.length) return true;
+        const nextChar = remainingText[nextCharIndex];
+        return /[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]/.test(nextChar);
+      }
+      return false;
+    });
+
+    if (matched) {
+      matches.push({
+        startIndex: index,
+        endIndex: index + 1 + matched.fullName.length,
+        member: matched.member,
+        fullName: matched.fullName
+      });
+      index = text.indexOf('@', index + 1 + matched.fullName.length);
+    } else {
+      // Try matching by first name only if it is unique
+      const firstNamesOnly = [...members].map(m => ({
+        member: m,
+        firstName: (m.first || '').trim()
+      })).filter(m => m.firstName.length > 0)
+        .sort((a, b) => b.firstName.length - a.firstName.length);
+        
+      const matchedFirst = firstNamesOnly.find(m => {
+        const name = m.firstName.toLowerCase();
+        if (remainingText.toLowerCase().startsWith(name)) {
+          const nextCharIndex = name.length;
+          if (nextCharIndex >= remainingText.length) return true;
+          const nextChar = remainingText[nextCharIndex];
+          return /[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]/.test(nextChar);
+        }
+        return false;
+      });
+      
+      if (matchedFirst) {
+        const count = members.filter(m => (m.first || '').trim().toLowerCase() === matchedFirst.firstName.toLowerCase()).length;
+        if (count === 1) {
+          matches.push({
+            startIndex: index,
+            endIndex: index + 1 + matchedFirst.firstName.length,
+            member: matchedFirst.member,
+            fullName: matchedFirst.firstName
+          });
+          index = text.indexOf('@', index + 1 + matchedFirst.firstName.length);
+          continue;
+        }
+      }
+      index = text.indexOf('@', index + 1);
+    }
+  }
+  return matches;
+};
+
+const renderCommentText = (text, members, onSelectMember, level) => {
+  if (!text || !members || members.length === 0) return text;
+
+  const matches = extractMentions(text, members);
+  if (matches.length === 0) return text;
+
   const parts = [];
   let lastIndex = 0;
-  let match;
 
-  while ((match = regex.exec(text)) !== null) {
-    const matchIndex = match.index;
-    const matchText = match[0];
-    const firstName = match[1].toLowerCase();
-    const lastName = match[2] ? match[2].toLowerCase() : null;
-
-    let matchedMember = null;
-    let actualMatchText = matchText;
-
-    if (lastName) {
-      matchedMember = members.find(
-        m => m.first.toLowerCase() === firstName && m.last.toLowerCase() === lastName
-      );
+  for (const match of matches) {
+    if (match.startIndex > lastIndex) {
+      parts.push(text.substring(lastIndex, match.startIndex));
     }
 
-    if (!matchedMember) {
-      const matchedSingle = members.filter(m => m.first.toLowerCase() === firstName);
-      if (matchedSingle.length === 1) {
-        matchedMember = matchedSingle[0];
-        actualMatchText = `@${match[1]}`;
-        regex.lastIndex = matchIndex + actualMatchText.length;
-      }
-    }
+    parts.push(
+      <span
+        key={`mention-${match.startIndex}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelectMember && onSelectMember(match.member);
+        }}
+        style={{
+          color: 'var(--accent)',
+          fontWeight: '700',
+          cursor: 'pointer',
+          textDecoration: 'underline'
+        }}
+      >
+        @{match.fullName}
+      </span>
+    );
 
-    if (matchIndex > lastIndex) {
-      parts.push(text.substring(lastIndex, matchIndex));
-    }
-
-    if (matchedMember) {
-      parts.push(
-        <span
-          key={`mention-${matchIndex}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelectMember && onSelectMember(matchedMember);
-          }}
-          style={{
-            color: 'var(--accent)',
-            fontWeight: '700',
-            cursor: 'pointer',
-            textDecoration: 'underline'
-          }}
-        >
-          {actualMatchText}
-        </span>
-      );
-    } else {
-      parts.push(actualMatchText);
-    }
-
-    lastIndex = regex.lastIndex;
+    lastIndex = match.endIndex;
   }
 
   if (lastIndex < text.length) {
@@ -290,25 +338,12 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
 
     await rtdbSet(newCommentRef, newComment);
 
-    // Check for @-mentions to notify in inbox
-    const mentionRegex = /@([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)/g;
-    let match;
+    // Check for @-mentions to notify in inbox using the new helper
     const notifiedUsers = new Set();
-    while ((match = mentionRegex.exec(text)) !== null) {
-      const firstName = match[1].toLowerCase();
-      const lastName = match[2].toLowerCase();
-      const matchedMember = members.find(m => m.first.toLowerCase() === firstName && m.last.toLowerCase() === lastName);
-      if (matchedMember && matchedMember.uid !== user.uid) {
-        notifiedUsers.add(matchedMember.uid);
-      }
-    }
-
-    const singleMentionRegex = /@([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)(?!\s+[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)/g;
-    while ((match = singleMentionRegex.exec(text)) !== null) {
-      const firstName = match[1].toLowerCase();
-      const matchedMembers = members.filter(m => m.first.toLowerCase() === firstName);
-      if (matchedMembers.length === 1 && matchedMembers[0].uid !== user.uid) {
-        notifiedUsers.add(matchedMembers[0].uid);
+    const matches = extractMentions(text, members);
+    for (const match of matches) {
+      if (match.member.uid !== user.uid) {
+        notifiedUsers.add(match.member.uid);
       }
     }
 
