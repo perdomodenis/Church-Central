@@ -130,6 +130,8 @@ export interface GetUserContextData {
     dept?: string | null;
     depts?: string[] | null;
     district?: string | null;
+    gender?: string | null;
+    schoolClass?: string | null;
     position?: string | null;
     authorizedPostAsChurch?: boolean | null;
     authorizedPostAsDept?: boolean | null;
@@ -255,6 +257,8 @@ export interface GetUserProfileData {
     dept?: string | null;
     depts?: string[] | null;
     district?: string | null;
+    gender?: string | null;
+    schoolClass?: string | null;
     position?: string | null;
     bio?: string | null;
     profilePhoto?: string | null;
@@ -386,6 +390,8 @@ export interface ListMembersData {
     dept?: string | null;
     depts?: string[] | null;
     district?: string | null;
+    gender?: string | null;
+    schoolClass?: string | null;
     position?: string | null;
     bio?: string | null;
     profilePhoto?: string | null;
@@ -511,6 +517,8 @@ export interface SearchMembersData {
     dept?: string | null;
     depts?: string[] | null;
     district?: string | null;
+    gender?: string | null;
+    schoolClass?: string | null;
     position?: string | null;
     bio?: string | null;
     profilePhoto?: string | null;
@@ -1485,6 +1493,8 @@ export interface UpsertUserProfileVariables {
   dept?: string | null;
   depts?: string[] | null;
   district?: string | null;
+  gender?: string | null;
+  schoolClass?: string | null;
   position?: string | null;
   bio?: string | null;
   profilePhoto?: string | null;
@@ -1527,6 +1537,8 @@ const upsertUserProfileVars: UpsertUserProfileVariables = {
   dept: ..., // optional
   depts: ..., // optional
   district: ..., // optional
+  gender: ..., // optional
+  schoolClass: ..., // optional
   position: ..., // optional
   bio: ..., // optional
   profilePhoto: ..., // optional
@@ -1545,7 +1557,7 @@ const upsertUserProfileVars: UpsertUserProfileVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await upsertUserProfile(upsertUserProfileVars);
 // Variables can be defined inline as well.
-const { data } = await upsertUserProfile({ uid: ..., email: ..., first: ..., last: ..., zip: ..., city: ..., court: ..., courts: ..., dept: ..., depts: ..., district: ..., position: ..., bio: ..., profilePhoto: ..., joined: ..., lastActive: ..., status: ..., recentActivity: ..., interests: ..., paUid: ..., authorizedPostAsChurch: ..., authorizedPostAsDept: ..., authorizedPostAsCourt: ..., });
+const { data } = await upsertUserProfile({ uid: ..., email: ..., first: ..., last: ..., zip: ..., city: ..., court: ..., courts: ..., dept: ..., depts: ..., district: ..., gender: ..., schoolClass: ..., position: ..., bio: ..., profilePhoto: ..., joined: ..., lastActive: ..., status: ..., recentActivity: ..., interests: ..., paUid: ..., authorizedPostAsChurch: ..., authorizedPostAsDept: ..., authorizedPostAsCourt: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -1579,6 +1591,8 @@ const upsertUserProfileVars: UpsertUserProfileVariables = {
   dept: ..., // optional
   depts: ..., // optional
   district: ..., // optional
+  gender: ..., // optional
+  schoolClass: ..., // optional
   position: ..., // optional
   bio: ..., // optional
   profilePhoto: ..., // optional
@@ -1596,7 +1610,7 @@ const upsertUserProfileVars: UpsertUserProfileVariables = {
 // Call the `upsertUserProfileRef()` function to get a reference to the mutation.
 const ref = upsertUserProfileRef(upsertUserProfileVars);
 // Variables can be defined inline as well.
-const ref = upsertUserProfileRef({ uid: ..., email: ..., first: ..., last: ..., zip: ..., city: ..., court: ..., courts: ..., dept: ..., depts: ..., district: ..., position: ..., bio: ..., profilePhoto: ..., joined: ..., lastActive: ..., status: ..., recentActivity: ..., interests: ..., paUid: ..., authorizedPostAsChurch: ..., authorizedPostAsDept: ..., authorizedPostAsCourt: ..., });
+const ref = upsertUserProfileRef({ uid: ..., email: ..., first: ..., last: ..., zip: ..., city: ..., court: ..., courts: ..., dept: ..., depts: ..., district: ..., gender: ..., schoolClass: ..., position: ..., bio: ..., profilePhoto: ..., joined: ..., lastActive: ..., status: ..., recentActivity: ..., interests: ..., paUid: ..., authorizedPostAsChurch: ..., authorizedPostAsDept: ..., authorizedPostAsCourt: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);

@@ -1,20 +1,29 @@
-export const COURTS = ['Main Campus', 'Downtown Campus'];
+export const COURTS = ['Glory Court', 'Hope Court', 'Praise Court'];
 
-export const DISTRICTS = ['Central District', 'North District', 'South District', 'East District', 'West District'];
+export const DISTRICTS = ['District 1', 'District 2', 'District 3', 'District 4'];
+
+export const SOW_CLASSES = [
+  'King David',
+  'JEREMIAH',
+  'ANTIOCH',
+  'KING SOLOMON',
+  'TIMOTHY',
+  'EPHESIANS (German)'
+];
 
 export const DEPARTMENTS = [
-  'Senior Leadership',
-  'Worship & Arts',
-  'Youth Ministry',
-  'Community Outreach',
-  'Bible Study',
-  'Children\'s Ministry',
-  'Operations',
-  'Prayer Ministry',
-  'Music Ministry',
-  'Discipleship',
-  'Technology',
-  'Communications',
+  'Disciples Training Ministry (DTM)',
+  'Glorious Vessels of Virtue (GVV)',
+  'Faithful Men Ecclessia (FaME)',
+  'Outreach',
+  'Protocol',
+  'Prayer ministry',
+  'Media Ministry',
+  'Finance and administration',
+  'Anointed Psalmists',
+  'Judah Ecclesiastes',
+  'Zamar',
+  'Olives',
   'General'
 ];
 

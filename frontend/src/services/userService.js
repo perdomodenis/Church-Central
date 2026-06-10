@@ -28,6 +28,8 @@ export const updateUserProfile = async (userId, data) => {
     dept: currentProfile.dept || data.dept || '',
     depts: currentProfile.depts || data.depts || [],
     district: currentProfile.district || data.district || '',
+    gender: currentProfile.gender || data.gender || '',
+    schoolClass: currentProfile.schoolClass || data.schoolClass || '',
     position: currentProfile.position || data.position || '',
     bio: currentProfile.bio || data.bio || '',
     profilePhoto: currentProfile.profilePhoto || data.profilePhoto || '',
@@ -46,8 +48,28 @@ export const updateUserProfile = async (userId, data) => {
   if (merged.courts && merged.courts.length > 0) {
     merged.court = merged.courts[0];
   }
+
+  // Auto-enrollment logic based on gender
+  let updatedDepts = [...(merged.depts || [])];
+  if (merged.gender === 'Female') {
+    updatedDepts = updatedDepts.filter(d => d !== 'Faithful Men Ecclessia (FaME)');
+    if (!updatedDepts.includes('Glorious Vessels of Virtue (GVV)')) {
+      updatedDepts.push('Glorious Vessels of Virtue (GVV)');
+    }
+  } else if (merged.gender === 'Male') {
+    updatedDepts = updatedDepts.filter(d => d !== 'Glorious Vessels of Virtue (GVV)');
+    if (!updatedDepts.includes('Faithful Men Ecclessia (FaME)')) {
+      updatedDepts.push('Faithful Men Ecclessia (FaME)');
+    }
+  } else {
+    updatedDepts = updatedDepts.filter(d => d !== 'Glorious Vessels of Virtue (GVV)' && d !== 'Faithful Men Ecclessia (FaME)');
+  }
+  merged.depts = updatedDepts;
+
   if (merged.depts && merged.depts.length > 0) {
     merged.dept = merged.depts[0];
+  } else {
+    merged.dept = '';
   }
 
   // Clean up fields to avoid potential issues (e.g. converting interests to array)

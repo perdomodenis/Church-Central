@@ -10,6 +10,8 @@ type User @table(key: "uid") {
   dept: String
   depts: [String!]
   district: String
+  gender: String
+  schoolClass: String
   position: String
   bio: String
   profilePhoto: String

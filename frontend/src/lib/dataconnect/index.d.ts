@@ -194,6 +194,8 @@ export interface GetUserContextData {
     dept?: string | null;
     depts?: string[] | null;
     district?: string | null;
+    gender?: string | null;
+    schoolClass?: string | null;
     position?: string | null;
     authorizedPostAsChurch?: boolean | null;
     authorizedPostAsDept?: boolean | null;
@@ -218,6 +220,8 @@ export interface GetUserProfileData {
     dept?: string | null;
     depts?: string[] | null;
     district?: string | null;
+    gender?: string | null;
+    schoolClass?: string | null;
     position?: string | null;
     bio?: string | null;
     profilePhoto?: string | null;
@@ -361,6 +365,8 @@ export interface ListMembersData {
     dept?: string | null;
     depts?: string[] | null;
     district?: string | null;
+    gender?: string | null;
+    schoolClass?: string | null;
     position?: string | null;
     bio?: string | null;
     profilePhoto?: string | null;
@@ -492,6 +498,8 @@ export interface SearchMembersData {
     dept?: string | null;
     depts?: string[] | null;
     district?: string | null;
+    gender?: string | null;
+    schoolClass?: string | null;
     position?: string | null;
     bio?: string | null;
     profilePhoto?: string | null;
@@ -547,6 +555,8 @@ export interface UpsertUserProfileVariables {
   dept?: string | null;
   depts?: string[] | null;
   district?: string | null;
+  gender?: string | null;
+  schoolClass?: string | null;
   position?: string | null;
   bio?: string | null;
   profilePhoto?: string | null;

@@ -86,13 +86,15 @@ function App() {
   const [user, setUser] = useState({
     first: '', last: '', email: '',
     court: '', position: '', dept: '', interests: [],
+    gender: '', schoolClass: '',
   });
 
   // Signup flow
   const [signupStep, setSignupStep] = useState(1);
   const [signupData, setSignupData] = useState({
     first: '', last: '', email: '', zip: '', city: '', pw: '', pw2: '',
-    court: '', courts: [], position: '', dept: '', depts: [], district: 'Central District', interests: [],
+    court: '', courts: [], position: '', dept: '', depts: [], district: 'District 1', interests: [],
+    gender: '', schoolClass: '',
   });
 
   // Update user on authUser change and sync with PostgreSQL
@@ -125,7 +127,7 @@ function App() {
             last: currentProfile.last || last,
             zip: currentProfile.zip || '',
             city: currentProfile.city || '',
-            court: currentProfile.court || 'Main Campus',
+            court: currentProfile.court || 'Glory Court',
             dept: currentProfile.dept || 'General',
             position: currentProfile.position || 'Member',
             bio: currentProfile.bio || '',
@@ -135,7 +137,9 @@ function App() {
             lastActive: new Date().toISOString(),
             recentActivity: currentProfile.recentActivity || '',
             interests: currentProfile.interests || [],
-            paUid: currentProfile.pa?.uid || null
+            paUid: currentProfile.pa?.uid || null,
+            gender: currentProfile.gender || '',
+            schoolClass: currentProfile.schoolClass || ''
           };
 
           const userData = {
@@ -163,7 +167,7 @@ function App() {
             email,
             first,
             last,
-            court: 'Main Campus',
+            court: 'Glory Court',
             dept: 'General',
             position: 'Member',
             interests: [],
@@ -229,11 +233,13 @@ function App() {
         last: signupData.last,
         zip: signupData.zip || '',
         city: signupData.city || '',
-        court: signupData.courts?.[0] || signupData.court || 'Main Campus',
-        courts: signupData.courts || ['Main Campus'],
+        court: signupData.courts?.[0] || signupData.court || 'Glory Court',
+        courts: signupData.courts || ['Glory Court'],
         dept: signupData.depts?.[0] || signupData.dept || 'General',
         depts: signupData.depts || ['General'],
-        district: signupData.district || 'Central District',
+        district: signupData.district || 'District 1',
+        gender: signupData.gender || '',
+        schoolClass: signupData.schoolClass || '',
         position: signupData.position || 'Member',
         joined: new Date().toISOString().split('T')[0],
         status: 'online',

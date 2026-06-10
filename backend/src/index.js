@@ -77,7 +77,7 @@ app.post('/api/announcements', upload.single('file'), async (req, res) => {
         last: authorLast,
         zip: '',
         city: '',
-        court: authorUid.startsWith('court_') ? authorFirst : 'Main Campus',
+        court: authorUid.startsWith('court_') ? authorFirst : 'Glory Court',
         dept: authorUid.startsWith('dept_') ? authorFirst : 'General',
         position: authorUid.startsWith('church_') ? 'Church' : authorUid.startsWith('dept_') ? 'Department' : 'District',
         bio: '',

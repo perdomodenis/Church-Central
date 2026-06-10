@@ -261,7 +261,7 @@ export const syncUserChatGroups = async (userProfile) => {
   }
   
   // District
-  const districtName = userProfile.district || 'Central District';
+  const districtName = userProfile.district || 'District 1';
   targets.push({
     category: 'district',
     name: districtName,

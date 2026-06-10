@@ -434,7 +434,46 @@ const translations = {
     postAsDept: 'Post as Department',
     postAsDistrict: 'Post as District',
     savePermissions: 'Save Permissions',
-    permissionsSavedAlert: 'Permissions updated successfully!'
+    permissionsSavedAlert: 'Permissions updated successfully!',
+
+    // Courts
+    gloryCourt: 'Glory Court',
+    hopeCourt: 'Hope Court',
+    praiseCourt: 'Praise Court',
+
+    // Districts
+    district1: 'District 1',
+    district2: 'District 2',
+    district3: 'District 3',
+    district4: 'District 4',
+
+    // SOW Classes
+    kingDavid: 'King David',
+    jeremiah: 'JEREMIAH',
+    antioch: 'ANTIOCH',
+    kingSolomon: 'KING SOLOMON',
+    timothy: 'TIMOTHY',
+    ephesiansGerman: 'EPHESIANS (German)',
+
+    // Departments
+    disciplesTrainingMinistryDtm: 'Disciples Training Ministry (DTM)',
+    gloriousVesselsOfVirtueGvv: 'Glorious Vessels of Virtue (GVV)',
+    faithfulMenEcclessiaFame: 'Faithful Men Ecclessia (FaME)',
+    outreach: 'Outreach',
+    protocol: 'Protocol',
+    prayerMinistry: 'Prayer ministry',
+    mediaMinistry: 'Media Ministry',
+    financeAndAdministration: 'Finance and administration',
+    anointedPsalmists: 'Anointed Psalmists',
+    judahEcclesiastes: 'Judah Ecclesiastes',
+    zamar: 'Zamar',
+    olives: 'Olives',
+
+    // Demographics
+    gender: 'Gender',
+    schoolClass: 'School of the Word Class',
+    male: 'Male',
+    female: 'Female'
   }
 };
 export default translations;

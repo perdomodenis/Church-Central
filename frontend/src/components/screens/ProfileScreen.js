@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { uploadPhoto, getUserPhotos, deletePhoto } from '../../services/photoService';
 import { updateProfilePhoto, updateUserProfile, getUserProfile } from '../../services/userService';
-import { COURTS, DEPARTMENTS, ROLES, DISTRICTS, getAccessLevel } from '../../services/churchConstants';
+import { COURTS, DEPARTMENTS, ROLES, DISTRICTS, SOW_CLASSES, getAccessLevel } from '../../services/churchConstants';
 import { requestDepartmentJoin } from '../../services/departmentService';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllMembers } from '../../services/memberService';
@@ -40,6 +40,8 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
     dept: user.dept || '',
     depts: user.depts || [],
     district: user.district || '',
+    gender: user.gender || '',
+    schoolClass: user.schoolClass || '',
     position: user.position || '',
     interests: user.interests || [],
     paUid: user.pa?.uid || user.paUid || ''
@@ -68,6 +70,8 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
       dept: user.dept || '',
       depts: user.depts || [],
       district: user.district || '',
+      gender: user.gender || '',
+      schoolClass: user.schoolClass || '',
       position: user.position || '',
       interests: user.interests || [],
       paUid: user.pa?.uid || user.paUid || ''
@@ -168,6 +172,8 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
         courts: editUser.courts || [],
         court: editUser.courts?.[0] || '',
         district: editUser.district || '',
+        gender: editUser.gender || '',
+        schoolClass: editUser.schoolClass || '',
         position: editUser.position,
         interests: editUser.interests,
         paUid: editUser.paUid || null
@@ -182,12 +188,6 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
         
         updates.depts = (editUser.depts || []).filter(d => (user.depts || []).includes(d) || d === 'General');
         updates.dept = updates.depts[0] || 'General';
-        
-        setEditUser(prev => ({
-          ...prev,
-          depts: updates.depts,
-          dept: updates.dept
-        }));
       } else {
         updates.depts = editUser.depts;
         updates.dept = editUser.depts?.[0] || '';
@@ -200,12 +200,30 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
       const updatedUser = {
         ...user,
         ...editUser,
-        depts: updates.depts,
-        dept: updates.dept,
+        gender: freshProfile.gender || '',
+        schoolClass: freshProfile.schoolClass || '',
+        depts: freshProfile.depts || [],
+        dept: freshProfile.dept || '',
         pa: freshProfile.pa || null,
         accessLevel: getAccessLevel(editUser.position || 'Member')
       };
       onUpdateUser(updatedUser);
+      
+      setEditUser({
+        first: updatedUser.first,
+        last: updatedUser.last,
+        court: updatedUser.court,
+        courts: updatedUser.courts,
+        dept: updatedUser.dept,
+        depts: updatedUser.depts,
+        district: updatedUser.district,
+        gender: updatedUser.gender,
+        schoolClass: updatedUser.schoolClass,
+        position: updatedUser.position,
+        interests: updatedUser.interests,
+        paUid: updatedUser.pa?.uid || updatedUser.paUid || ''
+      });
+      
       setIsEditingProfile(false);
     } catch (error) {
       console.error('Error saving profile info:', error);
@@ -398,6 +416,31 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               </select>
             </div>
             <div>
+              <label style={labelStyle}>{t('gender') || 'Gender'}</label>
+              <select
+                value={editUser.gender}
+                onChange={(e) => setEditUser(prev => ({ ...prev, gender: e.target.value }))}
+                style={selectStyle}
+              >
+                <option value="" disabled>Select Gender</option>
+                <option value="Male">{t('male') || 'Male'}</option>
+                <option value="Female">{t('female') || 'Female'}</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>{t('schoolClass') || 'School of the Word Class'}</label>
+              <select
+                value={editUser.schoolClass}
+                onChange={(e) => setEditUser(prev => ({ ...prev, schoolClass: e.target.value }))}
+                style={selectStyle}
+              >
+                <option value="" disabled>Select SOW Class</option>
+                {SOW_CLASSES.map(opt => (
+                  <option key={opt} value={opt}>{t(toCamelCase(opt)) || opt}</option>
+                ))}
+              </select>
+            </div>
+            <div>
               <label style={labelStyle}>{t('positionLabel')}</label>
               <select
                 value={editUser.position}
@@ -455,6 +498,20 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
               <span style={labelStyle}>{t('district') || 'District'}</span>
               <span style={valueStyle}>
                 {editUser.district ? t(toCamelCase(editUser.district)) || editUser.district : t('notSpecified')}
+              </span>
+            </div>
+
+            <div style={infoRowStyle}>
+              <span style={labelStyle}>{t('gender') || 'Gender'}</span>
+              <span style={valueStyle}>
+                {editUser.gender ? t(toCamelCase(editUser.gender)) || editUser.gender : t('notSpecified')}
+              </span>
+            </div>
+
+            <div style={infoRowStyle}>
+              <span style={labelStyle}>{t('schoolClass') || 'School of the Word Class'}</span>
+              <span style={valueStyle}>
+                {editUser.schoolClass ? t(toCamelCase(editUser.schoolClass)) || editUser.schoolClass : t('notSpecified')}
               </span>
             </div>
 

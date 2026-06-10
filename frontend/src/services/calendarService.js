@@ -49,7 +49,7 @@ export const extractCategory = (title) => {
   if (lowerTitle.includes('worship') || lowerTitle.includes('service')) return 'Worship';
   if (lowerTitle.includes('youth')) return 'Youth';
   if (lowerTitle.includes('bible') || lowerTitle.includes('study')) return 'Study';
-  if (lowerTitle.includes('community') || lowerTitle.includes('outreach')) return 'Community';
+  if (lowerTitle.includes('community') || lowerTitle.includes('outreach')) return 'Outreach';
   return 'Event';
 };
 

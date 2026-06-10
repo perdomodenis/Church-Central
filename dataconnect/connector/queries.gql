@@ -6,6 +6,8 @@ query GetUserContext($uid: String!) @auth(level: USER) {
     dept
     depts
     district
+    gender
+    schoolClass
     position
     authorizedPostAsChurch
     authorizedPostAsDept
@@ -26,6 +28,8 @@ query GetUserProfile($uid: String!) @auth(level: USER) {
     dept
     depts
     district
+    gender
+    schoolClass
     position
     bio
     profilePhoto
@@ -58,6 +62,8 @@ query ListMembers @auth(level: USER) {
     dept
     depts
     district
+    gender
+    schoolClass
     position
     bio
     profilePhoto
@@ -98,6 +104,8 @@ query SearchMembers($query: String!) @auth(level: USER) {
     dept
     depts
     district
+    gender
+    schoolClass
     position
     bio
     profilePhoto

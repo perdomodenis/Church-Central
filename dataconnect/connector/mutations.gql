@@ -10,6 +10,8 @@ mutation UpsertUserProfile(
   $dept: String
   $depts: [String!]
   $district: String
+  $gender: String
+  $schoolClass: String
   $position: String
   $bio: String
   $profilePhoto: String
@@ -35,6 +37,8 @@ mutation UpsertUserProfile(
     dept: $dept
     depts: $depts
     district: $district
+    gender: $gender
+    schoolClass: $schoolClass
     position: $position
     bio: $bio
     profilePhoto: $profilePhoto

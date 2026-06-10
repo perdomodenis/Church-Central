@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getDocuments, uploadDocument, deleteDocument } from '../../services/documentService';
 import * as Icon from '../common/Icons';
 import { useLanguage } from '../../context/LanguageContext';
+import { COURTS as CHURCH_COURTS, DEPARTMENTS } from '../../services/churchConstants';
 
 const toCamelCase = (str) => {
   if (!str) return '';
@@ -25,25 +26,7 @@ const formatSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
-const COURTS = ['Global', 'Main Campus', 'Downtown Campus'];
-const DEPARTMENTS = [
-  'General',
-  'Senior Leadership',
-  'Worship & Arts',
-  'Youth Ministry',
-  'Community Outreach',
-  'Bible Study',
-  'Children\'s Ministry',
-  'Operations',
-  'Prayer Ministry',
-  'Music Ministry',
-  'Discipleship',
-  'Technology',
-  'Communications',
-  'Global',
-  'Leadership',
-  'Media'
-];
+const COURTS = ['Global', ...CHURCH_COURTS];
 
 const isImageFile = (type, name) => {
   if (type && type.startsWith('image/')) return true;

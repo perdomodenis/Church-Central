@@ -193,7 +193,7 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
               <option value="Worship">{t('worship')}</option>
               <option value="Youth">{t('youth')}</option>
               <option value="Study">{t('study')}</option>
-              <option value="Community">{t('community')}</option>
+              <option value="Outreach">{t('outreach')}</option>
               <option value="Baptism">{t('baptism')}</option>
               <option value="Event">{t('event')}</option>
             </select>

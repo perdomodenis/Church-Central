@@ -1,5 +1,5 @@
 import React from 'react';
-import { COURTS, DEPARTMENTS, ROLES, DISTRICTS } from '../../services/churchConstants';
+import { COURTS, DEPARTMENTS, ROLES, DISTRICTS, SOW_CLASSES } from '../../services/churchConstants';
 import { useLanguage } from '../../context/LanguageContext';
 
 const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
@@ -16,6 +16,7 @@ const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
               <InputField label={t('lastName')} value={data.last} onChange={(v) => onChange({ last: v })} placeholder="Doe" />
             </div>
             <InputField label={t('email')} type="email" value={data.email} onChange={(v) => onChange({ email: v })} placeholder="email@example.com" />
+            <SelectField label={t('gender') || 'Gender'} value={data.gender} onChange={(v) => onChange({ gender: v })} options={['Male', 'Female']} t={t} />
             <InputField label={t('password')} type="password" value={data.pw} onChange={(v) => onChange({ pw: v })} placeholder="••••••••" />
             <InputField label={t('confirmPassword')} type="password" value={data.pw2} onChange={(v) => onChange({ pw2: v })} placeholder="••••••••" />
           </>
@@ -64,6 +65,7 @@ const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
           <>
             <h2 style={{ marginBottom: '20px', fontSize: '1.5rem' }}>{t('yourRole')}</h2>
             <SelectField label={t('positionLabel')} value={data.position} onChange={(v) => onChange({ position: v })} options={ROLES} t={t} />
+            <SelectField label={t('schoolClass') || 'School of the Word Class'} value={data.schoolClass} onChange={(v) => onChange({ schoolClass: v })} options={SOW_CLASSES} t={t} />
             
             <div className="input-group" style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>

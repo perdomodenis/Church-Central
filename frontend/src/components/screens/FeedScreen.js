@@ -423,42 +423,39 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
   return (
     <div className="feed-screen-container">
       
-      {/* 1. Left Sidebar: Profile & Devotional (Desktop Only) */}
-      <aside className="sidebar-widget left-sidebar desktop-only">
-        <div className="widget-profile-header">
-          <div className="widget-avatar av-grad">
-            {user?.first ? user.first[0] : '👤'}
-          </div>
-          <div>
-            <h4 style={{ fontWeight: '700', fontSize: '1rem' }}>
-              {user?.first ? `${user.first} ${user.last}` : t('welcomeGuest')}
-            </h4>
-            <span className="post-scope-tag" style={{ marginTop: '4px', display: 'inline-block', fontSize: '0.75rem' }}>
-              {user?.position ? (t(toCamelCase(user.position)) || user.position) : t('member')}
-            </span>
-          </div>
-        </div>
-
-        <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div className="profile-meta-item">
-            <span>📍</span> <span>{user?.court ? (t(toCamelCase(user.court)) || user.court) : t('court')}</span>
-          </div>
-          <div className="profile-meta-item">
-            <span>👥</span> <span>{user?.dept ? (t(toCamelCase(user.dept)) || user.dept) : t('department')}</span>
-          </div>
-        </div>
-
-        <div style={{ marginTop: '12px', padding: '14px', borderRadius: '14px', backgroundColor: 'var(--accent-soft)', border: '1px solid var(--line-2)' }}>
-          <h5 style={{ fontWeight: '800', color: 'var(--accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
-            {t('dailyDevotional')}
-          </h5>
-          <p className="serif" style={{ fontSize: '1.05rem', fontStyle: 'italic', lineHeight: '1.4', color: 'var(--ink)' }}>
-            {t('devotionalVerse')}
+      {/* 1. Left Sidebar: Grace Community Church Info (Desktop Only) */}
+      <aside className="left-sidebar desktop-only" style={{
+        background: 'linear-gradient(135deg, var(--accent) 0%, #7c5dfa 100%)',
+        borderRadius: '24px',
+        padding: '24px 20px',
+        color: 'white',
+        boxShadow: '0 10px 30px rgba(91, 63, 187, 0.25)',
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px'
+      }}>
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <h2 className="serif" style={{ margin: '0 0 8px 0', fontSize: '1.6rem', fontWeight: '400', lineHeight: '1.2' }}>
+            ⛪ {t('graceCommunityChurch')}
+          </h2>
+          <p style={{ margin: '0 0 20px 0', opacity: 0.9, fontSize: '0.85rem', lineHeight: '1.5' }}>
+            {t('churchSubtitle')}
           </p>
-          <span style={{ display: 'block', textAlign: 'right', fontSize: '0.75rem', marginTop: '6px', fontWeight: '600', color: 'var(--ink-2)' }}>
-            {t('devotionalRef')}
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ backgroundColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)', padding: '12px 16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ fontSize: '0.7rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('mainService')}</div>
+              <div style={{ fontWeight: '700', fontSize: '0.95rem', marginTop: '2px' }}>{t('sunday10am')}</div>
+            </div>
+            <div style={{ backgroundColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)', padding: '12px 16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ fontSize: '0.7rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('activeMembers')}</div>
+              <div style={{ fontWeight: '700', fontSize: '0.95rem', marginTop: '2px' }}>1,250+</div>
+            </div>
+          </div>
         </div>
+        {/* Subtle background glow graphics */}
+        <div style={{ position: 'absolute', right: '-40px', bottom: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'var(--gold)', opacity: 0.15, filter: 'blur(40px)', zIndex: 1 }}></div>
       </aside>
 
       {/* 2. Main Feed Section */}
@@ -479,37 +476,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
           </div>
         )}
 
-        {/* Church Info Section */}
-        <div style={{
-          background: 'linear-gradient(135deg, var(--accent) 0%, #7c5dfa 100%)',
-          borderRadius: '24px',
-          padding: '28px',
-          color: 'white',
-          boxShadow: '0 10px 30px rgba(91, 63, 187, 0.25)',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            <h2 className="serif" style={{ margin: '0 0 8px 0', fontSize: '2.2rem', fontWeight: '400' }}>
-              ⛪ {t('graceCommunityChurch')}
-            </h2>
-            <p style={{ margin: '0 0 20px 0', opacity: 0.9, fontSize: '0.95rem', maxWidth: '480px', lineHeight: '1.5' }}>
-              {t('churchSubtitle')}
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxWidth: '360px' }}>
-              <div style={{ backgroundColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)', padding: '12px 16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: '0.75rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('mainService')}</div>
-                <div style={{ fontWeight: '700', fontSize: '1.05rem', marginTop: '2px' }}>{t('sunday10am')}</div>
-              </div>
-              <div style={{ backgroundColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)', padding: '12px 16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: '0.75rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('activeMembers')}</div>
-                <div style={{ fontWeight: '700', fontSize: '1.05rem', marginTop: '2px' }}>1,250+</div>
-              </div>
-            </div>
-          </div>
-          {/* Subtle background glow graphics */}
-          <div style={{ position: 'absolute', right: '-40px', bottom: '-40px', width: '200px', height: '200px', borderRadius: '50%', background: 'var(--gold)', opacity: 0.15, filter: 'blur(40px)', zIndex: 1 }}></div>
-        </div>
+
 
         {/* Floating elements for like triggers */}
         {floatingEmojis.map(emoji => (

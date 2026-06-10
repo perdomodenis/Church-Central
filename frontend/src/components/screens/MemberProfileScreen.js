@@ -213,7 +213,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
                 <span style={{ color: '#555', fontSize: '0.9rem' }}>
                   {memberState.courts && memberState.courts.length > 0
                     ? memberState.courts.map(c => t(toCamelCase(c)) || c).join(', ')
-                    : memberState.court ? t(toCamelCase(memberState.court)) || memberState.court : 'Main Campus'}
+                    : memberState.court ? t(toCamelCase(memberState.court)) || memberState.court : 'Glory Court'}
                 </span>
               </div>
 
@@ -239,12 +239,20 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
                 <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                     <span style={{ color: '#666' }}>• School of the Word Class:</span>
-                    <span style={{ fontWeight: '600', color: '#444' }}>{memberState.schoolClass || 'School of the Word - Level 1'}</span>
+                    <span style={{ fontWeight: '600', color: '#444' }}>
+                      {memberState.schoolClass ? t(toCamelCase(memberState.schoolClass)) || memberState.schoolClass : t('notSpecified')}
+                    </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                     <span style={{ color: '#666' }}>• District:</span>
                     <span style={{ fontWeight: '600', color: '#444' }}>
-                      {memberState.district ? t(toCamelCase(memberState.district)) || memberState.district : 'Central District'}
+                      {memberState.district ? t(toCamelCase(memberState.district)) || memberState.district : t('notSpecified')}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                    <span style={{ color: '#666' }}>• Gender:</span>
+                    <span style={{ fontWeight: '600', color: '#444' }}>
+                      {memberState.gender ? t(toCamelCase(memberState.gender)) || memberState.gender : t('notSpecified')}
                     </span>
                   </div>
                 </div>
@@ -300,7 +308,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
                     onChange={(e) => handleToggleCheckbox('authorizedPostAsCourt', e.target.checked)}
                     style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
                   />
-                  District ({memberState.court || memberState.campus || 'Main Campus'})
+                  District ({memberState.court || memberState.campus || 'Glory Court'})
                 </label>
               </div>
 

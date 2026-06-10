@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { searchMembers } from '../../services/memberService';
+import { COURTS } from '../../services/churchConstants';
 
 const toCamelCase = (str) => {
   if (!str) return '';
@@ -14,7 +15,7 @@ const toCamelCase = (str) => {
     .join('');
 };
 
-const COURTS = ['Main Campus', 'Downtown Campus'];
+
 
 const getCourts = (member) => {
   const courtVal = member.court || member.campus || 'Global';
@@ -41,7 +42,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
   const [loading, setLoading] = useState(false);
 
   // Court and folder navigation states
-  const [activeCourt, setActiveCourt] = useState('Main Campus');
+  const [activeCourt, setActiveCourt] = useState('Glory Court');
   const [expandedDepts, setExpandedDepts] = useState({});
 
   useEffect(() => {
@@ -57,7 +58,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
       setMembers(otherMembers);
 
       // Auto-expand the first folder with items in the initial court tab
-      const initialCourtMembers = otherMembers.filter(m => getCourts(m).includes('Main Campus'));
+      const initialCourtMembers = otherMembers.filter(m => getCourts(m).includes('Glory Court'));
       if (initialCourtMembers.length > 0) {
         const firstDept = getDepartments(initialCourtMembers[0])[0] || 'General';
         setExpandedDepts({ [firstDept]: true });
