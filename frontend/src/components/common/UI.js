@@ -56,7 +56,7 @@ export const TopBar = ({ route, onNavigate, scope, scopeOptions, title, onScope,
                 style={scopeSelectStyle}
               >
                 {scopeOptions.map(option => (
-                  <option key={option} value={option}>{option}</option>
+                  <option key={option} value={option}>{t(option.toLowerCase())}</option>
                 ))}
               </select>
             ) : (

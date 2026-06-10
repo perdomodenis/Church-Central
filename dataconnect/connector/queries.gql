@@ -164,6 +164,8 @@ query ListEvents @auth(level: USER) {
     eventRegistrations_on_event {
       user {
         uid
+        first
+        last
       }
     }
   }

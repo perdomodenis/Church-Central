@@ -763,6 +763,8 @@ export interface ListEventsData {
       eventRegistrations_on_event: ({
         user: {
           uid: string;
+          first: string;
+          last: string;
         } & User_Key;
       })[];
   } & Event_Key)[];

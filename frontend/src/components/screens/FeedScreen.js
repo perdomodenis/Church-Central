@@ -6,6 +6,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { rtdb } from '../../services/firebase';
 import { ref, onValue, set as rtdbSet, push, remove } from 'firebase/database';
 import { sendInboxNotification } from '../../services/notificationService';
+import { getAccessLevel } from '../../services/churchConstants';
+import { getAllEvents, registerForEvent, cancelEventRegistration } from '../../services/eventService';
 
 const toCamelCase = (str) => {
   if (!str) return '';
@@ -193,19 +195,21 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
     loadMembers();
   }, []);
   
-  // RSVP state for events
-  const [eventRSVPs, setEventRSVPs] = useState(() => {
-    const saved = localStorage.getItem('eventRSVPs:v1');
+  // Real events state
+  const [events, setEvents] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  
+  const [eventDeclines, setEventDeclines] = useState(() => {
+    const saved = localStorage.getItem('eventDeclines:v1');
     return saved ? JSON.parse(saved) : {};
   });
 
-  // Mock events for the right sidebar
-  const upcomingEvents = [
-    { id: 'ev1', title: t('worship'), date: '07', month: 'Jun', time: '10:00 AM', loc: 'Main Sanctuary' },
-    { id: 'ev2', title: t('study'), date: '10', month: 'Jun', time: '07:30 PM', loc: 'Fellowship Hall' },
-    { id: 'ev3', title: t('youth'), date: '12', month: 'Jun', time: '06:30 PM', loc: 'Youth Room' },
-    { id: 'ev4', title: t('social'), date: '13', month: 'Jun', time: '09:00 AM', loc: 'Dining Area' }
-  ];
+  const [optimisticGoing, setOptimisticGoing] = useState({});
+  const [submittingRSVP, setSubmittingRSVP] = useState({});
+
+  useEffect(() => {
+    localStorage.setItem('eventDeclines:v1', JSON.stringify(eventDeclines));
+  }, [eventDeclines]);
 
   // Sync RTDB likes and comments in real-time
   useEffect(() => {
@@ -225,10 +229,19 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
     };
   }, []);
 
-  // Sync RSVPs to localStorage
+  // Load real events
   useEffect(() => {
-    localStorage.setItem('eventRSVPs:v1', JSON.stringify(eventRSVPs));
-  }, [eventRSVPs]);
+    const loadEvents = async () => {
+      try {
+        const list = await getAllEvents();
+        setEvents(list);
+      } catch (err) {
+        console.error('Error loading events in feed:', err);
+      }
+      setLoadingEvents(false);
+    };
+    loadEvents();
+  }, [refreshKey]);
 
   // Load posts from SQL Connect
   useEffect(() => {
@@ -299,11 +312,55 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
     }
   };
 
-  const handleRSVP = (eventId, status) => {
-    setEventRSVPs(prev => ({
-      ...prev,
-      [eventId]: prev[eventId] === status ? null : status
-    }));
+  const handleRSVP = async (event, status) => {
+    if (!user?.uid || submittingRSVP[event.id]) return;
+    
+    // Set lock immediately
+    setSubmittingRSVP(prev => ({ ...prev, [event.id]: true }));
+    const isAttending = event.attendeeUids?.includes(user.uid);
+    
+    // Apply optimistic updates immediately
+    if (status === 'going') {
+      setOptimisticGoing(prev => ({ ...prev, [event.id]: true }));
+      setEventDeclines(prev => {
+        const updated = { ...prev };
+        delete updated[event.id];
+        return updated;
+      });
+    } else if (status === 'declined') {
+      setOptimisticGoing(prev => ({ ...prev, [event.id]: false }));
+      setEventDeclines(prev => ({ ...prev, [event.id]: true }));
+    }
+
+    try {
+      if (status === 'going') {
+        if (!isAttending) {
+          await registerForEvent(event.id, user.uid);
+        }
+      } else if (status === 'declined') {
+        if (isAttending) {
+          await cancelEventRegistration(event.id, user.uid);
+        }
+      }
+      // Refresh local events list
+      const list = await getAllEvents();
+      setEvents(list);
+    } catch (error) {
+      console.error('Error updating RSVP in feed:', error);
+    } finally {
+      // Clear optimistic state
+      setOptimisticGoing(prev => {
+        const updated = { ...prev };
+        delete updated[event.id];
+        return updated;
+      });
+      // Release lock
+      setSubmittingRSVP(prev => {
+        const updated = { ...prev };
+        delete updated[event.id];
+        return updated;
+      });
+    }
   };
 
   const filteredPosts = posts.filter(post => {
@@ -316,6 +373,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
     if (post.scope === 'Leaders' && !isLeader && !isAdmin && !isReverend && !isAuthor) return false;
     if (post.scope === 'Reverends' && !isReverend && !isAdmin && !isAuthor) return false;
     if (post.scope === 'Admins' && !isAdmin && !isAuthor) return false;
+    if (post.scope === 'Class' && !user?.schoolClass && !isAdmin && !isReverend && !isAuthor) return false;
 
     // 2. Apply active UI tab filter
     if (!scope || scope === 'All' || scope === 'Todos' || scope === 'News') return true;
@@ -438,10 +496,15 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
 
   const commentCount = (postId) => getPostComments(postId).length;
 
+  const activeMembersCount = members.filter(m => getAccessLevel(m.position || '') >= 2).length;
+
   const level = user?.accessLevel || 1;
   let scopeOptions = ['News', 'District', 'Court'];
   if (level >= 2) {
     scopeOptions = ['News', 'Department', 'District', 'Court'];
+  }
+  if (user?.schoolClass) {
+    scopeOptions.push('Class');
   }
   if (level >= 3) {
     scopeOptions.push('Leaders');
@@ -485,7 +548,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
             </div>
             <div style={{ backgroundColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)', padding: '12px 16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
               <div style={{ fontSize: '0.7rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('activeMembers')}</div>
-              <div style={{ fontWeight: '700', fontSize: '0.95rem', marginTop: '2px' }}>1,250+</div>
+              <div style={{ fontWeight: '700', fontSize: '0.95rem', marginTop: '2px' }}>{activeMembersCount > 0 ? activeMembersCount : '...'}</div>
             </div>
           </div>
         </div>
@@ -728,32 +791,88 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
           </p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {upcomingEvents.map(event => {
-              const rsvp = eventRSVPs[event.id];
-              return (
-                <div key={event.id} className="event-item">
-                  <div className="event-date-badge">
-                    {event.date}
-                    <span>{event.month}</span>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--ink)' }}>{event.title}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--ink-3)', marginTop: '2px' }}>
-                      {event.time} • {event.loc}
+            {loadingEvents ? (
+              <p style={{ color: '#999', fontSize: '0.8rem' }}>{t('loadingEvents')}</p>
+            ) : events.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '20px 0', color: '#999', fontSize: '0.85rem' }}>
+                <p style={{ fontSize: '1.5rem', margin: '0 0 4px 0' }}>📭</p>
+                <p>No upcoming events yet.</p>
+              </div>
+            ) : (
+              events.slice(0, 4).map(event => {
+                const isAttending = optimisticGoing[event.id] !== undefined
+                  ? optimisticGoing[event.id]
+                  : event.attendeeUids?.includes(user?.uid);
+                const isDeclined = eventDeclines[event.id];
+                const eventDate = new Date(event.startTime);
+                const day = isNaN(eventDate.getTime()) ? '??' : eventDate.getDate().toString().padStart(2, '0');
+                const month = isNaN(eventDate.getTime()) ? '???' : eventDate.toLocaleDateString('en-US', { month: 'short' });
+                const formattedTime = event.startTime.split('T')[1] || '';
+
+                return (
+                  <div key={event.id} className="event-item" style={{ alignItems: 'flex-start' }}>
+                    <div className="event-date-badge">
+                      {day}
+                      <span>{month}</span>
                     </div>
-                    <div className="rsvp-button-group">
-                      <button
-                        onClick={() => handleRSVP(event.id, 'going')}
-                        className={`rsvp-btn ${rsvp === 'going' ? 'selected' : ''}`}
-                        style={{ width: '100%' }}
-                      >
-                        {t('going')}
-                      </button>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--ink)' }}>{event.title}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--ink-3)', marginTop: '2px' }}>
+                        {formattedTime} • {event.location}
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                        <button
+                          onClick={() => handleRSVP(event, 'going')}
+                          disabled={!user || submittingRSVP[event.id]}
+                          style={{
+                            flex: 1,
+                            padding: '6px 4px',
+                            backgroundColor: isAttending ? '#2e7d32' : 'var(--surface)',
+                            color: isAttending ? 'white' : 'var(--ink-2)',
+                            border: isAttending ? '1px solid #2e7d32' : '1px solid var(--line)',
+                            borderRadius: '6px',
+                            fontWeight: '700',
+                            fontSize: '0.7rem',
+                            cursor: (user && !submittingRSVP[event.id]) ? 'pointer' : 'not-allowed',
+                            opacity: submittingRSVP[event.id] ? 0.7 : 1,
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '2px'
+                          }}
+                        >
+                          {isAttending ? `✓ ${t('going')}` : t('going')}
+                        </button>
+                        <button
+                          onClick={() => handleRSVP(event, 'declined')}
+                          disabled={!user || submittingRSVP[event.id]}
+                          style={{
+                            flex: 1,
+                            padding: '6px 4px',
+                            backgroundColor: isDeclined ? '#c62828' : 'var(--surface)',
+                            color: isDeclined ? 'white' : 'var(--ink-2)',
+                            border: isDeclined ? '1px solid #c62828' : '1px solid var(--line)',
+                            borderRadius: '6px',
+                            fontWeight: '700',
+                            fontSize: '0.7rem',
+                            cursor: (user && !submittingRSVP[event.id]) ? 'pointer' : 'not-allowed',
+                            opacity: submittingRSVP[event.id] ? 0.7 : 1,
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '2px'
+                          }}
+                        >
+                          {t('notGoing')}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
 

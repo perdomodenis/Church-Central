@@ -16,6 +16,9 @@ const UploadScreen = ({ onCancel, onDone, user }) => {
   if (level >= 2) {
     allowedScopes = ['News', 'Department', 'District', 'Court'];
   }
+  if (user?.schoolClass) {
+    allowedScopes.push('Class');
+  }
   if (level >= 3) {
     allowedScopes.push('Leaders');
   }

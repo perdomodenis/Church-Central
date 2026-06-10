@@ -22,6 +22,7 @@ const translations = {
     admin: 'Admin',
     reverend: 'Reverend',
     all: 'All',
+    class: 'Class',
     news: 'News',
     district: 'District',
     court: 'Court',
@@ -106,6 +107,7 @@ const translations = {
     upcomingEventsTitle: 'Upcoming Events',
     connectFellowship: 'Connect and fellowship with the community',
     going: 'I will be there',
+    notGoing: "I won't make it",
     maybe: 'Maybe',
     composeAnnouncement: 'Compose Announcement',
 

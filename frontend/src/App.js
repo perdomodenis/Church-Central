@@ -308,6 +308,9 @@ function App() {
   if (level >= 2) {
     scopeOptions = ['News', 'Department', 'District', 'Court'];
   }
+  if (user?.schoolClass) {
+    scopeOptions.push('Class');
+  }
   if (level >= 3) {
     scopeOptions.push('Leaders');
   }

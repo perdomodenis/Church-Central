@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { addEvent, getAllEvents, deleteEvent } from '../../services/eventService';
+import { addEvent, getAllEvents, deleteEvent, registerForEvent, cancelEventRegistration } from '../../services/eventService';
 import { useLanguage } from '../../context/LanguageContext';
 
 const CATEGORIES = ['General', 'Worship', 'Study', 'Social', 'Outreach', 'Youth', 'Other'];
@@ -18,6 +18,18 @@ const EventsScreen = ({ user }) => {
     location: '',
     category: 'General'
   });
+
+  const [eventDeclines, setEventDeclines] = useState(() => {
+    const saved = localStorage.getItem('eventDeclines:v1');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  const [optimisticGoing, setOptimisticGoing] = useState({});
+  const [submittingRSVP, setSubmittingRSVP] = useState({});
+
+  useEffect(() => {
+    localStorage.setItem('eventDeclines:v1', JSON.stringify(eventDeclines));
+  }, [eventDeclines]);
 
   useEffect(() => {
     loadEvents();
@@ -65,6 +77,55 @@ const EventsScreen = ({ user }) => {
       await loadEvents();
     } catch (error) {
       console.error('Error deleting event:', error);
+    }
+  };
+
+  const handleRSVP = async (event, status) => {
+    if (!user?.uid || submittingRSVP[event.id]) return;
+    
+    // Set lock immediately
+    setSubmittingRSVP(prev => ({ ...prev, [event.id]: true }));
+    const isAttending = event.attendeeUids?.includes(user.uid);
+    
+    // Apply optimistic updates immediately
+    if (status === 'going') {
+      setOptimisticGoing(prev => ({ ...prev, [event.id]: true }));
+      setEventDeclines(prev => {
+        const updated = { ...prev };
+        delete updated[event.id];
+        return updated;
+      });
+    } else if (status === 'declined') {
+      setOptimisticGoing(prev => ({ ...prev, [event.id]: false }));
+      setEventDeclines(prev => ({ ...prev, [event.id]: true }));
+    }
+
+    try {
+      if (status === 'going') {
+        if (!isAttending) {
+          await registerForEvent(event.id, user.uid);
+        }
+      } else if (status === 'declined') {
+        if (isAttending) {
+          await cancelEventRegistration(event.id, user.uid);
+        }
+      }
+      await loadEvents();
+    } catch (error) {
+      console.error('Error updating RSVP:', error);
+    } finally {
+      // Clear optimistic state
+      setOptimisticGoing(prev => {
+        const updated = { ...prev };
+        delete updated[event.id];
+        return updated;
+      });
+      // Release lock
+      setSubmittingRSVP(prev => {
+        const updated = { ...prev };
+        delete updated[event.id];
+        return updated;
+      });
     }
   };
 
@@ -289,22 +350,90 @@ const EventsScreen = ({ user }) => {
                   </div>
                 </div>
 
-                {/* Action Button */}
-                <button
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    backgroundColor: 'var(--accent)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontWeight: '600',
-                    fontSize: '0.9rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {t('attendEvent')}
-                </button>
+                {/* Attendee Count */}
+                <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600' }}>
+                  <span>👥</span>
+                  <span>{event.registered} {event.registered === 1 ? 'person attending' : 'people attending'}</span>
+                </div>
+
+                {/* Organizer Attendee List View */}
+                {event.userId === user?.uid && (
+                  <div style={{ 
+                    fontSize: '0.8rem', 
+                    color: 'var(--accent)', 
+                    backgroundColor: 'var(--accent-soft)', 
+                    border: '1px solid var(--line-2)', 
+                    borderRadius: '8px', 
+                    padding: '10px 12px', 
+                    marginBottom: '12px' 
+                  }}>
+                    <strong style={{ display: 'block', marginBottom: '4px' }}>Organizer View - Attendees:</strong>
+                    {event.attendees && event.attendees.length > 0 ? (
+                      <span style={{ color: 'var(--ink)' }}>{event.attendees.join(', ')}</span>
+                    ) : (
+                      <em style={{ color: 'var(--ink-3)' }}>No attendees registered yet</em>
+                    )}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                {(() => {
+                  const isAttending = optimisticGoing[event.id] !== undefined
+                    ? optimisticGoing[event.id]
+                    : event.attendeeUids?.includes(user?.uid);
+                  const isDeclined = eventDeclines[event.id];
+                  
+                  return (
+                    <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                      <button
+                        onClick={() => handleRSVP(event, 'going')}
+                        disabled={!user || submittingRSVP[event.id]}
+                        style={{
+                          flex: 1,
+                          padding: '10px 6px',
+                          backgroundColor: isAttending ? '#2e7d32' : 'var(--surface)',
+                          color: isAttending ? 'white' : 'var(--ink-2)',
+                          border: isAttending ? '1px solid #2e7d32' : '1px solid var(--line)',
+                          borderRadius: '8px',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: (user && !submittingRSVP[event.id]) ? 'pointer' : 'not-allowed',
+                          opacity: submittingRSVP[event.id] ? 0.7 : 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '4px',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {isAttending ? `✓ ${t('going')}` : t('going')}
+                      </button>
+                      <button
+                        onClick={() => handleRSVP(event, 'declined')}
+                        disabled={!user || submittingRSVP[event.id]}
+                        style={{
+                          flex: 1,
+                          padding: '10px 6px',
+                          backgroundColor: isDeclined ? '#c62828' : 'var(--surface)',
+                          color: isDeclined ? 'white' : 'var(--ink-2)',
+                          border: isDeclined ? '1px solid #c62828' : '1px solid var(--line)',
+                          borderRadius: '8px',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: (user && !submittingRSVP[event.id]) ? 'pointer' : 'not-allowed',
+                          opacity: submittingRSVP[event.id] ? 0.7 : 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '4px',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {t('notGoing')}
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
             ))
           )}

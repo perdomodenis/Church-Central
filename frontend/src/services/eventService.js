@@ -3,7 +3,9 @@ import {
   listEvents as fetchAllEventsFromDb,
   updateEvent as updateEventInDb,
   deleteEvent as deleteEventInDb,
-  createAnnouncement
+  createAnnouncement,
+  registerForEvent as registerForEventInDb,
+  cancelEventRegistration as cancelEventRegistrationInDb
 } from '../lib/dataconnect';
 
 export const addEvent = async (eventData, userId) => {
@@ -61,6 +63,8 @@ export const addEvent = async (eventData, userId) => {
     return {
       id: response.data?.event_insert?.id,
       title: variables.title,
+      date,
+      time,
       startTime: `${date}T${time}`,
       endTime: `${date}T${endTime}`,
       location: variables.location,
@@ -79,13 +83,15 @@ export const addEvent = async (eventData, userId) => {
 
 export const getAllEvents = async () => {
   try {
-    const response = await fetchAllEventsFromDb();
+    const response = await fetchAllEventsFromDb({ fetchPolicy: 'SERVER_ONLY' });
     const events = response.data?.events || [];
 
     // Map database result to frontend compatible object
     const mapped = events.map(event => ({
       id: event.id,
       title: event.title,
+      date: event.date,
+      time: event.time,
       startTime: `${event.date}T${event.time}`,
       endTime: `${event.date}T${event.endTime}`,
       location: event.location,
@@ -95,8 +101,9 @@ export const getAllEvents = async () => {
       createdByName: event.createdBy ? `${event.createdBy.first} ${event.createdBy.last}` : 'Unknown',
       createdAt: event.createdAt,
       updatedAt: event.createdAt, // Fallback
-      registered: event.registered || 0,
-      attendees: event.registered || 0, // In case attendees is used
+      registered: Math.max(0, event.registered || 0),
+      attendeeUids: event.eventRegistrations_on_event ? event.eventRegistrations_on_event.map(r => r.user.uid) : [],
+      attendees: event.eventRegistrations_on_event ? event.eventRegistrations_on_event.map(r => `${r.user.first || ''} ${r.user.last || ''}`.trim()) : [],
       userId: event.createdBy?.uid || 'unknown'
     }));
 
@@ -179,4 +186,24 @@ export const extractCategory = (title) => {
   if (lowerTitle.includes('community') || lowerTitle.includes('outreach')) return 'Outreach';
   if (lowerTitle.includes('baptism')) return 'Baptism';
   return 'Event';
+};
+
+export const registerForEvent = async (eventId, userUid) => {
+  try {
+    await registerForEventInDb({ eventId, userUid });
+    return true;
+  } catch (error) {
+    console.error('Error registering for event:', error);
+    throw error;
+  }
+};
+
+export const cancelEventRegistration = async (eventId, userUid) => {
+  try {
+    await cancelEventRegistrationInDb({ eventId, userUid });
+    return true;
+  } catch (error) {
+    console.error('Error cancelling event registration:', error);
+    throw error;
+  }
 };

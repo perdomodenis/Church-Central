@@ -53,7 +53,7 @@ export const getAllBaptismEvents = async () => {
       createdBy: e.createdBy?.uid || 'unknown',
       createdByName: e.createdBy ? `${e.createdBy.first} ${e.createdBy.last}` : 'Unknown',
       createdAt: e.createdAt,
-      attendees: e.registeredCount || 0,
+      attendees: Math.max(0, e.registeredCount || 0),
       attendeesList: (e.baptismRegistrations_on_baptismEvent || []).map(reg => ({
         userId: reg.user.uid,
         name: `${reg.user.first} ${reg.user.last}`,
