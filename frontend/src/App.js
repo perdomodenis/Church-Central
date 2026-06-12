@@ -6,6 +6,7 @@ import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { seedLiveData } from './services/liveData';
 import { useLanguage } from './context/LanguageContext';
+import LoadingScreen from './components/common/LoadingScreen';
 
 // Auth Screens
 import { LoginScreen, SignupScreen, WelcomeScreen, ForgotScreen, ForgotSent } from './components/auth';
@@ -51,6 +52,35 @@ function App() {
   const { user: authUser, loading: authLoading } = useAuth();
   const { t } = useLanguage();
   const { hasNewInbox } = useNotification();
+
+  // Loading screen state
+  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
+  const [windowLoaded, setWindowLoaded] = useState(document.readyState === 'complete');
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [fadeState, setFadeState] = useState('visible');
+
+  // Track page window load
+  useEffect(() => {
+    if (document.readyState === 'complete') {
+      setWindowLoaded(true);
+      return;
+    }
+    const handleLoad = () => setWindowLoaded(true);
+    window.addEventListener('load', handleLoad);
+    return () => window.removeEventListener('load', handleLoad);
+  }, []);
+
+  const isFullyLoaded = windowLoaded && profileLoaded;
+
+  useEffect(() => {
+    if (isFullyLoaded) {
+      // 1.2s minimum duration ensures the user can read the scripture verse
+      const timer = setTimeout(() => {
+        setFadeState('fade-out');
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [isFullyLoaded]);
 
   // Route state machine
   const [route, setRoute] = useState(() => localStorage.getItem('lastRoute') || 'login');
@@ -175,8 +205,10 @@ function App() {
           });
         }
         setRoute(prev => ['login', 'signup', 'welcome', 'forgot', 'forgot-sent'].includes(prev) ? 'home' : prev);
+        setProfileLoaded(true);
       } else if (!authLoading) {
         setRoute('login');
+        setProfileLoaded(true);
       }
     };
 
@@ -322,8 +354,20 @@ function App() {
 
   // Render screen
   let body;
-  if (authLoading) {
-    return <div className="loading">Loading...</div>;
+
+  const handleTransitionEnd = (e) => {
+    if (e.propertyName === 'opacity' && fadeState === 'fade-out') {
+      setShowLoadingScreen(false);
+    }
+  };
+
+  if (!profileLoaded) {
+    return (
+      <LoadingScreen 
+        fadeState={fadeState} 
+        onTransitionEnd={handleTransitionEnd} 
+      />
+    );
   }
 
   const AccessDenied = ({ requiredLevel }) => (
@@ -433,6 +477,12 @@ function App() {
 
   return (
     <div className="App app-root" style={{ position: 'relative', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {showLoadingScreen && (
+        <LoadingScreen 
+          fadeState={fadeState} 
+          onTransitionEnd={handleTransitionEnd} 
+        />
+      )}
       {!inAuth && (
         <TopBar
           route={route}
