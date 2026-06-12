@@ -41,6 +41,7 @@ export const updateUserProfile = async (userId, data) => {
     authorizedPostAsChurch: currentProfile.authorizedPostAsChurch !== undefined ? currentProfile.authorizedPostAsChurch : false,
     authorizedPostAsDept: currentProfile.authorizedPostAsDept !== undefined ? currentProfile.authorizedPostAsDept : false,
     authorizedPostAsCourt: currentProfile.authorizedPostAsCourt !== undefined ? currentProfile.authorizedPostAsCourt : false,
+    authorizedCreateProgram: currentProfile.authorizedCreateProgram !== undefined ? currentProfile.authorizedCreateProgram : false,
     ...data
   };
 

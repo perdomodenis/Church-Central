@@ -24,6 +24,24 @@ type User @table(key: "uid") {
   authorizedPostAsChurch: Boolean @default(value: false)
   authorizedPostAsDept: Boolean @default(value: false)
   authorizedPostAsCourt: Boolean @default(value: false)
+  authorizedCreateProgram: Boolean @default(value: false)
+}
+
+type ProgramBlock @table {
+  id: UUID! @default(expr: "uuidV4()")
+  date: String!
+  time: String!
+  title: String!
+  minister: String!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type ReusableBlock @table {
+  id: UUID! @default(expr: "uuidV4()")
+  title: String!
+  minister: String!
+  time: String!
+  createdAt: Timestamp! @default(expr: "request.time")
 }
 
 type Event @table {

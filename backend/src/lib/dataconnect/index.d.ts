@@ -123,6 +123,27 @@ export interface CreateEventVariables {
   createdByUid: string;
 }
 
+export interface CreateProgramBlockData {
+  programBlock_insert: ProgramBlock_Key;
+}
+
+export interface CreateProgramBlockVariables {
+  date: string;
+  time: string;
+  title: string;
+  minister: string;
+}
+
+export interface CreateReusableBlockData {
+  reusableBlock_insert: ReusableBlock_Key;
+}
+
+export interface CreateReusableBlockVariables {
+  title: string;
+  minister: string;
+  time: string;
+}
+
 export interface DeleteBaptismEventData {
   baptismEvent_delete?: BaptismEvent_Key | null;
 }
@@ -136,6 +157,22 @@ export interface DeleteEventData {
 }
 
 export interface DeleteEventVariables {
+  id: UUIDString;
+}
+
+export interface DeleteProgramBlockData {
+  programBlock_delete?: ProgramBlock_Key | null;
+}
+
+export interface DeleteProgramBlockVariables {
+  id: UUIDString;
+}
+
+export interface DeleteReusableBlockData {
+  reusableBlock_delete?: ReusableBlock_Key | null;
+}
+
+export interface DeleteReusableBlockVariables {
   id: UUIDString;
 }
 
@@ -197,6 +234,7 @@ export interface GetUserContextData {
     authorizedPostAsChurch?: boolean | null;
     authorizedPostAsDept?: boolean | null;
     authorizedPostAsCourt?: boolean | null;
+    authorizedCreateProgram?: boolean | null;
   } & User_Key;
 }
 
@@ -235,6 +273,7 @@ export interface GetUserProfileData {
       authorizedPostAsChurch?: boolean | null;
       authorizedPostAsDept?: boolean | null;
       authorizedPostAsCourt?: boolean | null;
+      authorizedCreateProgram?: boolean | null;
   } & User_Key;
 }
 
@@ -347,6 +386,8 @@ export interface ListFeedPostsData {
       first: string;
       last: string;
       profilePhoto?: string | null;
+      district?: string | null;
+      court?: string | null;
     } & User_Key;
   } & Announcement_Key)[];
 }
@@ -382,6 +423,7 @@ export interface ListMembersData {
       authorizedPostAsChurch?: boolean | null;
       authorizedPostAsDept?: boolean | null;
       authorizedPostAsCourt?: boolean | null;
+      authorizedCreateProgram?: boolean | null;
   } & User_Key)[];
 }
 
@@ -416,6 +458,16 @@ export interface ListPendingAppointmentsData {
         last: string;
       } & User_Key;
   } & AppointmentRequest_Key)[];
+}
+
+export interface ListProgramBlocksData {
+  programBlocks: ({
+    id: UUIDString;
+    date: string;
+    time: string;
+    title: string;
+    minister: string;
+  } & ProgramBlock_Key)[];
 }
 
 export interface ListRejectedAppointmentsData {
@@ -454,6 +506,20 @@ export interface ListRejectedAppointmentsData {
   } & AppointmentRequest_Key)[];
 }
 
+export interface ListReusableBlocksData {
+  reusableBlocks: ({
+    id: UUIDString;
+    title: string;
+    minister: string;
+    time: string;
+  } & ReusableBlock_Key)[];
+}
+
+export interface ProgramBlock_Key {
+  id: UUIDString;
+  __typename?: 'ProgramBlock_Key';
+}
+
 export interface RegisterForBaptismData {
   baptismRegistration_insert: BaptismRegistration_Key;
   baptismEvent_update?: BaptismEvent_Key | null;
@@ -482,6 +548,11 @@ export interface RejectAppointmentVariables {
   id: UUIDString;
   rejectedBy: string;
   rejectionReason: string;
+}
+
+export interface ReusableBlock_Key {
+  id: UUIDString;
+  __typename?: 'ReusableBlock_Key';
 }
 
 export interface SearchMembersData {
@@ -515,6 +586,7 @@ export interface SearchMembersData {
       authorizedPostAsChurch?: boolean | null;
       authorizedPostAsDept?: boolean | null;
       authorizedPostAsCourt?: boolean | null;
+      authorizedCreateProgram?: boolean | null;
   } & User_Key)[];
 }
 
@@ -536,6 +608,17 @@ export interface UpdateEventVariables {
   description?: string | null;
   type?: string | null;
   capacity?: number | null;
+}
+
+export interface UpdateReusableBlockData {
+  reusableBlock_update?: ReusableBlock_Key | null;
+}
+
+export interface UpdateReusableBlockVariables {
+  id: UUIDString;
+  title: string;
+  minister: string;
+  time: string;
 }
 
 export interface UpsertUserProfileData {
@@ -568,6 +651,7 @@ export interface UpsertUserProfileVariables {
   authorizedPostAsChurch?: boolean | null;
   authorizedPostAsDept?: boolean | null;
   authorizedPostAsCourt?: boolean | null;
+  authorizedCreateProgram?: boolean | null;
 }
 
 export interface User_Key {
@@ -645,6 +729,31 @@ export function rejectAppointment(dc: DataConnect, vars: RejectAppointmentVariab
 /** Generated Node Admin SDK operation action function for the 'RejectAppointment' Mutation. Allow users to pass in custom DataConnect instances. */
 export function rejectAppointment(vars: RejectAppointmentVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RejectAppointmentData>>;
 
+/** Generated Node Admin SDK operation action function for the 'CreateProgramBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function createProgramBlock(dc: DataConnect, vars: CreateProgramBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateProgramBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'CreateProgramBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function createProgramBlock(vars: CreateProgramBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateProgramBlockData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteProgramBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteProgramBlock(dc: DataConnect, vars: DeleteProgramBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteProgramBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteProgramBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteProgramBlock(vars: DeleteProgramBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteProgramBlockData>>;
+
+/** Generated Node Admin SDK operation action function for the 'CreateReusableBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function createReusableBlock(dc: DataConnect, vars: CreateReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateReusableBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'CreateReusableBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function createReusableBlock(vars: CreateReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateReusableBlockData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteReusableBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteReusableBlock(dc: DataConnect, vars: DeleteReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteReusableBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteReusableBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteReusableBlock(vars: DeleteReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteReusableBlockData>>;
+
+/** Generated Node Admin SDK operation action function for the 'UpdateReusableBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function updateReusableBlock(dc: DataConnect, vars: UpdateReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateReusableBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'UpdateReusableBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function updateReusableBlock(vars: UpdateReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateReusableBlockData>>;
+
 /** Generated Node Admin SDK operation action function for the 'GetUserContext' Query. Allow users to execute without passing in DataConnect. */
 export function getUserContext(dc: DataConnect, vars: GetUserContextVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetUserContextData>>;
 /** Generated Node Admin SDK operation action function for the 'GetUserContext' Query. Allow users to pass in custom DataConnect instances. */
@@ -699,4 +808,14 @@ export function listApprovedAppointments(options?: OperationOptions): Promise<Ex
 export function listRejectedAppointments(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListRejectedAppointmentsData>>;
 /** Generated Node Admin SDK operation action function for the 'ListRejectedAppointments' Query. Allow users to pass in custom DataConnect instances. */
 export function listRejectedAppointments(options?: OperationOptions): Promise<ExecuteOperationResponse<ListRejectedAppointmentsData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListProgramBlocks' Query. Allow users to execute without passing in DataConnect. */
+export function listProgramBlocks(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListProgramBlocksData>>;
+/** Generated Node Admin SDK operation action function for the 'ListProgramBlocks' Query. Allow users to pass in custom DataConnect instances. */
+export function listProgramBlocks(options?: OperationOptions): Promise<ExecuteOperationResponse<ListProgramBlocksData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListReusableBlocks' Query. Allow users to execute without passing in DataConnect. */
+export function listReusableBlocks(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListReusableBlocksData>>;
+/** Generated Node Admin SDK operation action function for the 'ListReusableBlocks' Query. Allow users to pass in custom DataConnect instances. */
+export function listReusableBlocks(options?: OperationOptions): Promise<ExecuteOperationResponse<ListReusableBlocksData>>;
 

@@ -253,6 +253,8 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
           id: post.id,
           author: post.author ? `${post.author.first} ${post.author.last}` : 'Anonymous',
           authorId: post.author?.uid || 'unknown',
+          authorDistrict: post.author?.district || '',
+          authorCourt: post.author?.court || '',
           time: new Date(post.createdAt).toLocaleDateString('de-CH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
           timestamp: post.createdAt,
           content: post.content,
@@ -374,6 +376,11 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
     if (post.scope === 'Reverends' && !isReverend && !isAdmin && !isAuthor) return false;
     if (post.scope === 'Admins' && !isAdmin && !isAuthor) return false;
     if (post.scope === 'Class' && !user?.schoolClass && !isAdmin && !isReverend && !isAuthor) return false;
+
+    // Lock District channel posts to matching personal district
+    if (post.scope === 'District' && post.authorDistrict && user?.district && post.authorDistrict !== user.district) {
+      return false;
+    }
 
     // 2. Apply active UI tab filter
     if (!scope || scope === 'All' || scope === 'Todos' || scope === 'News') return true;

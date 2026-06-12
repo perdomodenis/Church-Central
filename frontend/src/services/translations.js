@@ -435,6 +435,7 @@ const translations = {
     postAsChurch: 'Post as Church',
     postAsDept: 'Post as Department',
     postAsDistrict: 'Post as District',
+    authCreateProgram: 'Create Church Program',
     savePermissions: 'Save Permissions',
     permissionsSavedAlert: 'Permissions updated successfully!',
 

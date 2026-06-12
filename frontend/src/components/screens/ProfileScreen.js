@@ -205,7 +205,11 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
         depts: freshProfile.depts || [],
         dept: freshProfile.dept || '',
         pa: freshProfile.pa || null,
-        accessLevel: getAccessLevel(editUser.position || 'Member')
+        accessLevel: getAccessLevel(editUser.position || 'Member'),
+        authorizedPostAsChurch: freshProfile.authorizedPostAsChurch || false,
+        authorizedPostAsDept: freshProfile.authorizedPostAsDept || false,
+        authorizedPostAsCourt: freshProfile.authorizedPostAsCourt || false,
+        authorizedCreateProgram: freshProfile.authorizedCreateProgram || false
       };
       onUpdateUser(updatedUser);
       

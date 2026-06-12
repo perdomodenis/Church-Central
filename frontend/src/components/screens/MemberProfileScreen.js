@@ -46,7 +46,8 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
       await updateUserProfile(memberState.uid, {
         authorizedPostAsChurch: !!memberState.authorizedPostAsChurch,
         authorizedPostAsDept: !!memberState.authorizedPostAsDept,
-        authorizedPostAsCourt: !!memberState.authorizedPostAsCourt
+        authorizedPostAsCourt: !!memberState.authorizedPostAsCourt,
+        authorizedCreateProgram: !!memberState.authorizedCreateProgram
       });
       alert(t('permissionsSavedAlert'));
       if (onUpdateMember) {
@@ -309,6 +310,16 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
                     style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
                   />
                   District ({memberState.court || memberState.campus || 'Glory Court'})
+                </label>
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600', color: 'var(--ink)' }}>
+                  <input
+                    type="checkbox"
+                    checked={!!memberState.authorizedCreateProgram}
+                    onChange={(e) => handleToggleCheckbox('authorizedCreateProgram', e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
+                  />
+                  📝 {t('authCreateProgram')}
                 </label>
               </div>
 

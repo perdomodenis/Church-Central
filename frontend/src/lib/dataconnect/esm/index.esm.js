@@ -178,6 +178,66 @@ export function rejectAppointment(dcOrVars, vars) {
   return executeMutation(rejectAppointmentRef(dcInstance, inputVars));
 }
 
+export const createProgramBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'CreateProgramBlock', inputVars);
+}
+createProgramBlockRef.operationName = 'CreateProgramBlock';
+
+export function createProgramBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(createProgramBlockRef(dcInstance, inputVars));
+}
+
+export const deleteProgramBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteProgramBlock', inputVars);
+}
+deleteProgramBlockRef.operationName = 'DeleteProgramBlock';
+
+export function deleteProgramBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteProgramBlockRef(dcInstance, inputVars));
+}
+
+export const createReusableBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'CreateReusableBlock', inputVars);
+}
+createReusableBlockRef.operationName = 'CreateReusableBlock';
+
+export function createReusableBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(createReusableBlockRef(dcInstance, inputVars));
+}
+
+export const deleteReusableBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteReusableBlock', inputVars);
+}
+deleteReusableBlockRef.operationName = 'DeleteReusableBlock';
+
+export function deleteReusableBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteReusableBlockRef(dcInstance, inputVars));
+}
+
+export const updateReusableBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'UpdateReusableBlock', inputVars);
+}
+updateReusableBlockRef.operationName = 'UpdateReusableBlock';
+
+export function updateReusableBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(updateReusableBlockRef(dcInstance, inputVars));
+}
+
 export const getUserContextRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -319,5 +379,31 @@ export function listRejectedAppointments(dcOrOptions, options) {
   
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listRejectedAppointmentsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
+export const listProgramBlocksRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListProgramBlocks');
+}
+listProgramBlocksRef.operationName = 'ListProgramBlocks';
+
+export function listProgramBlocks(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listProgramBlocksRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
+export const listReusableBlocksRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListReusableBlocks');
+}
+listReusableBlocksRef.operationName = 'ListReusableBlocks';
+
+export function listReusableBlocks(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listReusableBlocksRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 

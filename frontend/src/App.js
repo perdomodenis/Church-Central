@@ -169,7 +169,11 @@ function App() {
             interests: currentProfile.interests || [],
             paUid: currentProfile.pa?.uid || null,
             gender: currentProfile.gender || '',
-            schoolClass: currentProfile.schoolClass || ''
+            schoolClass: currentProfile.schoolClass || '',
+            authorizedPostAsChurch: currentProfile.authorizedPostAsChurch || false,
+            authorizedPostAsDept: currentProfile.authorizedPostAsDept || false,
+            authorizedPostAsCourt: currentProfile.authorizedPostAsCourt || false,
+            authorizedCreateProgram: currentProfile.authorizedCreateProgram || false
           };
 
           const userData = {
@@ -436,6 +440,8 @@ function App() {
     body = level >= 2 ? (
       <ScheduleScreen 
         user={user}
+        refreshKey={refreshKey}
+        onRefresh={triggerRefresh}
         openAddEventOnMount={openAddScheduleOnMount}
         onCloseAddEventOnMount={() => setOpenAddScheduleOnMount(false)}
       />

@@ -179,7 +179,10 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
         backgroundColor: 'white',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100
       }}>
         <button
           onClick={onBack}

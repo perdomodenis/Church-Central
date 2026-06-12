@@ -12,6 +12,7 @@ query GetUserContext($uid: String!) @auth(level: USER) {
     authorizedPostAsChurch
     authorizedPostAsDept
     authorizedPostAsCourt
+    authorizedCreateProgram
   }
 }
 
@@ -46,6 +47,7 @@ query GetUserProfile($uid: String!) @auth(level: USER) {
     authorizedPostAsChurch
     authorizedPostAsDept
     authorizedPostAsCourt
+    authorizedCreateProgram
   }
 }
 
@@ -80,6 +82,7 @@ query ListMembers @auth(level: USER) {
     authorizedPostAsChurch
     authorizedPostAsDept
     authorizedPostAsCourt
+    authorizedCreateProgram
   }
 }
 
@@ -122,6 +125,7 @@ query SearchMembers($query: String!) @auth(level: USER) {
     authorizedPostAsChurch
     authorizedPostAsDept
     authorizedPostAsCourt
+    authorizedCreateProgram
   }
 }
 
@@ -139,6 +143,8 @@ query ListFeedPosts @auth(level: USER) {
       first
       last
       profilePhoto
+      district
+      court
     }
   }
 }
@@ -331,3 +337,23 @@ query ListRejectedAppointments @auth(level: USER) {
     }
   }
 }
+
+query ListProgramBlocks @auth(level: USER) {
+  programBlocks(orderBy: [{ date: ASC }, { time: ASC }]) {
+    id
+    date
+    time
+    title
+    minister
+  }
+}
+
+query ListReusableBlocks @auth(level: USER) {
+  reusableBlocks(orderBy: [{ title: ASC }]) {
+    id
+    title
+    minister
+    time
+  }
+}
+

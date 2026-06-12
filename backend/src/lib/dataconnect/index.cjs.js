@@ -105,6 +105,41 @@ function rejectAppointment(dcOrVarsOrOptions, varsOrOptions, options) {
 }
 exports.rejectAppointment = rejectAppointment;
 
+function createProgramBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateProgramBlock', inputVars, inputOpts);
+}
+exports.createProgramBlock = createProgramBlock;
+
+function deleteProgramBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteProgramBlock', inputVars, inputOpts);
+}
+exports.deleteProgramBlock = deleteProgramBlock;
+
+function createReusableBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateReusableBlock', inputVars, inputOpts);
+}
+exports.createReusableBlock = createReusableBlock;
+
+function deleteReusableBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteReusableBlock', inputVars, inputOpts);
+}
+exports.deleteReusableBlock = deleteReusableBlock;
+
+function updateReusableBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateReusableBlock', inputVars, inputOpts);
+}
+exports.updateReusableBlock = updateReusableBlock;
+
 function getUserContext(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
@@ -181,4 +216,18 @@ function listRejectedAppointments(dcOrOptions, options) {
   return dcInstance.executeQuery('ListRejectedAppointments', undefined, inputOpts);
 }
 exports.listRejectedAppointments = listRejectedAppointments;
+
+function listProgramBlocks(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListProgramBlocks', undefined, inputOpts);
+}
+exports.listProgramBlocks = listProgramBlocks;
+
+function listReusableBlocks(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListReusableBlocks', undefined, inputOpts);
+}
+exports.listReusableBlocks = listReusableBlocks;
 

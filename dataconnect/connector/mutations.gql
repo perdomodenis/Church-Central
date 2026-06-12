@@ -24,6 +24,7 @@ mutation UpsertUserProfile(
   $authorizedPostAsChurch: Boolean
   $authorizedPostAsDept: Boolean
   $authorizedPostAsCourt: Boolean
+  $authorizedCreateProgram: Boolean
 ) @auth(level: USER) {
   user_upsert(data: {
     uid: $uid
@@ -51,6 +52,7 @@ mutation UpsertUserProfile(
     authorizedPostAsChurch: $authorizedPostAsChurch
     authorizedPostAsDept: $authorizedPostAsDept
     authorizedPostAsCourt: $authorizedPostAsCourt
+    authorizedCreateProgram: $authorizedCreateProgram
   })
 }
 
@@ -228,6 +230,48 @@ mutation RejectAppointment($id: UUID!, $rejectedBy: String!, $rejectionReason: S
     rejectedBy: $rejectedBy
     rejectionReason: $rejectionReason
     decidedAt_expr: "request.time"
+  })
+}
+
+mutation CreateProgramBlock(
+  $date: String!
+  $time: String!
+  $title: String!
+  $minister: String!
+) @auth(level: USER) {
+  programBlock_insert(data: {
+    date: $date
+    time: $time
+    title: $title
+    minister: $minister
+  })
+}
+
+mutation DeleteProgramBlock($id: UUID!) @auth(level: USER) {
+  programBlock_delete(id: $id)
+}
+
+mutation CreateReusableBlock(
+  $title: String!
+  $minister: String!
+  $time: String!
+) @auth(level: USER) {
+  reusableBlock_insert(data: {
+    title: $title
+    minister: $minister
+    time: $time
+  })
+}
+
+mutation DeleteReusableBlock($id: UUID!) @auth(level: USER) {
+  reusableBlock_delete(id: $id)
+}
+
+mutation UpdateReusableBlock($id: UUID!, $title: String!, $minister: String!, $time: String!) @auth(level: USER) {
+  reusableBlock_update(id: $id, data: {
+    title: $title
+    minister: $minister
+    time: $time
   })
 }
 

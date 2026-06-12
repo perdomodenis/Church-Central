@@ -126,6 +126,27 @@ export interface CreateEventVariables {
   createdByUid: string;
 }
 
+export interface CreateProgramBlockData {
+  programBlock_insert: ProgramBlock_Key;
+}
+
+export interface CreateProgramBlockVariables {
+  date: string;
+  time: string;
+  title: string;
+  minister: string;
+}
+
+export interface CreateReusableBlockData {
+  reusableBlock_insert: ReusableBlock_Key;
+}
+
+export interface CreateReusableBlockVariables {
+  title: string;
+  minister: string;
+  time: string;
+}
+
 export interface DeleteBaptismEventData {
   baptismEvent_delete?: BaptismEvent_Key | null;
 }
@@ -139,6 +160,22 @@ export interface DeleteEventData {
 }
 
 export interface DeleteEventVariables {
+  id: UUIDString;
+}
+
+export interface DeleteProgramBlockData {
+  programBlock_delete?: ProgramBlock_Key | null;
+}
+
+export interface DeleteProgramBlockVariables {
+  id: UUIDString;
+}
+
+export interface DeleteReusableBlockData {
+  reusableBlock_delete?: ReusableBlock_Key | null;
+}
+
+export interface DeleteReusableBlockVariables {
   id: UUIDString;
 }
 
@@ -200,6 +237,7 @@ export interface GetUserContextData {
     authorizedPostAsChurch?: boolean | null;
     authorizedPostAsDept?: boolean | null;
     authorizedPostAsCourt?: boolean | null;
+    authorizedCreateProgram?: boolean | null;
   } & User_Key;
 }
 
@@ -238,6 +276,7 @@ export interface GetUserProfileData {
       authorizedPostAsChurch?: boolean | null;
       authorizedPostAsDept?: boolean | null;
       authorizedPostAsCourt?: boolean | null;
+      authorizedCreateProgram?: boolean | null;
   } & User_Key;
 }
 
@@ -350,6 +389,8 @@ export interface ListFeedPostsData {
       first: string;
       last: string;
       profilePhoto?: string | null;
+      district?: string | null;
+      court?: string | null;
     } & User_Key;
   } & Announcement_Key)[];
 }
@@ -385,6 +426,7 @@ export interface ListMembersData {
       authorizedPostAsChurch?: boolean | null;
       authorizedPostAsDept?: boolean | null;
       authorizedPostAsCourt?: boolean | null;
+      authorizedCreateProgram?: boolean | null;
   } & User_Key)[];
 }
 
@@ -419,6 +461,16 @@ export interface ListPendingAppointmentsData {
         last: string;
       } & User_Key;
   } & AppointmentRequest_Key)[];
+}
+
+export interface ListProgramBlocksData {
+  programBlocks: ({
+    id: UUIDString;
+    date: string;
+    time: string;
+    title: string;
+    minister: string;
+  } & ProgramBlock_Key)[];
 }
 
 export interface ListRejectedAppointmentsData {
@@ -457,6 +509,20 @@ export interface ListRejectedAppointmentsData {
   } & AppointmentRequest_Key)[];
 }
 
+export interface ListReusableBlocksData {
+  reusableBlocks: ({
+    id: UUIDString;
+    title: string;
+    minister: string;
+    time: string;
+  } & ReusableBlock_Key)[];
+}
+
+export interface ProgramBlock_Key {
+  id: UUIDString;
+  __typename?: 'ProgramBlock_Key';
+}
+
 export interface RegisterForBaptismData {
   baptismRegistration_insert: BaptismRegistration_Key;
   baptismEvent_update?: BaptismEvent_Key | null;
@@ -485,6 +551,11 @@ export interface RejectAppointmentVariables {
   id: UUIDString;
   rejectedBy: string;
   rejectionReason: string;
+}
+
+export interface ReusableBlock_Key {
+  id: UUIDString;
+  __typename?: 'ReusableBlock_Key';
 }
 
 export interface SearchMembersData {
@@ -518,6 +589,7 @@ export interface SearchMembersData {
       authorizedPostAsChurch?: boolean | null;
       authorizedPostAsDept?: boolean | null;
       authorizedPostAsCourt?: boolean | null;
+      authorizedCreateProgram?: boolean | null;
   } & User_Key)[];
 }
 
@@ -539,6 +611,17 @@ export interface UpdateEventVariables {
   description?: string | null;
   type?: string | null;
   capacity?: number | null;
+}
+
+export interface UpdateReusableBlockData {
+  reusableBlock_update?: ReusableBlock_Key | null;
+}
+
+export interface UpdateReusableBlockVariables {
+  id: UUIDString;
+  title: string;
+  minister: string;
+  time: string;
 }
 
 export interface UpsertUserProfileData {
@@ -571,6 +654,7 @@ export interface UpsertUserProfileVariables {
   authorizedPostAsChurch?: boolean | null;
   authorizedPostAsDept?: boolean | null;
   authorizedPostAsCourt?: boolean | null;
+  authorizedCreateProgram?: boolean | null;
 }
 
 export interface User_Key {
@@ -746,6 +830,66 @@ export const rejectAppointmentRef: RejectAppointmentRef;
 export function rejectAppointment(vars: RejectAppointmentVariables): MutationPromise<RejectAppointmentData, RejectAppointmentVariables>;
 export function rejectAppointment(dc: DataConnect, vars: RejectAppointmentVariables): MutationPromise<RejectAppointmentData, RejectAppointmentVariables>;
 
+interface CreateProgramBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreateProgramBlockVariables): MutationRef<CreateProgramBlockData, CreateProgramBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: CreateProgramBlockVariables): MutationRef<CreateProgramBlockData, CreateProgramBlockVariables>;
+  operationName: string;
+}
+export const createProgramBlockRef: CreateProgramBlockRef;
+
+export function createProgramBlock(vars: CreateProgramBlockVariables): MutationPromise<CreateProgramBlockData, CreateProgramBlockVariables>;
+export function createProgramBlock(dc: DataConnect, vars: CreateProgramBlockVariables): MutationPromise<CreateProgramBlockData, CreateProgramBlockVariables>;
+
+interface DeleteProgramBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteProgramBlockVariables): MutationRef<DeleteProgramBlockData, DeleteProgramBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteProgramBlockVariables): MutationRef<DeleteProgramBlockData, DeleteProgramBlockVariables>;
+  operationName: string;
+}
+export const deleteProgramBlockRef: DeleteProgramBlockRef;
+
+export function deleteProgramBlock(vars: DeleteProgramBlockVariables): MutationPromise<DeleteProgramBlockData, DeleteProgramBlockVariables>;
+export function deleteProgramBlock(dc: DataConnect, vars: DeleteProgramBlockVariables): MutationPromise<DeleteProgramBlockData, DeleteProgramBlockVariables>;
+
+interface CreateReusableBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreateReusableBlockVariables): MutationRef<CreateReusableBlockData, CreateReusableBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: CreateReusableBlockVariables): MutationRef<CreateReusableBlockData, CreateReusableBlockVariables>;
+  operationName: string;
+}
+export const createReusableBlockRef: CreateReusableBlockRef;
+
+export function createReusableBlock(vars: CreateReusableBlockVariables): MutationPromise<CreateReusableBlockData, CreateReusableBlockVariables>;
+export function createReusableBlock(dc: DataConnect, vars: CreateReusableBlockVariables): MutationPromise<CreateReusableBlockData, CreateReusableBlockVariables>;
+
+interface DeleteReusableBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteReusableBlockVariables): MutationRef<DeleteReusableBlockData, DeleteReusableBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteReusableBlockVariables): MutationRef<DeleteReusableBlockData, DeleteReusableBlockVariables>;
+  operationName: string;
+}
+export const deleteReusableBlockRef: DeleteReusableBlockRef;
+
+export function deleteReusableBlock(vars: DeleteReusableBlockVariables): MutationPromise<DeleteReusableBlockData, DeleteReusableBlockVariables>;
+export function deleteReusableBlock(dc: DataConnect, vars: DeleteReusableBlockVariables): MutationPromise<DeleteReusableBlockData, DeleteReusableBlockVariables>;
+
+interface UpdateReusableBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: UpdateReusableBlockVariables): MutationRef<UpdateReusableBlockData, UpdateReusableBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: UpdateReusableBlockVariables): MutationRef<UpdateReusableBlockData, UpdateReusableBlockVariables>;
+  operationName: string;
+}
+export const updateReusableBlockRef: UpdateReusableBlockRef;
+
+export function updateReusableBlock(vars: UpdateReusableBlockVariables): MutationPromise<UpdateReusableBlockData, UpdateReusableBlockVariables>;
+export function updateReusableBlock(dc: DataConnect, vars: UpdateReusableBlockVariables): MutationPromise<UpdateReusableBlockData, UpdateReusableBlockVariables>;
+
 interface GetUserContextRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: GetUserContextVariables): QueryRef<GetUserContextData, GetUserContextVariables>;
@@ -877,4 +1021,28 @@ export const listRejectedAppointmentsRef: ListRejectedAppointmentsRef;
 
 export function listRejectedAppointments(options?: ExecuteQueryOptions): QueryPromise<ListRejectedAppointmentsData, undefined>;
 export function listRejectedAppointments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListRejectedAppointmentsData, undefined>;
+
+interface ListProgramBlocksRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListProgramBlocksData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListProgramBlocksData, undefined>;
+  operationName: string;
+}
+export const listProgramBlocksRef: ListProgramBlocksRef;
+
+export function listProgramBlocks(options?: ExecuteQueryOptions): QueryPromise<ListProgramBlocksData, undefined>;
+export function listProgramBlocks(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListProgramBlocksData, undefined>;
+
+interface ListReusableBlocksRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListReusableBlocksData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListReusableBlocksData, undefined>;
+  operationName: string;
+}
+export const listReusableBlocksRef: ListReusableBlocksRef;
+
+export function listReusableBlocks(options?: ExecuteQueryOptions): QueryPromise<ListReusableBlocksData, undefined>;
+export function listReusableBlocks(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListReusableBlocksData, undefined>;
 
