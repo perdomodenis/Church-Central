@@ -33,6 +33,43 @@ export interface ApproveAppointmentVariables {
   time: string;
 }
 
+export interface AssignPersonalProgramBlockData {
+  personalProgramBlock_insert: PersonalProgramBlock_Key;
+}
+
+export interface AssignPersonalProgramBlockVariables {
+  userId: string;
+  assignedBy: string;
+  date: string;
+  time: string;
+  endTime?: string | null;
+  title: string;
+  description?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+
+export interface AssignPersonalReusableBlockData {
+  personalReusableBlock_insert: PersonalReusableBlock_Key;
+}
+
+export interface AssignPersonalReusableBlockVariables {
+  userId: string;
+  assignedBy: string;
+  title: string;
+  description?: string | null;
+  time: string;
+  endTime?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+
 export interface BaptismEvent_Key {
   id: UUIDString;
   __typename?: 'BaptismEvent_Key';
@@ -126,6 +163,39 @@ export interface CreateEventVariables {
   createdByUid: string;
 }
 
+export interface CreatePersonalProgramBlockData {
+  personalProgramBlock_insert: PersonalProgramBlock_Key;
+}
+
+export interface CreatePersonalProgramBlockVariables {
+  date: string;
+  time: string;
+  endTime?: string | null;
+  title: string;
+  description?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+
+export interface CreatePersonalReusableBlockData {
+  personalReusableBlock_insert: PersonalReusableBlock_Key;
+}
+
+export interface CreatePersonalReusableBlockVariables {
+  title: string;
+  description?: string | null;
+  time: string;
+  endTime?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+
 export interface CreateProgramBlockData {
   programBlock_insert: ProgramBlock_Key;
 }
@@ -160,6 +230,22 @@ export interface DeleteEventData {
 }
 
 export interface DeleteEventVariables {
+  id: UUIDString;
+}
+
+export interface DeletePersonalProgramBlockData {
+  personalProgramBlock_delete?: PersonalProgramBlock_Key | null;
+}
+
+export interface DeletePersonalProgramBlockVariables {
+  id: UUIDString;
+}
+
+export interface DeletePersonalReusableBlockData {
+  personalReusableBlock_delete?: PersonalReusableBlock_Key | null;
+}
+
+export interface DeletePersonalReusableBlockVariables {
   id: UUIDString;
 }
 
@@ -320,6 +406,59 @@ export interface ListApprovedAppointmentsData {
   } & AppointmentRequest_Key)[];
 }
 
+export interface ListAssignedPersonalProgramBlocksData {
+  personalProgramBlocks: ({
+    id: UUIDString;
+    user: {
+      uid: string;
+      first: string;
+      last: string;
+      email: string;
+      position?: string | null;
+      court?: string | null;
+      dept?: string | null;
+      district?: string | null;
+    } & User_Key;
+      date: string;
+      time: string;
+      endTime?: string | null;
+      title: string;
+      description?: string | null;
+      location?: string | null;
+      category?: string | null;
+      type?: string | null;
+      hours?: number | null;
+      dressCode?: string | null;
+      assignedBy?: string | null;
+  } & PersonalProgramBlock_Key)[];
+}
+
+export interface ListAssignedPersonalReusableBlocksData {
+  personalReusableBlocks: ({
+    id: UUIDString;
+    user: {
+      uid: string;
+      first: string;
+      last: string;
+      email: string;
+      position?: string | null;
+      court?: string | null;
+      dept?: string | null;
+      district?: string | null;
+    } & User_Key;
+      title: string;
+      description?: string | null;
+      time: string;
+      endTime?: string | null;
+      location?: string | null;
+      category?: string | null;
+      type?: string | null;
+      hours?: number | null;
+      dressCode?: string | null;
+      assignedBy?: string | null;
+  } & PersonalReusableBlock_Key)[];
+}
+
 export interface ListBaptismsData {
   baptismEvents: ({
     id: UUIDString;
@@ -463,6 +602,37 @@ export interface ListPendingAppointmentsData {
   } & AppointmentRequest_Key)[];
 }
 
+export interface ListPersonalProgramBlocksData {
+  personalProgramBlocks: ({
+    id: UUIDString;
+    date: string;
+    time: string;
+    endTime?: string | null;
+    title: string;
+    description?: string | null;
+    location?: string | null;
+    category?: string | null;
+    type?: string | null;
+    hours?: number | null;
+    dressCode?: string | null;
+  } & PersonalProgramBlock_Key)[];
+}
+
+export interface ListPersonalReusableBlocksData {
+  personalReusableBlocks: ({
+    id: UUIDString;
+    title: string;
+    description?: string | null;
+    time: string;
+    endTime?: string | null;
+    location?: string | null;
+    category?: string | null;
+    type?: string | null;
+    hours?: number | null;
+    dressCode?: string | null;
+  } & PersonalReusableBlock_Key)[];
+}
+
 export interface ListProgramBlocksData {
   programBlocks: ({
     id: UUIDString;
@@ -516,6 +686,16 @@ export interface ListReusableBlocksData {
     minister: string;
     time: string;
   } & ReusableBlock_Key)[];
+}
+
+export interface PersonalProgramBlock_Key {
+  id: UUIDString;
+  __typename?: 'PersonalProgramBlock_Key';
+}
+
+export interface PersonalReusableBlock_Key {
+  id: UUIDString;
+  __typename?: 'PersonalReusableBlock_Key';
 }
 
 export interface ProgramBlock_Key {
@@ -611,6 +791,23 @@ export interface UpdateEventVariables {
   description?: string | null;
   type?: string | null;
   capacity?: number | null;
+}
+
+export interface UpdatePersonalReusableBlockData {
+  personalReusableBlock_update?: PersonalReusableBlock_Key | null;
+}
+
+export interface UpdatePersonalReusableBlockVariables {
+  id: UUIDString;
+  title: string;
+  description?: string | null;
+  time: string;
+  endTime?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
 }
 
 export interface UpdateReusableBlockData {
@@ -890,6 +1087,90 @@ export const updateReusableBlockRef: UpdateReusableBlockRef;
 export function updateReusableBlock(vars: UpdateReusableBlockVariables): MutationPromise<UpdateReusableBlockData, UpdateReusableBlockVariables>;
 export function updateReusableBlock(dc: DataConnect, vars: UpdateReusableBlockVariables): MutationPromise<UpdateReusableBlockData, UpdateReusableBlockVariables>;
 
+interface CreatePersonalProgramBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreatePersonalProgramBlockVariables): MutationRef<CreatePersonalProgramBlockData, CreatePersonalProgramBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: CreatePersonalProgramBlockVariables): MutationRef<CreatePersonalProgramBlockData, CreatePersonalProgramBlockVariables>;
+  operationName: string;
+}
+export const createPersonalProgramBlockRef: CreatePersonalProgramBlockRef;
+
+export function createPersonalProgramBlock(vars: CreatePersonalProgramBlockVariables): MutationPromise<CreatePersonalProgramBlockData, CreatePersonalProgramBlockVariables>;
+export function createPersonalProgramBlock(dc: DataConnect, vars: CreatePersonalProgramBlockVariables): MutationPromise<CreatePersonalProgramBlockData, CreatePersonalProgramBlockVariables>;
+
+interface DeletePersonalProgramBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeletePersonalProgramBlockVariables): MutationRef<DeletePersonalProgramBlockData, DeletePersonalProgramBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeletePersonalProgramBlockVariables): MutationRef<DeletePersonalProgramBlockData, DeletePersonalProgramBlockVariables>;
+  operationName: string;
+}
+export const deletePersonalProgramBlockRef: DeletePersonalProgramBlockRef;
+
+export function deletePersonalProgramBlock(vars: DeletePersonalProgramBlockVariables): MutationPromise<DeletePersonalProgramBlockData, DeletePersonalProgramBlockVariables>;
+export function deletePersonalProgramBlock(dc: DataConnect, vars: DeletePersonalProgramBlockVariables): MutationPromise<DeletePersonalProgramBlockData, DeletePersonalProgramBlockVariables>;
+
+interface CreatePersonalReusableBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreatePersonalReusableBlockVariables): MutationRef<CreatePersonalReusableBlockData, CreatePersonalReusableBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: CreatePersonalReusableBlockVariables): MutationRef<CreatePersonalReusableBlockData, CreatePersonalReusableBlockVariables>;
+  operationName: string;
+}
+export const createPersonalReusableBlockRef: CreatePersonalReusableBlockRef;
+
+export function createPersonalReusableBlock(vars: CreatePersonalReusableBlockVariables): MutationPromise<CreatePersonalReusableBlockData, CreatePersonalReusableBlockVariables>;
+export function createPersonalReusableBlock(dc: DataConnect, vars: CreatePersonalReusableBlockVariables): MutationPromise<CreatePersonalReusableBlockData, CreatePersonalReusableBlockVariables>;
+
+interface DeletePersonalReusableBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeletePersonalReusableBlockVariables): MutationRef<DeletePersonalReusableBlockData, DeletePersonalReusableBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeletePersonalReusableBlockVariables): MutationRef<DeletePersonalReusableBlockData, DeletePersonalReusableBlockVariables>;
+  operationName: string;
+}
+export const deletePersonalReusableBlockRef: DeletePersonalReusableBlockRef;
+
+export function deletePersonalReusableBlock(vars: DeletePersonalReusableBlockVariables): MutationPromise<DeletePersonalReusableBlockData, DeletePersonalReusableBlockVariables>;
+export function deletePersonalReusableBlock(dc: DataConnect, vars: DeletePersonalReusableBlockVariables): MutationPromise<DeletePersonalReusableBlockData, DeletePersonalReusableBlockVariables>;
+
+interface UpdatePersonalReusableBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: UpdatePersonalReusableBlockVariables): MutationRef<UpdatePersonalReusableBlockData, UpdatePersonalReusableBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: UpdatePersonalReusableBlockVariables): MutationRef<UpdatePersonalReusableBlockData, UpdatePersonalReusableBlockVariables>;
+  operationName: string;
+}
+export const updatePersonalReusableBlockRef: UpdatePersonalReusableBlockRef;
+
+export function updatePersonalReusableBlock(vars: UpdatePersonalReusableBlockVariables): MutationPromise<UpdatePersonalReusableBlockData, UpdatePersonalReusableBlockVariables>;
+export function updatePersonalReusableBlock(dc: DataConnect, vars: UpdatePersonalReusableBlockVariables): MutationPromise<UpdatePersonalReusableBlockData, UpdatePersonalReusableBlockVariables>;
+
+interface AssignPersonalProgramBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: AssignPersonalProgramBlockVariables): MutationRef<AssignPersonalProgramBlockData, AssignPersonalProgramBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: AssignPersonalProgramBlockVariables): MutationRef<AssignPersonalProgramBlockData, AssignPersonalProgramBlockVariables>;
+  operationName: string;
+}
+export const assignPersonalProgramBlockRef: AssignPersonalProgramBlockRef;
+
+export function assignPersonalProgramBlock(vars: AssignPersonalProgramBlockVariables): MutationPromise<AssignPersonalProgramBlockData, AssignPersonalProgramBlockVariables>;
+export function assignPersonalProgramBlock(dc: DataConnect, vars: AssignPersonalProgramBlockVariables): MutationPromise<AssignPersonalProgramBlockData, AssignPersonalProgramBlockVariables>;
+
+interface AssignPersonalReusableBlockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: AssignPersonalReusableBlockVariables): MutationRef<AssignPersonalReusableBlockData, AssignPersonalReusableBlockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: AssignPersonalReusableBlockVariables): MutationRef<AssignPersonalReusableBlockData, AssignPersonalReusableBlockVariables>;
+  operationName: string;
+}
+export const assignPersonalReusableBlockRef: AssignPersonalReusableBlockRef;
+
+export function assignPersonalReusableBlock(vars: AssignPersonalReusableBlockVariables): MutationPromise<AssignPersonalReusableBlockData, AssignPersonalReusableBlockVariables>;
+export function assignPersonalReusableBlock(dc: DataConnect, vars: AssignPersonalReusableBlockVariables): MutationPromise<AssignPersonalReusableBlockData, AssignPersonalReusableBlockVariables>;
+
 interface GetUserContextRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: GetUserContextVariables): QueryRef<GetUserContextData, GetUserContextVariables>;
@@ -1045,4 +1326,52 @@ export const listReusableBlocksRef: ListReusableBlocksRef;
 
 export function listReusableBlocks(options?: ExecuteQueryOptions): QueryPromise<ListReusableBlocksData, undefined>;
 export function listReusableBlocks(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListReusableBlocksData, undefined>;
+
+interface ListPersonalProgramBlocksRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListPersonalProgramBlocksData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListPersonalProgramBlocksData, undefined>;
+  operationName: string;
+}
+export const listPersonalProgramBlocksRef: ListPersonalProgramBlocksRef;
+
+export function listPersonalProgramBlocks(options?: ExecuteQueryOptions): QueryPromise<ListPersonalProgramBlocksData, undefined>;
+export function listPersonalProgramBlocks(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListPersonalProgramBlocksData, undefined>;
+
+interface ListPersonalReusableBlocksRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListPersonalReusableBlocksData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListPersonalReusableBlocksData, undefined>;
+  operationName: string;
+}
+export const listPersonalReusableBlocksRef: ListPersonalReusableBlocksRef;
+
+export function listPersonalReusableBlocks(options?: ExecuteQueryOptions): QueryPromise<ListPersonalReusableBlocksData, undefined>;
+export function listPersonalReusableBlocks(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListPersonalReusableBlocksData, undefined>;
+
+interface ListAssignedPersonalProgramBlocksRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListAssignedPersonalProgramBlocksData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListAssignedPersonalProgramBlocksData, undefined>;
+  operationName: string;
+}
+export const listAssignedPersonalProgramBlocksRef: ListAssignedPersonalProgramBlocksRef;
+
+export function listAssignedPersonalProgramBlocks(options?: ExecuteQueryOptions): QueryPromise<ListAssignedPersonalProgramBlocksData, undefined>;
+export function listAssignedPersonalProgramBlocks(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListAssignedPersonalProgramBlocksData, undefined>;
+
+interface ListAssignedPersonalReusableBlocksRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListAssignedPersonalReusableBlocksData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListAssignedPersonalReusableBlocksData, undefined>;
+  operationName: string;
+}
+export const listAssignedPersonalReusableBlocksRef: ListAssignedPersonalReusableBlocksRef;
+
+export function listAssignedPersonalReusableBlocks(options?: ExecuteQueryOptions): QueryPromise<ListAssignedPersonalReusableBlocksData, undefined>;
+export function listAssignedPersonalReusableBlocks(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListAssignedPersonalReusableBlocksData, undefined>;
 

@@ -140,6 +140,55 @@ function updateReusableBlock(dcOrVarsOrOptions, varsOrOptions, options) {
 }
 exports.updateReusableBlock = updateReusableBlock;
 
+function createPersonalProgramBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreatePersonalProgramBlock', inputVars, inputOpts);
+}
+exports.createPersonalProgramBlock = createPersonalProgramBlock;
+
+function deletePersonalProgramBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeletePersonalProgramBlock', inputVars, inputOpts);
+}
+exports.deletePersonalProgramBlock = deletePersonalProgramBlock;
+
+function createPersonalReusableBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreatePersonalReusableBlock', inputVars, inputOpts);
+}
+exports.createPersonalReusableBlock = createPersonalReusableBlock;
+
+function deletePersonalReusableBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeletePersonalReusableBlock', inputVars, inputOpts);
+}
+exports.deletePersonalReusableBlock = deletePersonalReusableBlock;
+
+function updatePersonalReusableBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdatePersonalReusableBlock', inputVars, inputOpts);
+}
+exports.updatePersonalReusableBlock = updatePersonalReusableBlock;
+
+function assignPersonalProgramBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('AssignPersonalProgramBlock', inputVars, inputOpts);
+}
+exports.assignPersonalProgramBlock = assignPersonalProgramBlock;
+
+function assignPersonalReusableBlock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('AssignPersonalReusableBlock', inputVars, inputOpts);
+}
+exports.assignPersonalReusableBlock = assignPersonalReusableBlock;
+
 function getUserContext(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
@@ -230,4 +279,32 @@ function listReusableBlocks(dcOrOptions, options) {
   return dcInstance.executeQuery('ListReusableBlocks', undefined, inputOpts);
 }
 exports.listReusableBlocks = listReusableBlocks;
+
+function listPersonalProgramBlocks(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListPersonalProgramBlocks', undefined, inputOpts);
+}
+exports.listPersonalProgramBlocks = listPersonalProgramBlocks;
+
+function listPersonalReusableBlocks(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListPersonalReusableBlocks', undefined, inputOpts);
+}
+exports.listPersonalReusableBlocks = listPersonalReusableBlocks;
+
+function listAssignedPersonalProgramBlocks(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListAssignedPersonalProgramBlocks', undefined, inputOpts);
+}
+exports.listAssignedPersonalProgramBlocks = listAssignedPersonalProgramBlocks;
+
+function listAssignedPersonalReusableBlocks(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListAssignedPersonalReusableBlocks', undefined, inputOpts);
+}
+exports.listAssignedPersonalReusableBlocks = listAssignedPersonalReusableBlocks;
 

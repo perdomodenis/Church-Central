@@ -5,9 +5,12 @@ import { dataConnect } from '../../services/firebase';
 import {
   getDirectChats,
   getGroupChats,
+  listenToUserDirectChats,
+  listenToUserGroupChats,
   createDirectChat,
   createGroupChat
 } from '../../services/chatService';
+import { COURTS, DEPARTMENTS, DISTRICTS } from '../../services/churchConstants';
 import ChatWindow from './ChatWindow';
 
 const renderAvatar = (name, photoUrl) => {
@@ -91,21 +94,34 @@ const MessagesScreen = ({ user }) => {
   const [selectedGroupIcon, setSelectedGroupIcon] = useState('👥');
 
   useEffect(() => {
-    loadChats();
+    if (!user?.uid) return;
+    setLoading(true);
+
+    const unsubscribeDirect = listenToUserDirectChats(user.uid, (chats) => {
+      setDirectChats(chats);
+      setLoading(false);
+    });
+
+    const unsubscribeGroups = listenToUserGroupChats(user.uid, (groups) => {
+      setGroupChats(groups);
+      setLoading(false);
+    });
+
     loadAllUsers();
+
+    return () => {
+      unsubscribeDirect();
+      unsubscribeGroups();
+    };
   }, [user?.uid]);
 
   const loadChats = async () => {
+    // Kept for manual refresh if needed, but primarily handled by real-time listeners now
     if (!user?.uid) return;
-    try {
-      const directs = await getDirectChats(user.uid);
-      const groups = await getGroupChats(user.uid);
-      setDirectChats(directs);
-      setGroupChats(groups);
-    } catch (error) {
-      console.error('Error loading chats:', error);
-    }
-    setLoading(false);
+    const direct = await getDirectChats(user.uid);
+    const groups = await getGroupChats(user.uid);
+    setDirectChats(direct.sort((a,b) => (b.lastMessage?.timestamp ? new Date(b.lastMessage.timestamp).getTime() : 0) - (a.lastMessage?.timestamp ? new Date(a.lastMessage.timestamp).getTime() : 0)));
+    setGroupChats(groups.sort((a,b) => (b.lastMessage?.timestamp ? new Date(b.lastMessage.timestamp).getTime() : 0) - (a.lastMessage?.timestamp ? new Date(a.lastMessage.timestamp).getTime() : 0)));
   };
 
   const loadAllUsers = async () => {
@@ -164,6 +180,94 @@ const MessagesScreen = ({ user }) => {
     }
   };
 
+  const handleMarkAllAsRead = () => {
+    const readStatuses = JSON.parse(localStorage.getItem('chatReadStatuses') || '{}');
+    const now = Date.now();
+    let updated = false;
+
+    groupChats.forEach(group => {
+      if (group.lastMessage && group.lastMessage.userId !== user?.uid) {
+        readStatuses[group.id] = now;
+        updated = true;
+      }
+    });
+
+    directChats.forEach(chat => {
+      if (chat.lastMessage && chat.lastMessage.userId !== user?.uid) {
+        readStatuses[chat.id] = now;
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      localStorage.setItem('chatReadStatuses', JSON.stringify(readStatuses));
+      window.dispatchEvent(new Event('chatReadStatusesUpdated'));
+      setDirectChats([...directChats]); // Force re-render
+    }
+  };
+
+  const formatTime = (isoString) => {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    const today = new Date();
+    if (d.toDateString() === today.toDateString()) {
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  };
+
+  const renderGroupCard = (group) => {
+    const groupIcon = group.groupIcon || '👥';
+    const readStatuses = JSON.parse(localStorage.getItem('chatReadStatuses') || '{}');
+    const lastMsgTime = group.lastMessage ? new Date(group.lastMessage.timestamp).getTime() : 0;
+    const isUnread = group.lastMessage && group.lastMessage.userId !== user?.uid && lastMsgTime > (readStatuses[group.id] || 0);
+
+    return (
+      <button
+        key={group.id}
+        onClick={() => {
+          setSelectedChat(group.id);
+          setChatType('group');
+        }}
+        style={{
+          width: '100%',
+          padding: '12px',
+          backgroundColor: 'white',
+          border: '1px solid #eee',
+          borderRadius: '12px',
+          marginBottom: '8px',
+          textAlign: 'left',
+          cursor: 'pointer',
+          transition: 'background-color 0.2s, transform 0.2s',
+          display: 'flex',
+          alignItems: 'center'
+        }}
+        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
+        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+      >
+        {renderGroupAvatar(group.name, groupIcon)}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <div style={{ fontWeight: isUnread ? '800' : '600', color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{group.name}</div>
+            {group.lastMessage && (
+              <div style={{ fontSize: '0.75rem', color: isUnread ? 'var(--accent)' : '#999', flexShrink: 0, marginLeft: '8px', fontWeight: isUnread ? 'bold' : 'normal', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {isUnread && <div style={{ width: '8px', height: '8px', backgroundColor: 'var(--accent)', borderRadius: '50%' }} />}
+                {formatTime(group.lastMessage.timestamp)}
+              </div>
+            )}
+          </div>
+          {group.lastMessage ? (
+            <div style={{ fontSize: '0.85rem', color: isUnread ? '#111' : '#666', fontWeight: isUnread ? '600' : 'normal', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
+              <span style={{ fontWeight: '500' }}>{group.lastMessage.userId === user?.uid ? 'You' : group.lastMessage.userName}:</span> {group.lastMessage.text}
+            </div>
+          ) : (
+            <div style={{ fontSize: '0.85rem', color: '#999', textAlign: 'left' }}>{group.members.length} {t('members').toLowerCase()}</div>
+          )}
+        </div>
+      </button>
+    );
+  };
+
   if (selectedChat && chatType) {
     return (
       <ChatWindow
@@ -190,14 +294,39 @@ const MessagesScreen = ({ user }) => {
         padding: '24px',
         borderBottom: '1px solid #eee'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '0 0 4px 0', color: '#111' }}>
               {t('messages')}
             </h2>
-            <p style={{ color: '#666', fontSize: '0.85rem', margin: 0 }}>
-              {t('chatWithFriends')}
-            </p>
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+              <p style={{ color: '#666', fontSize: '0.85rem', margin: 0 }}>
+                {t('chatWithFriends')}
+              </p>
+              {(() => {
+                const readStatuses = JSON.parse(localStorage.getItem('chatReadStatuses') || '{}');
+                const hasUnread = [...groupChats, ...directChats].some(chat => {
+                  const lastMsgTime = chat.lastMessage ? new Date(chat.lastMessage.timestamp).getTime() : 0;
+                  return chat.lastMessage && chat.lastMessage.userId !== user?.uid && lastMsgTime > (readStatuses[chat.id] || 0);
+                });
+                return hasUnread ? (
+                  <button
+                    onClick={handleMarkAllAsRead}
+                    style={{
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      color: 'var(--accent)',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      fontSize: '0.8rem',
+                      padding: 0
+                    }}
+                  >
+                    Mark all as read
+                  </button>
+                ) : null;
+              })()}
+            </div>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
@@ -366,6 +495,11 @@ const MessagesScreen = ({ user }) => {
               const otherUserName = chat.participantNames[otherUserId];
               const otherUser = allUsers.find(u => u.uid === otherUserId);
               const profilePhoto = otherUser?.profilePhoto;
+
+              const readStatuses = JSON.parse(localStorage.getItem('chatReadStatuses') || '{}');
+              const lastMsgTime = chat.lastMessage ? new Date(chat.lastMessage.timestamp).getTime() : 0;
+              const isUnread = chat.lastMessage && chat.lastMessage.userId !== user?.uid && lastMsgTime > (readStatuses[chat.id] || 0);
+
               return (
                 <button
                   key={chat.id}
@@ -390,7 +524,22 @@ const MessagesScreen = ({ user }) => {
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
                 >
                   {renderAvatar(otherUserName, profilePhoto)}
-                  <div style={{ fontWeight: '600', color: '#111' }}>{otherUserName}</div>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px', overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <div style={{ fontWeight: isUnread ? '800' : '600', color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{otherUserName}</div>
+                      {chat.lastMessage && (
+                        <div style={{ fontSize: '0.75rem', color: isUnread ? 'var(--accent)' : '#999', flexShrink: 0, marginLeft: '8px', fontWeight: isUnread ? 'bold' : 'normal', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {isUnread && <div style={{ width: '8px', height: '8px', backgroundColor: 'var(--accent)', borderRadius: '50%' }} />}
+                          {formatTime(chat.lastMessage.timestamp)}
+                        </div>
+                      )}
+                    </div>
+                    {chat.lastMessage && (
+                      <div style={{ fontSize: '0.85rem', color: isUnread ? '#111' : '#666', fontWeight: isUnread ? '600' : 'normal', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
+                        <span style={{ fontWeight: '500' }}>{chat.lastMessage.userId === user?.uid ? 'You' : chat.lastMessage.userName}:</span> {chat.lastMessage.text}
+                      </div>
+                    )}
+                  </div>
                 </button>
               );
             })}
@@ -398,46 +547,69 @@ const MessagesScreen = ({ user }) => {
         )}
 
         {/* Group Chats */}
-        {groupChats.length > 0 && (
-          <div>
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
-              {t('groups')} ({groupChats.length})
-            </h3>
-            {groupChats.map((group) => {
-              const groupIcon = group.groupIcon || '👥';
-              return (
-                <button
-                  key={group.id}
-                  onClick={() => {
-                    setSelectedChat(group.id);
-                    setChatType('group');
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    backgroundColor: 'white',
-                    border: '1px solid #eee',
-                    borderRadius: '12px',
-                    marginBottom: '8px',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s, transform 0.2s',
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
-                >
-                  {renderGroupAvatar(group.name, groupIcon)}
-                  <div>
-                    <div style={{ fontWeight: '600', color: '#111' }}>{group.name}</div>
-                    <div style={{ fontSize: '0.85rem', color: '#999', marginTop: '2px' }}>{group.members.length} {t('members').toLowerCase()}</div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        )}
+        {groupChats.length > 0 && (() => {
+          const courtGroups = [];
+          const deptGroups = [];
+          const districtGroups = [];
+          const customGroups = [];
+
+          groupChats.forEach(group => {
+            const nameLower = group.name.toLowerCase();
+            const isCourt = nameLower.includes('court') || COURTS.some(c => nameLower.includes(c.toLowerCase()));
+            const isDept = nameLower.includes('department') || DEPARTMENTS.some(d => nameLower.includes(d.toLowerCase()));
+            const isDistrict = nameLower.includes('district') || DISTRICTS.some(d => nameLower.includes(d.toLowerCase()));
+
+            if (isCourt) {
+              courtGroups.push(group);
+            } else if (isDept) {
+              deptGroups.push(group);
+            } else if (isDistrict) {
+              districtGroups.push(group);
+            } else {
+              customGroups.push(group);
+            }
+          });
+
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {courtGroups.length > 0 && (
+                <div>
+                  <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
+                    ⛪ {t('courts') || 'Courts'} ({courtGroups.length})
+                  </h3>
+                  {courtGroups.map(renderGroupCard)}
+                </div>
+              )}
+              
+              {deptGroups.length > 0 && (
+                <div>
+                  <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
+                    📁 {t('departments') || 'Departments'} ({deptGroups.length})
+                  </h3>
+                  {deptGroups.map(renderGroupCard)}
+                </div>
+              )}
+
+              {districtGroups.length > 0 && (
+                <div>
+                  <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
+                    📍 {t('districts') || 'Districts'} ({districtGroups.length})
+                  </h3>
+                  {districtGroups.map(renderGroupCard)}
+                </div>
+              )}
+
+              {customGroups.length > 0 && (
+                <div>
+                  <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
+                    👥 {t('customGroups') || 'Custom Groups'} ({customGroups.length})
+                  </h3>
+                  {customGroups.map(renderGroupCard)}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {loading && <p style={{ color: '#999' }}>{t('loadingChats')}</p>}
 

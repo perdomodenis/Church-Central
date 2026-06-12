@@ -57,6 +57,11 @@ export const sendMessage = async (chatId, userId, userName, message, replyTo = n
     data.replyTo = replyTo;
   }
   await push(messagesRef, data);
+  
+  // Update last message summary on the chat object
+  await update(ref(rtdb, `chats/${chatId}`), {
+    lastMessage: data
+  });
 };
 
 export const sendGroupMessage = async (groupId, userId, userName, message, replyTo = null) => {
@@ -71,6 +76,11 @@ export const sendGroupMessage = async (groupId, userId, userName, message, reply
     data.replyTo = replyTo;
   }
   await push(messagesRef, data);
+
+  // Update last message summary on the group object
+  await update(ref(rtdb, `groups/${groupId}`), {
+    lastMessage: data
+  });
 };
 
 export const getDirectChats = async (userId) => {
@@ -115,6 +125,48 @@ export const getGroupChats = async (userId) => {
     console.error('Error getting groups:', error);
     return [];
   }
+};
+
+export const listenToUserDirectChats = (userId, callback) => {
+  return onValue(ref(rtdb, 'chats'), (snapshot) => {
+    const chats = [];
+    snapshot.forEach((child) => {
+      const chat = child.val();
+      if (chat.type === 'direct' && chat.participants?.includes(userId)) {
+        chats.push({
+          id: child.key,
+          ...chat
+        });
+      }
+    });
+    chats.sort((a,b) => {
+       const aTime = a.lastMessage?.timestamp ? new Date(a.lastMessage.timestamp).getTime() : 0;
+       const bTime = b.lastMessage?.timestamp ? new Date(b.lastMessage.timestamp).getTime() : 0;
+       return bTime - aTime;
+    });
+    callback(chats);
+  });
+};
+
+export const listenToUserGroupChats = (userId, callback) => {
+  return onValue(ref(rtdb, 'groups'), (snapshot) => {
+    const groups = [];
+    snapshot.forEach((child) => {
+      const group = child.val();
+      if (group.members?.includes(userId)) {
+        groups.push({
+          id: child.key,
+          ...group
+        });
+      }
+    });
+    groups.sort((a,b) => {
+       const aTime = a.lastMessage?.timestamp ? new Date(a.lastMessage.timestamp).getTime() : 0;
+       const bTime = b.lastMessage?.timestamp ? new Date(b.lastMessage.timestamp).getTime() : 0;
+       return bTime - aTime;
+    });
+    callback(groups);
+  });
 };
 
 export const listenToMessages = (chatId, callback) => {
@@ -214,6 +266,16 @@ export const joinGroup = async (groupId, userId, userName) => {
 export const syncUserChatGroups = async (userProfile) => {
   if (!userProfile || !userProfile.uid) return;
 
+  // Cleanup old unwanted groups
+  try {
+    await remove(ref(rtdb, 'groups/system_court_main_campus'));
+    await remove(ref(rtdb, 'groups/system_court_main_campus_court'));
+    await remove(ref(rtdb, 'groups/system_district_central'));
+    await remove(ref(rtdb, 'groups/system_district_central_district'));
+  } catch (err) {
+    // Ignore permissions or existence errors
+  }
+
   const displayName = `${userProfile.first} ${userProfile.last}`.trim() || userProfile.email || 'Unknown';
   
   const targets = [];
@@ -224,7 +286,7 @@ export const syncUserChatGroups = async (userProfile) => {
       if (courtName) {
         targets.push({
           category: 'court',
-          name: `${courtName} Court`,
+          name: courtName,
           key: `system_court_${courtName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
           icon: '⛪'
         });
@@ -233,7 +295,7 @@ export const syncUserChatGroups = async (userProfile) => {
   } else if (userProfile.court) {
     targets.push({
       category: 'court',
-      name: `${userProfile.court} Court`,
+      name: userProfile.court,
       key: `system_court_${userProfile.court.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
       icon: '⛪'
     });
@@ -245,7 +307,7 @@ export const syncUserChatGroups = async (userProfile) => {
       if (deptName && deptName !== 'None' && deptName !== 'General') {
         targets.push({
           category: 'department',
-          name: `${deptName} Department`,
+          name: deptName,
           key: `system_dept_${deptName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
           icon: '💼'
         });
@@ -254,7 +316,7 @@ export const syncUserChatGroups = async (userProfile) => {
   } else if (userProfile.dept && userProfile.dept !== 'None' && userProfile.dept !== 'General') {
     targets.push({
       category: 'department',
-      name: `${userProfile.dept} Department`,
+      name: userProfile.dept,
       key: `system_dept_${userProfile.dept.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
       icon: '💼'
     });
@@ -294,14 +356,24 @@ export const syncUserChatGroups = async (userProfile) => {
         const members = group.members || [];
         const memberNames = group.memberNames || {};
 
+        let needsUpdate = false;
+        const updates = {};
+
         if (!members.includes(userProfile.uid)) {
           members.push(userProfile.uid);
           memberNames[userProfile.uid] = displayName;
+          updates.members = members;
+          updates.memberNames = memberNames;
+          needsUpdate = true;
+        }
 
-          await update(groupRef, {
-            members,
-            memberNames
-          });
+        if (group.name !== target.name) {
+          updates.name = target.name;
+          needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+          await update(groupRef, updates);
         }
       }
     } catch (err) {

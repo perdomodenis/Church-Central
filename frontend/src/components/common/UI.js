@@ -28,6 +28,7 @@ export const TopBar = ({ route, onNavigate, scope, scopeOptions, title, onScope,
     { id: 'events', label: t('events') },
     ...((level >= 3 || user?.isPA) ? [{ id: 'mgmt', label: t('management') }] : []),
     { id: 'baptism', label: t('baptism') },
+    ...((level === 1 || level >= 3) ? [{ id: 'nls', label: t('nls') }] : []),
   ];
 
 
@@ -137,7 +138,7 @@ export const MenuDrawer = ({ open, onClose, route, onNavigate, onLogout, user })
           <MenuItem label={t('events')} active={route === 'events'} onClick={() => handleNavigate('events')} />
           {(level >= 3 || user?.isPA) && <MenuItem label={t('management')} active={route === 'mgmt'} onClick={() => handleNavigate('mgmt')} />}
           <MenuItem label={t('baptism')} active={route === 'baptism'} onClick={() => handleNavigate('baptism')} />
-          <MenuItem label={t('nls')} active={route === 'nls'} onClick={() => handleNavigate('nls')} />
+          {(level === 1 || level >= 3) && <MenuItem label={t('nls')} active={route === 'nls'} onClick={() => handleNavigate('nls')} />}
           <MenuItem label={t('profile')} active={route === 'profile'} onClick={() => handleNavigate('profile')} />
           <MenuItem label={t('feedback')} active={route === 'feedback'} onClick={() => handleNavigate('feedback')} />
           {level >= 4 && <MenuItem label={t('debug')} active={route === 'debug'} onClick={() => handleNavigate('debug')} />}

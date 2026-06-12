@@ -64,7 +64,15 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+
+    // Mark as read when messages update
+    if (chatId) {
+      const readStatuses = JSON.parse(localStorage.getItem('chatReadStatuses') || '{}');
+      readStatuses[chatId] = Date.now();
+      localStorage.setItem('chatReadStatuses', JSON.stringify(readStatuses));
+      window.dispatchEvent(new Event('chatReadStatusesUpdated'));
+    }
+  }, [messages, chatId]);
 
   useEffect(() => {
     const handleCloseMenu = () => {
@@ -389,7 +397,11 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
         padding: '16px 24px',
         borderTop: '1px solid #eee',
         display: 'flex',
-        gap: '8px'
+        gap: '8px',
+        position: 'sticky',
+        bottom: 0,
+        backgroundColor: 'white',
+        zIndex: 100
       }}>
         <input
           type="text"

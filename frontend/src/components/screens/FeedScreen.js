@@ -6,8 +6,28 @@ import { useLanguage } from '../../context/LanguageContext';
 import { rtdb } from '../../services/firebase';
 import { ref, onValue, set as rtdbSet, push, remove } from 'firebase/database';
 import { sendInboxNotification } from '../../services/notificationService';
-import { getAccessLevel } from '../../services/churchConstants';
+import { getAccessLevel, DEPARTMENTS, COURTS } from '../../services/churchConstants';
 import { getAllEvents, registerForEvent, cancelEventRegistration } from '../../services/eventService';
+
+const getDepartments = (member) => {
+  if (!member) return [];
+  const deptVal = member.dept || member.department || 'General';
+  if (Array.isArray(deptVal)) return deptVal;
+  if (typeof deptVal === 'string') {
+    return deptVal.split(',').map(s => s.trim()).filter(Boolean);
+  }
+  return ['General'];
+};
+
+const getCourts = (member) => {
+  if (!member) return [];
+  const courtVal = member.court || member.campus || 'Global';
+  if (Array.isArray(courtVal)) return courtVal;
+  if (typeof courtVal === 'string') {
+    return courtVal.split(',').map(s => s.trim()).filter(Boolean);
+  }
+  return ['Global'];
+};
 
 const toCamelCase = (str) => {
   if (!str) return '';
@@ -169,6 +189,9 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
   const [expandedPost, setExpandedPost] = useState(null);
   const [commentText, setCommentText] = useState({});
   const [selectedPost, setSelectedPost] = useState(null);
+  
+  const [selectedDept, setSelectedDept] = useState('');
+  const [selectedCourt, setSelectedCourt] = useState('');
 
   // High fidelity UI states
   const [dbLikes, setDbLikes] = useState({});
@@ -249,21 +272,34 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
       try {
         const response = await listFeedPosts({ fetchPolicy: 'SERVER_ONLY' });
         const announcements = response.data?.announcements || [];
-        const mapped = announcements.map(post => ({
-          id: post.id,
-          author: post.author ? `${post.author.first} ${post.author.last}` : 'Anonymous',
-          authorId: post.author?.uid || 'unknown',
-          authorDistrict: post.author?.district || '',
-          authorCourt: post.author?.court || '',
-          time: new Date(post.createdAt).toLocaleDateString('de-CH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
-          timestamp: post.createdAt,
-          content: post.content,
-          scope: post.scope,
-          category: post.category,
-          image: post.imageUrl || null,
-          likes: post.likes || 0,
-          comments: []
-        }));
+        const mapped = announcements.map(post => {
+          let authorDept = post.author?.dept || post.author?.department || '';
+          if (!authorDept && post.author?.uid?.startsWith('dept_')) {
+            authorDept = post.author?.first || '';
+          }
+          let authorCourt = post.author?.court || '';
+          if (!authorCourt && post.author?.uid?.startsWith('court_')) {
+            authorCourt = post.author?.first || '';
+          }
+          let authorDistrict = post.author?.district || '';
+
+          return {
+            id: post.id,
+            author: post.author ? `${post.author.first} ${post.author.last}` : 'Anonymous',
+            authorId: post.author?.uid || 'unknown',
+            authorDistrict: authorDistrict,
+            authorCourt: authorCourt,
+            authorDepartment: authorDept,
+            time: new Date(post.createdAt).toLocaleDateString('de-CH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+            timestamp: post.createdAt,
+            content: post.content,
+            scope: post.scope,
+            category: post.category,
+            image: post.imageUrl || null,
+            likes: post.likes || 0,
+            comments: []
+          };
+        });
         setPosts(mapped);
       } catch (error) {
         console.error('Error loading feed:', error);
@@ -377,15 +413,58 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
     if (post.scope === 'Admins' && !isAdmin && !isAuthor) return false;
     if (post.scope === 'Class' && !user?.schoolClass && !isAdmin && !isReverend && !isAuthor) return false;
 
+    const isAdminOrRev = user?.position === 'Admin' || user?.position === 'Reverend' || user?.position === 'Bishop';
+    const userDepts = getDepartments(user);
+    const userCourts = getCourts(user);
+
     // Lock District channel posts to matching personal district
-    if (post.scope === 'District' && post.authorDistrict && user?.district && post.authorDistrict !== user.district) {
-      return false;
+    if (post.scope === 'District') {
+      if (post.authorDistrict && user?.district && post.authorDistrict !== user.district) {
+        return false;
+      }
+    }
+
+    // Lock Department channel posts
+    if (post.scope === 'Department') {
+      if (post.authorDepartment && selectedDept && post.authorDepartment !== selectedDept) {
+        return false;
+      }
+      if (!isAdminOrRev && post.authorDepartment && !userDepts.includes(post.authorDepartment)) {
+        return false;
+      }
+    }
+
+    // Lock Court channel posts
+    if (post.scope === 'Court') {
+      if (post.authorCourt && selectedCourt && post.authorCourt !== selectedCourt) {
+        return false;
+      }
+      if (!isAdminOrRev && post.authorCourt && !userCourts.includes(post.authorCourt)) {
+        return false;
+      }
     }
 
     // 2. Apply active UI tab filter
-    if (!scope || scope === 'All' || scope === 'Todos' || scope === 'News') return true;
+    if (!scope || scope === 'All' || scope === 'Todos') return true;
+    if (scope === 'News') return !post.scope || post.scope === 'News';
     return post.scope === scope;
   });
+
+  const isAdminOrRev = user?.position === 'Admin' || user?.position === 'Reverend' || user?.position === 'Bishop';
+  const availableDepts = isAdminOrRev ? DEPARTMENTS : getDepartments(user);
+  const availableCourts = isAdminOrRev ? COURTS : getCourts(user);
+
+  useEffect(() => {
+    if (scope === 'Department' && !selectedDept && availableDepts.length > 0) {
+      setSelectedDept(availableDepts[0]);
+    }
+  }, [scope, selectedDept, availableDepts]);
+
+  useEffect(() => {
+    if (scope === 'Court' && !selectedCourt && availableCourts.length > 0) {
+      setSelectedCourt(availableCourts[0]);
+    }
+  }, [scope, selectedCourt, availableCourts]);
 
   const handleAddComment = async (postId) => {
     const text = commentText[postId] || '';
@@ -578,6 +657,57 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                 {t(opt.toLowerCase())}
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Channel Headers / Filters */}
+        {scope === 'District' && user?.district && (
+          <div style={{ marginBottom: '16px', padding: '12px 16px', backgroundColor: 'var(--surface)', borderRadius: '12px', border: '1px solid var(--line-2)', fontWeight: '600', color: 'var(--ink)' }}>
+            📍 Showing feeds for {user.district}
+          </div>
+        )}
+
+        {scope === 'Department' && availableDepts.length > 0 && (
+          <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontWeight: '600', color: 'var(--ink)' }}>📁 Department:</span>
+            <select
+              value={selectedDept}
+              onChange={(e) => setSelectedDept(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid var(--line)',
+                backgroundColor: 'var(--surface)',
+                color: 'var(--ink)',
+                fontFamily: 'inherit',
+                fontSize: '0.9rem',
+                outlineColor: 'var(--accent)'
+              }}
+            >
+              {availableDepts.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </div>
+        )}
+
+        {scope === 'Court' && availableCourts.length > 0 && (
+          <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontWeight: '600', color: 'var(--ink)' }}>⛪ Court:</span>
+            <select
+              value={selectedCourt}
+              onChange={(e) => setSelectedCourt(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid var(--line)',
+                backgroundColor: 'var(--surface)',
+                color: 'var(--ink)',
+                fontFamily: 'inherit',
+                fontSize: '0.9rem',
+                outlineColor: 'var(--accent)'
+              }}
+            >
+              {availableCourts.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
         )}
 

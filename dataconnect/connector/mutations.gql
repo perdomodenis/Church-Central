@@ -275,3 +275,147 @@ mutation UpdateReusableBlock($id: UUID!, $title: String!, $minister: String!, $t
   })
 }
 
+
+mutation CreatePersonalProgramBlock(
+  $date: String!
+  $time: String!
+  $endTime: String
+  $title: String!
+  $description: String
+  $location: String
+  $category: String
+  $type: String
+  $hours: Float
+  $dressCode: String
+) @auth(level: USER) {
+  personalProgramBlock_insert(data: {
+    user: { uid_expr: "auth.uid" }
+    date: $date
+    time: $time
+    endTime: $endTime
+    title: $title
+    description: $description
+    location: $location
+    category: $category
+    type: $type
+    hours: $hours
+    dressCode: $dressCode
+  })
+}
+
+mutation DeletePersonalProgramBlock($id: UUID!) @auth(level: USER) {
+  personalProgramBlock_delete(id: $id)
+}
+
+mutation CreatePersonalReusableBlock(
+  $title: String!
+  $description: String
+  $time: String!
+  $endTime: String
+  $location: String
+  $category: String
+  $type: String
+  $hours: Float
+  $dressCode: String
+) @auth(level: USER) {
+  personalReusableBlock_insert(data: {
+    user: { uid_expr: "auth.uid" }
+    title: $title
+    description: $description
+    time: $time
+    endTime: $endTime
+    location: $location
+    category: $category
+    type: $type
+    hours: $hours
+    dressCode: $dressCode
+  })
+}
+
+mutation DeletePersonalReusableBlock($id: UUID!) @auth(level: USER) {
+  personalReusableBlock_delete(id: $id)
+}
+
+mutation UpdatePersonalReusableBlock(
+  $id: UUID!
+  $title: String!
+  $description: String
+  $time: String!
+  $endTime: String
+  $location: String
+  $category: String
+  $type: String
+  $hours: Float
+  $dressCode: String
+) @auth(level: USER) {
+  personalReusableBlock_update(id: $id, data: {
+    title: $title
+    description: $description
+    time: $time
+    endTime: $endTime
+    location: $location
+    category: $category
+    type: $type
+    hours: $hours
+    dressCode: $dressCode
+  })
+}
+
+
+mutation AssignPersonalProgramBlock(
+  $userId: String!
+  $assignedBy: String!
+  $date: String!
+  $time: String!
+  $endTime: String
+  $title: String!
+  $description: String
+  $location: String
+  $category: String
+  $type: String
+  $hours: Float
+  $dressCode: String
+) @auth(level: USER) {
+  personalProgramBlock_insert(data: {
+    user: { uid: $userId }
+    assignedBy: $assignedBy
+    date: $date
+    time: $time
+    endTime: $endTime
+    title: $title
+    description: $description
+    location: $location
+    category: $category
+    type: $type
+    hours: $hours
+    dressCode: $dressCode
+  })
+}
+
+mutation AssignPersonalReusableBlock(
+  $userId: String!
+  $assignedBy: String!
+  $title: String!
+  $description: String
+  $time: String!
+  $endTime: String
+  $location: String
+  $category: String
+  $type: String
+  $hours: Float
+  $dressCode: String
+) @auth(level: USER) {
+  personalReusableBlock_insert(data: {
+    user: { uid: $userId }
+    assignedBy: $assignedBy
+    title: $title
+    description: $description
+    time: $time
+    endTime: $endTime
+    location: $location
+    category: $category
+    type: $type
+    hours: $hours
+    dressCode: $dressCode
+  })
+}

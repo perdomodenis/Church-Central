@@ -357,3 +357,69 @@ query ListReusableBlocks @auth(level: USER) {
   }
 }
 
+query ListPersonalProgramBlocks @auth(level: USER) {
+  personalProgramBlocks(where: { user: { uid: { eq_expr: "auth.uid" } } }, orderBy: [{ date: ASC }, { time: ASC }]) {
+    id
+    date
+    time
+    endTime
+    title
+    description
+    location
+    category
+    type
+    hours
+    dressCode
+  }
+}
+
+query ListPersonalReusableBlocks @auth(level: USER) {
+  personalReusableBlocks(where: { user: { uid: { eq_expr: "auth.uid" } } }, orderBy: [{ title: ASC }]) {
+    id
+    title
+    description
+    time
+    endTime
+    location
+    category
+    type
+    hours
+    dressCode
+  }
+}
+
+
+query ListAssignedPersonalProgramBlocks @auth(level: USER) {
+  personalProgramBlocks(where: { assignedBy: { eq_expr: "auth.uid" } }, orderBy: [{ date: ASC }, { time: ASC }]) {
+    id
+    user { uid first last email position court dept district }
+    date
+    time
+    endTime
+    title
+    description
+    location
+    category
+    type
+    hours
+    dressCode
+    assignedBy
+  }
+}
+
+query ListAssignedPersonalReusableBlocks @auth(level: USER) {
+  personalReusableBlocks(where: { assignedBy: { eq_expr: "auth.uid" } }, orderBy: [{ title: ASC }]) {
+    id
+    user { uid first last email position court dept district }
+    title
+    description
+    time
+    endTime
+    location
+    category
+    type
+    hours
+    dressCode
+    assignedBy
+  }
+}

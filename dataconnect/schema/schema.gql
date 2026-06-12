@@ -33,6 +33,7 @@ type ProgramBlock @table {
   time: String!
   title: String!
   minister: String!
+  assignedBy: String
   createdAt: Timestamp! @default(expr: "request.time")
 }
 
@@ -41,6 +42,7 @@ type ReusableBlock @table {
   title: String!
   minister: String!
   time: String!
+  assignedBy: String
   createdAt: Timestamp! @default(expr: "request.time")
 }
 
@@ -56,6 +58,7 @@ type Event @table {
   capacity: Int!
   registered: Int! @default(value: 0)
   createdBy: User!
+  assignedBy: String
   createdAt: Timestamp! @default(expr: "request.time")
 }
 
@@ -67,6 +70,7 @@ type Announcement @table {
   category: String!
   imageUrl: String
   likes: Int! @default(value: 0)
+  assignedBy: String
   createdAt: Timestamp! @default(expr: "request.time")
 }
 
@@ -80,6 +84,7 @@ type BaptismEvent @table {
   capacity: Int!
   registeredCount: Int! @default(value: 0)
   createdBy: User!
+  assignedBy: String
   createdAt: Timestamp! @default(expr: "request.time")
 }
 
@@ -123,3 +128,36 @@ type AppointmentRequest @table {
   selectedSlot: Int
 }
 
+
+type PersonalProgramBlock @table {
+  id: UUID! @default(expr: "uuidV4()")
+  user: User!
+  date: String!
+  time: String!
+  endTime: String
+  title: String!
+  description: String
+  location: String
+  category: String
+  type: String
+  hours: Float
+  dressCode: String
+  assignedBy: String
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type PersonalReusableBlock @table {
+  id: UUID! @default(expr: "uuidV4()")
+  user: User!
+  title: String!
+  description: String
+  time: String!
+  endTime: String
+  location: String
+  category: String
+  type: String
+  hours: Float
+  dressCode: String
+  assignedBy: String
+  createdAt: Timestamp! @default(expr: "request.time")
+}

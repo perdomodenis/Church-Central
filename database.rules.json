@@ -93,15 +93,14 @@
       }
     },
     "nls": {
-      "events": {
+      "config": {
         ".read": "auth != null",
-        "$eventId": {
-          ".write": "auth != null && (!data.exists() || data.child('createdBy').val() === auth.uid || auth.uid === 'pastor_001' || (newData.child('attendees').exists() && newData.child('attendees').val() === (data.child('attendees').exists() ? data.child('attendees').val() : 0) + 1) || (newData.child('attendees').exists() && newData.child('attendees').val() === (data.child('attendees').exists() ? data.child('attendees').val() : 0) - 1))",
-          "registrations": {
-            "$userId": {
-              ".write": "auth != null && auth.uid === $userId"
-            }
-          }
+        ".write": "auth != null"
+      },
+      "registrations": {
+        ".read": "auth != null",
+        "$userId": {
+          ".write": "auth != null"
         }
       }
     }

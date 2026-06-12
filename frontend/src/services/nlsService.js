@@ -1,48 +1,41 @@
 import { rtdb } from './firebase';
-import { ref, set, get, remove, child, update } from 'firebase/database';
+import { ref, set, get, remove, update } from 'firebase/database';
 
-export const createNLSEvent = async (eventData, userId, userName) => {
+export const getNLSConfig = async () => {
   try {
-    const eventId = `nls_${Date.now()}`;
-    const newEvent = {
-      id: eventId,
-      title: eventData.title || 'New Life School Class',
-      date: eventData.date,
-      time: eventData.time,
-      location: eventData.location || 'Church Campus',
-      description: eventData.description || '',
-      capacity: eventData.capacity ? parseInt(eventData.capacity, 10) : 50,
-      createdBy: userId,
-      createdByName: userName,
-      createdAt: new Date().toISOString(),
-      attendees: 0
-    };
-
-    await set(ref(rtdb, `nls/events/${eventId}`), newEvent);
-    return newEvent;
+    const snapshot = await get(ref(rtdb, 'nls/config'));
+    if (snapshot.exists()) {
+      return snapshot.val();
+    }
+    return null;
   } catch (error) {
-    console.error('Error creating NLS event:', error);
+    console.error('Error getting NLS config:', error);
     throw error;
   }
 };
 
-export const registerForNLS = async (eventId, userId, userName, userEmail) => {
+export const updateNLSConfig = async (startDate, endDate, deadline) => {
   try {
-    const registrationRef = ref(rtdb, `nls/events/${eventId}/registrations/${userId}`);
+    await set(ref(rtdb, 'nls/config'), {
+      startDate,
+      endDate,
+      deadline,
+      updatedAt: new Date().toISOString()
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating NLS config:', error);
+    throw error;
+  }
+};
+
+export const registerForNLS = async (userId, userData) => {
+  try {
+    const registrationRef = ref(rtdb, `nls/registrations/${userId}`);
     await set(registrationRef, {
-      userId,
-      name: userName,
-      email: userEmail,
+      ...userData,
       registeredAt: new Date().toISOString()
     });
-
-    // Update attendees count
-    const eventRef = ref(rtdb, `nls/events/${eventId}`);
-    const snapshot = await get(eventRef);
-    if (snapshot.exists()) {
-      const event = snapshot.val();
-      await update(eventRef, { attendees: (event.attendees || 0) + 1 });
-    }
     return true;
   } catch (error) {
     console.error('Error registering for NLS:', error);
@@ -50,18 +43,10 @@ export const registerForNLS = async (eventId, userId, userName, userEmail) => {
   }
 };
 
-export const unregisterFromNLS = async (eventId, userId) => {
+export const unregisterFromNLS = async (userId) => {
   try {
-    const registrationRef = ref(rtdb, `nls/events/${eventId}/registrations/${userId}`);
+    const registrationRef = ref(rtdb, `nls/registrations/${userId}`);
     await remove(registrationRef);
-
-    // Update attendees count
-    const eventRef = ref(rtdb, `nls/events/${eventId}`);
-    const snapshot = await get(eventRef);
-    if (snapshot.exists()) {
-      const event = snapshot.val();
-      await update(eventRef, { attendees: Math.max(0, (event.attendees || 0) - 1) });
-    }
     return true;
   } catch (error) {
     console.error('Error unregistering from NLS:', error);
@@ -69,10 +54,10 @@ export const unregisterFromNLS = async (eventId, userId) => {
   }
 };
 
-export const checkNLSRegistration = async (eventId, userId) => {
+export const checkNLSRegistration = async (userId) => {
   if (!userId) return false;
   try {
-    const registrationRef = ref(rtdb, `nls/events/${eventId}/registrations/${userId}`);
+    const registrationRef = ref(rtdb, `nls/registrations/${userId}`);
     const snapshot = await get(registrationRef);
     return snapshot.exists();
   } catch (error) {
@@ -81,12 +66,19 @@ export const checkNLSRegistration = async (eventId, userId) => {
   }
 };
 
-export const deleteNLSEvent = async (eventId) => {
+export const getNLSRegistrations = async () => {
   try {
-    await remove(ref(rtdb, `nls/events/${eventId}`));
-    return true;
+    const snapshot = await get(ref(rtdb, 'nls/registrations'));
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      return Object.entries(data).map(([userId, val]) => ({
+        userId,
+        ...val
+      })).sort((a, b) => new Date(b.registeredAt) - new Date(a.registeredAt));
+    }
+    return [];
   } catch (error) {
-    console.error('Error deleting NLS event:', error);
-    throw error;
+    console.error('Error getting NLS registrations:', error);
+    return [];
   }
 };

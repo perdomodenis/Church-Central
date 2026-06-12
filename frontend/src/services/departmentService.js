@@ -1,6 +1,7 @@
 import { rtdb } from './firebase';
 import { ref, set, get, update, push } from 'firebase/database';
 import { updateUserProfile, getUserProfile } from './userService';
+import { createAnnouncement } from '../lib/dataconnect';
 
 export const requestDepartmentJoin = async (userId, userName, departmentName) => {
   try {
@@ -50,7 +51,13 @@ export const approveDepartmentRequest = async (requestId, userId, departmentName
 
     // Actually update the user's profile to assign them to the department list
     const userProfile = await getUserProfile(userId);
-    const existingDepts = userProfile.depts || [];
+    let existingDepts = userProfile.depts || [];
+    
+    // Remove the 'General' placeholder if they are joining a specific department
+    if (departmentName !== 'General') {
+      existingDepts = existingDepts.filter(d => d !== 'General');
+    }
+
     if (!existingDepts.includes(departmentName)) {
       const updatedDepts = [...existingDepts, departmentName];
       await updateUserProfile(userId, {
@@ -58,7 +65,32 @@ export const approveDepartmentRequest = async (requestId, userId, departmentName
         dept: updatedDepts[0] || ''
       });
     } else {
-      await updateUserProfile(userId, { dept: departmentName });
+      await updateUserProfile(userId, { dept: existingDepts[0] || departmentName });
+    }
+
+    // Auto-generate announcements
+    try {
+      const userName = `${userProfile.first || ''} ${userProfile.last || ''}`.trim() || 'A member';
+      
+      // News Feed Post
+      await createAnnouncement({
+        content: `🎉 ${userName} has joined the ${departmentName} department! Welcome!`,
+        scope: 'News',
+        category: 'Announcement',
+        imageUrl: '',
+        authorUid: userId
+      });
+
+      // Department Feed Post
+      await createAnnouncement({
+        content: `🎉 ${userName} has joined our department! Please give them a warm welcome!`,
+        scope: 'Department',
+        category: 'Announcement',
+        imageUrl: '',
+        authorUid: userId
+      });
+    } catch (err) {
+      console.error('Failed to create welcome announcements:', err);
     }
 
     return true;

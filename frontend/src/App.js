@@ -39,6 +39,65 @@ import { TopBar, MenuDrawer, FabMenu, Sheet, useToast } from './components/commo
 import { getAccessLevel } from './services/churchConstants';
 import * as Icon from './components/common/Icons';
 
+
+import { listMembers, upsertUserProfile } from './lib/dataconnect';
+
+const runMigration = async () => {
+  if (localStorage.getItem('migrationRun')) return;
+  console.log("Starting messy database migration...");
+  try {
+    const res = await listMembers({ fetchPolicy: 'SERVER_ONLY' });
+    const users = res.data.users;
+    
+    const COURT_MAP = {
+      'Downtown Campus': 'Hope Court',
+      'Main Campus': 'Praise Court',
+      'South Campus': 'Glory Court'
+    };
+    const DEPT_MAP = {
+      'Communications': 'Media Ministry',
+      'Bible Study': 'Disciples Training Ministry (DTM)',
+      'Community Outreach': 'Outreach',
+      'Prayer Ministry': 'Prayer ministry',
+      'Worship Team': 'Zamar',
+      'Youth Ministry': 'Glorious Vessels of Virtue (GVV)'
+    };
+    
+    for (const u of users) {
+      let changed = false;
+      let newCourt = u.court;
+      let newDept = u.dept;
+      
+      if (COURT_MAP[u.court]) {
+        newCourt = COURT_MAP[u.court];
+        changed = true;
+      }
+      if (DEPT_MAP[u.dept]) {
+        newDept = DEPT_MAP[u.dept];
+        changed = true;
+      }
+      
+      if (changed) {
+        console.log(`Migrating user ${u.first} ${u.last}: ${u.court} -> ${newCourt}, ${u.dept} -> ${newDept}`);
+        await upsertUserProfile({
+          uid: u.uid,
+          email: u.email,
+          first: u.first,
+          last: u.last,
+          court: newCourt,
+          dept: newDept
+        });
+      }
+    }
+    console.log("Migration complete!");
+    localStorage.setItem('migrationRun', 'true');
+    alert("Migration complete! You can refresh the page.");
+  } catch (e) {
+    console.error("Migration failed:", e);
+    alert("Migration failed: " + e.message);
+  }
+};
+
 const ACCENT_PRESETS = [
   ['#5B3FBB', '#EFE9FF'],
   ['#C9974A', '#F6ECD8'],
@@ -51,7 +110,7 @@ const ACCENT_PRESETS = [
 function App() {
   const { user: authUser, loading: authLoading } = useAuth();
   const { t } = useLanguage();
-  const { hasNewInbox } = useNotification();
+  const { hasNewInbox, hasNewMessages } = useNotification();
 
   // Loading screen state
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
@@ -61,6 +120,7 @@ function App() {
 
   // Track page window load
   useEffect(() => {
+    runMigration();
     if (document.readyState === 'complete') {
       setWindowLoaded(true);
       return;
@@ -262,6 +322,11 @@ function App() {
       const newUser = credential.user;
 
       // Save custom signup fields to PostgreSQL immediately
+      
+      // Determine chosen departments that need approval
+      const chosenDepts = signupData.depts && signupData.depts.length > 0 ? signupData.depts : (signupData.dept ? [signupData.dept] : []);
+      const deptsToRequest = chosenDepts.filter(d => d && d !== 'General');
+
       const profileData = {
         uid: newUser.uid,
         email: signupData.email,
@@ -271,8 +336,8 @@ function App() {
         city: signupData.city || '',
         court: signupData.courts?.[0] || signupData.court || 'Glory Court',
         courts: signupData.courts || ['Glory Court'],
-        dept: signupData.depts?.[0] || signupData.dept || 'General',
-        depts: signupData.depts || ['General'],
+        dept: 'General',
+        depts: ['General'],
         district: signupData.district || 'District 1',
         gender: signupData.gender || '',
         schoolClass: signupData.schoolClass || '',
@@ -286,9 +351,24 @@ function App() {
       const { updateUserProfile } = await import('./services/userService');
       await updateUserProfile(newUser.uid, profileData);
 
+      if (deptsToRequest.length > 0) {
+        const { requestDepartmentJoin } = await import('./services/departmentService');
+        for (const dept of deptsToRequest) {
+          try {
+            await requestDepartmentJoin(newUser.uid, `${signupData.first} ${signupData.last}`.trim(), dept);
+          } catch (err) {
+            console.error(`Failed to request joining department ${dept}:`, err);
+          }
+        }
+      }
+
       setUser(profileData);
       setRoute('welcome');
-      toast.show('Account created!');
+      if (deptsToRequest.length > 0) {
+        toast.show(`Account created! Request to join ${deptsToRequest.join(', ')} pending approval.`);
+      } else {
+        toast.show('Account created!');
+      }
     } catch (error) {
       toast.show('Error: ' + error.message);
     }
@@ -497,6 +577,7 @@ function App() {
           scopeOptions={route === 'home' ? scopeOptions : null}
           user={user}
           hasNewInbox={hasNewInbox}
+          hasNewMessages={hasNewMessages}
           title={
             route === 'inbox' ? t('inbox') :
             route === 'messages' ? t('messages') :
@@ -520,7 +601,7 @@ function App() {
         {body}
       </div>
 
-      {!inAuth && <FabMenu onAction={handleFab} user={user} />}
+      {!inAuth && route === 'home' && <FabMenu onAction={handleFab} user={user} />}
 
       <MenuDrawer
         open={menuOpen}

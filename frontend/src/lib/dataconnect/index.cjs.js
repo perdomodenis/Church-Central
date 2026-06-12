@@ -279,6 +279,104 @@ exports.updateReusableBlock = function updateReusableBlock(dcOrVars, vars) {
 }
 ;
 
+const createPersonalProgramBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'CreatePersonalProgramBlock', inputVars);
+}
+createPersonalProgramBlockRef.operationName = 'CreatePersonalProgramBlock';
+exports.createPersonalProgramBlockRef = createPersonalProgramBlockRef;
+
+exports.createPersonalProgramBlock = function createPersonalProgramBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(createPersonalProgramBlockRef(dcInstance, inputVars));
+}
+;
+
+const deletePersonalProgramBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeletePersonalProgramBlock', inputVars);
+}
+deletePersonalProgramBlockRef.operationName = 'DeletePersonalProgramBlock';
+exports.deletePersonalProgramBlockRef = deletePersonalProgramBlockRef;
+
+exports.deletePersonalProgramBlock = function deletePersonalProgramBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deletePersonalProgramBlockRef(dcInstance, inputVars));
+}
+;
+
+const createPersonalReusableBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'CreatePersonalReusableBlock', inputVars);
+}
+createPersonalReusableBlockRef.operationName = 'CreatePersonalReusableBlock';
+exports.createPersonalReusableBlockRef = createPersonalReusableBlockRef;
+
+exports.createPersonalReusableBlock = function createPersonalReusableBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(createPersonalReusableBlockRef(dcInstance, inputVars));
+}
+;
+
+const deletePersonalReusableBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeletePersonalReusableBlock', inputVars);
+}
+deletePersonalReusableBlockRef.operationName = 'DeletePersonalReusableBlock';
+exports.deletePersonalReusableBlockRef = deletePersonalReusableBlockRef;
+
+exports.deletePersonalReusableBlock = function deletePersonalReusableBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deletePersonalReusableBlockRef(dcInstance, inputVars));
+}
+;
+
+const updatePersonalReusableBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'UpdatePersonalReusableBlock', inputVars);
+}
+updatePersonalReusableBlockRef.operationName = 'UpdatePersonalReusableBlock';
+exports.updatePersonalReusableBlockRef = updatePersonalReusableBlockRef;
+
+exports.updatePersonalReusableBlock = function updatePersonalReusableBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(updatePersonalReusableBlockRef(dcInstance, inputVars));
+}
+;
+
+const assignPersonalProgramBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'AssignPersonalProgramBlock', inputVars);
+}
+assignPersonalProgramBlockRef.operationName = 'AssignPersonalProgramBlock';
+exports.assignPersonalProgramBlockRef = assignPersonalProgramBlockRef;
+
+exports.assignPersonalProgramBlock = function assignPersonalProgramBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(assignPersonalProgramBlockRef(dcInstance, inputVars));
+}
+;
+
+const assignPersonalReusableBlockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'AssignPersonalReusableBlock', inputVars);
+}
+assignPersonalReusableBlockRef.operationName = 'AssignPersonalReusableBlock';
+exports.assignPersonalReusableBlockRef = assignPersonalReusableBlockRef;
+
+exports.assignPersonalReusableBlock = function assignPersonalReusableBlock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(assignPersonalReusableBlockRef(dcInstance, inputVars));
+}
+;
+
 const getUserContextRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -471,5 +569,65 @@ exports.listReusableBlocks = function listReusableBlocks(dcOrOptions, options) {
   
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listReusableBlocksRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const listPersonalProgramBlocksRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListPersonalProgramBlocks');
+}
+listPersonalProgramBlocksRef.operationName = 'ListPersonalProgramBlocks';
+exports.listPersonalProgramBlocksRef = listPersonalProgramBlocksRef;
+
+exports.listPersonalProgramBlocks = function listPersonalProgramBlocks(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listPersonalProgramBlocksRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const listPersonalReusableBlocksRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListPersonalReusableBlocks');
+}
+listPersonalReusableBlocksRef.operationName = 'ListPersonalReusableBlocks';
+exports.listPersonalReusableBlocksRef = listPersonalReusableBlocksRef;
+
+exports.listPersonalReusableBlocks = function listPersonalReusableBlocks(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listPersonalReusableBlocksRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const listAssignedPersonalProgramBlocksRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListAssignedPersonalProgramBlocks');
+}
+listAssignedPersonalProgramBlocksRef.operationName = 'ListAssignedPersonalProgramBlocks';
+exports.listAssignedPersonalProgramBlocksRef = listAssignedPersonalProgramBlocksRef;
+
+exports.listAssignedPersonalProgramBlocks = function listAssignedPersonalProgramBlocks(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listAssignedPersonalProgramBlocksRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const listAssignedPersonalReusableBlocksRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListAssignedPersonalReusableBlocks');
+}
+listAssignedPersonalReusableBlocksRef.operationName = 'ListAssignedPersonalReusableBlocks';
+exports.listAssignedPersonalReusableBlocksRef = listAssignedPersonalReusableBlocksRef;
+
+exports.listAssignedPersonalReusableBlocks = function listAssignedPersonalReusableBlocks(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listAssignedPersonalReusableBlocksRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 ;

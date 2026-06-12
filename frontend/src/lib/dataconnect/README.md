@@ -21,6 +21,10 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListRejectedAppointments*](#listrejectedappointments)
   - [*ListProgramBlocks*](#listprogramblocks)
   - [*ListReusableBlocks*](#listreusableblocks)
+  - [*ListPersonalProgramBlocks*](#listpersonalprogramblocks)
+  - [*ListPersonalReusableBlocks*](#listpersonalreusableblocks)
+  - [*ListAssignedPersonalProgramBlocks*](#listassignedpersonalprogramblocks)
+  - [*ListAssignedPersonalReusableBlocks*](#listassignedpersonalreusableblocks)
 - [**Mutations**](#mutations)
   - [*UpsertUserProfile*](#upsertuserprofile)
   - [*CreateAnnouncement*](#createannouncement)
@@ -41,6 +45,13 @@ This README will guide you through the process of using the generated JavaScript
   - [*CreateReusableBlock*](#createreusableblock)
   - [*DeleteReusableBlock*](#deletereusableblock)
   - [*UpdateReusableBlock*](#updatereusableblock)
+  - [*CreatePersonalProgramBlock*](#createpersonalprogramblock)
+  - [*DeletePersonalProgramBlock*](#deletepersonalprogramblock)
+  - [*CreatePersonalReusableBlock*](#createpersonalreusableblock)
+  - [*DeletePersonalReusableBlock*](#deletepersonalreusableblock)
+  - [*UpdatePersonalReusableBlock*](#updatepersonalreusableblock)
+  - [*AssignPersonalProgramBlock*](#assignpersonalprogramblock)
+  - [*AssignPersonalReusableBlock*](#assignpersonalreusableblock)
 
 # Accessing the connector
 A connector is a collection of Queries and Mutations. One SDK is generated for each connector - this SDK is generated for the connector `default`. You can find more information about connectors in the [Data Connect documentation](https://firebase.google.com/docs/data-connect#how-does).
@@ -1638,6 +1649,438 @@ console.log(data.reusableBlocks);
 executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.reusableBlocks);
+});
+```
+
+## ListPersonalProgramBlocks
+You can execute the `ListPersonalProgramBlocks` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+listPersonalProgramBlocks(options?: ExecuteQueryOptions): QueryPromise<ListPersonalProgramBlocksData, undefined>;
+
+interface ListPersonalProgramBlocksRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListPersonalProgramBlocksData, undefined>;
+}
+export const listPersonalProgramBlocksRef: ListPersonalProgramBlocksRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listPersonalProgramBlocks(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListPersonalProgramBlocksData, undefined>;
+
+interface ListPersonalProgramBlocksRef {
+  ...
+  (dc: DataConnect): QueryRef<ListPersonalProgramBlocksData, undefined>;
+}
+export const listPersonalProgramBlocksRef: ListPersonalProgramBlocksRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listPersonalProgramBlocksRef:
+```typescript
+const name = listPersonalProgramBlocksRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListPersonalProgramBlocks` query has no variables.
+### Return Type
+Recall that executing the `ListPersonalProgramBlocks` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListPersonalProgramBlocksData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListPersonalProgramBlocksData {
+  personalProgramBlocks: ({
+    id: UUIDString;
+    date: string;
+    time: string;
+    endTime?: string | null;
+    title: string;
+    description?: string | null;
+    location?: string | null;
+    category?: string | null;
+    type?: string | null;
+    hours?: number | null;
+    dressCode?: string | null;
+  } & PersonalProgramBlock_Key)[];
+}
+```
+### Using `ListPersonalProgramBlocks`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listPersonalProgramBlocks } from '@church-central/dataconnect';
+
+
+// Call the `listPersonalProgramBlocks()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listPersonalProgramBlocks();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listPersonalProgramBlocks(dataConnect);
+
+console.log(data.personalProgramBlocks);
+
+// Or, you can use the `Promise` API.
+listPersonalProgramBlocks().then((response) => {
+  const data = response.data;
+  console.log(data.personalProgramBlocks);
+});
+```
+
+### Using `ListPersonalProgramBlocks`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listPersonalProgramBlocksRef } from '@church-central/dataconnect';
+
+
+// Call the `listPersonalProgramBlocksRef()` function to get a reference to the query.
+const ref = listPersonalProgramBlocksRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listPersonalProgramBlocksRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.personalProgramBlocks);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.personalProgramBlocks);
+});
+```
+
+## ListPersonalReusableBlocks
+You can execute the `ListPersonalReusableBlocks` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+listPersonalReusableBlocks(options?: ExecuteQueryOptions): QueryPromise<ListPersonalReusableBlocksData, undefined>;
+
+interface ListPersonalReusableBlocksRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListPersonalReusableBlocksData, undefined>;
+}
+export const listPersonalReusableBlocksRef: ListPersonalReusableBlocksRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listPersonalReusableBlocks(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListPersonalReusableBlocksData, undefined>;
+
+interface ListPersonalReusableBlocksRef {
+  ...
+  (dc: DataConnect): QueryRef<ListPersonalReusableBlocksData, undefined>;
+}
+export const listPersonalReusableBlocksRef: ListPersonalReusableBlocksRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listPersonalReusableBlocksRef:
+```typescript
+const name = listPersonalReusableBlocksRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListPersonalReusableBlocks` query has no variables.
+### Return Type
+Recall that executing the `ListPersonalReusableBlocks` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListPersonalReusableBlocksData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListPersonalReusableBlocksData {
+  personalReusableBlocks: ({
+    id: UUIDString;
+    title: string;
+    description?: string | null;
+    time: string;
+    endTime?: string | null;
+    location?: string | null;
+    category?: string | null;
+    type?: string | null;
+    hours?: number | null;
+    dressCode?: string | null;
+  } & PersonalReusableBlock_Key)[];
+}
+```
+### Using `ListPersonalReusableBlocks`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listPersonalReusableBlocks } from '@church-central/dataconnect';
+
+
+// Call the `listPersonalReusableBlocks()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listPersonalReusableBlocks();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listPersonalReusableBlocks(dataConnect);
+
+console.log(data.personalReusableBlocks);
+
+// Or, you can use the `Promise` API.
+listPersonalReusableBlocks().then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlocks);
+});
+```
+
+### Using `ListPersonalReusableBlocks`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listPersonalReusableBlocksRef } from '@church-central/dataconnect';
+
+
+// Call the `listPersonalReusableBlocksRef()` function to get a reference to the query.
+const ref = listPersonalReusableBlocksRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listPersonalReusableBlocksRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.personalReusableBlocks);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlocks);
+});
+```
+
+## ListAssignedPersonalProgramBlocks
+You can execute the `ListAssignedPersonalProgramBlocks` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+listAssignedPersonalProgramBlocks(options?: ExecuteQueryOptions): QueryPromise<ListAssignedPersonalProgramBlocksData, undefined>;
+
+interface ListAssignedPersonalProgramBlocksRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListAssignedPersonalProgramBlocksData, undefined>;
+}
+export const listAssignedPersonalProgramBlocksRef: ListAssignedPersonalProgramBlocksRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listAssignedPersonalProgramBlocks(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListAssignedPersonalProgramBlocksData, undefined>;
+
+interface ListAssignedPersonalProgramBlocksRef {
+  ...
+  (dc: DataConnect): QueryRef<ListAssignedPersonalProgramBlocksData, undefined>;
+}
+export const listAssignedPersonalProgramBlocksRef: ListAssignedPersonalProgramBlocksRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listAssignedPersonalProgramBlocksRef:
+```typescript
+const name = listAssignedPersonalProgramBlocksRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListAssignedPersonalProgramBlocks` query has no variables.
+### Return Type
+Recall that executing the `ListAssignedPersonalProgramBlocks` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListAssignedPersonalProgramBlocksData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListAssignedPersonalProgramBlocksData {
+  personalProgramBlocks: ({
+    id: UUIDString;
+    user: {
+      uid: string;
+      first: string;
+      last: string;
+      email: string;
+      position?: string | null;
+      court?: string | null;
+      dept?: string | null;
+      district?: string | null;
+    } & User_Key;
+      date: string;
+      time: string;
+      endTime?: string | null;
+      title: string;
+      description?: string | null;
+      location?: string | null;
+      category?: string | null;
+      type?: string | null;
+      hours?: number | null;
+      dressCode?: string | null;
+      assignedBy?: string | null;
+  } & PersonalProgramBlock_Key)[];
+}
+```
+### Using `ListAssignedPersonalProgramBlocks`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listAssignedPersonalProgramBlocks } from '@church-central/dataconnect';
+
+
+// Call the `listAssignedPersonalProgramBlocks()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listAssignedPersonalProgramBlocks();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listAssignedPersonalProgramBlocks(dataConnect);
+
+console.log(data.personalProgramBlocks);
+
+// Or, you can use the `Promise` API.
+listAssignedPersonalProgramBlocks().then((response) => {
+  const data = response.data;
+  console.log(data.personalProgramBlocks);
+});
+```
+
+### Using `ListAssignedPersonalProgramBlocks`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listAssignedPersonalProgramBlocksRef } from '@church-central/dataconnect';
+
+
+// Call the `listAssignedPersonalProgramBlocksRef()` function to get a reference to the query.
+const ref = listAssignedPersonalProgramBlocksRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listAssignedPersonalProgramBlocksRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.personalProgramBlocks);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.personalProgramBlocks);
+});
+```
+
+## ListAssignedPersonalReusableBlocks
+You can execute the `ListAssignedPersonalReusableBlocks` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+listAssignedPersonalReusableBlocks(options?: ExecuteQueryOptions): QueryPromise<ListAssignedPersonalReusableBlocksData, undefined>;
+
+interface ListAssignedPersonalReusableBlocksRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListAssignedPersonalReusableBlocksData, undefined>;
+}
+export const listAssignedPersonalReusableBlocksRef: ListAssignedPersonalReusableBlocksRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listAssignedPersonalReusableBlocks(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListAssignedPersonalReusableBlocksData, undefined>;
+
+interface ListAssignedPersonalReusableBlocksRef {
+  ...
+  (dc: DataConnect): QueryRef<ListAssignedPersonalReusableBlocksData, undefined>;
+}
+export const listAssignedPersonalReusableBlocksRef: ListAssignedPersonalReusableBlocksRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listAssignedPersonalReusableBlocksRef:
+```typescript
+const name = listAssignedPersonalReusableBlocksRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListAssignedPersonalReusableBlocks` query has no variables.
+### Return Type
+Recall that executing the `ListAssignedPersonalReusableBlocks` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListAssignedPersonalReusableBlocksData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListAssignedPersonalReusableBlocksData {
+  personalReusableBlocks: ({
+    id: UUIDString;
+    user: {
+      uid: string;
+      first: string;
+      last: string;
+      email: string;
+      position?: string | null;
+      court?: string | null;
+      dept?: string | null;
+      district?: string | null;
+    } & User_Key;
+      title: string;
+      description?: string | null;
+      time: string;
+      endTime?: string | null;
+      location?: string | null;
+      category?: string | null;
+      type?: string | null;
+      hours?: number | null;
+      dressCode?: string | null;
+      assignedBy?: string | null;
+  } & PersonalReusableBlock_Key)[];
+}
+```
+### Using `ListAssignedPersonalReusableBlocks`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listAssignedPersonalReusableBlocks } from '@church-central/dataconnect';
+
+
+// Call the `listAssignedPersonalReusableBlocks()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listAssignedPersonalReusableBlocks();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listAssignedPersonalReusableBlocks(dataConnect);
+
+console.log(data.personalReusableBlocks);
+
+// Or, you can use the `Promise` API.
+listAssignedPersonalReusableBlocks().then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlocks);
+});
+```
+
+### Using `ListAssignedPersonalReusableBlocks`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listAssignedPersonalReusableBlocksRef } from '@church-central/dataconnect';
+
+
+// Call the `listAssignedPersonalReusableBlocksRef()` function to get a reference to the query.
+const ref = listAssignedPersonalReusableBlocksRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listAssignedPersonalReusableBlocksRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.personalReusableBlocks);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlocks);
 });
 ```
 
@@ -3987,6 +4430,910 @@ console.log(data.reusableBlock_update);
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.reusableBlock_update);
+});
+```
+
+## CreatePersonalProgramBlock
+You can execute the `CreatePersonalProgramBlock` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+createPersonalProgramBlock(vars: CreatePersonalProgramBlockVariables): MutationPromise<CreatePersonalProgramBlockData, CreatePersonalProgramBlockVariables>;
+
+interface CreatePersonalProgramBlockRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreatePersonalProgramBlockVariables): MutationRef<CreatePersonalProgramBlockData, CreatePersonalProgramBlockVariables>;
+}
+export const createPersonalProgramBlockRef: CreatePersonalProgramBlockRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+createPersonalProgramBlock(dc: DataConnect, vars: CreatePersonalProgramBlockVariables): MutationPromise<CreatePersonalProgramBlockData, CreatePersonalProgramBlockVariables>;
+
+interface CreatePersonalProgramBlockRef {
+  ...
+  (dc: DataConnect, vars: CreatePersonalProgramBlockVariables): MutationRef<CreatePersonalProgramBlockData, CreatePersonalProgramBlockVariables>;
+}
+export const createPersonalProgramBlockRef: CreatePersonalProgramBlockRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createPersonalProgramBlockRef:
+```typescript
+const name = createPersonalProgramBlockRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `CreatePersonalProgramBlock` mutation requires an argument of type `CreatePersonalProgramBlockVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface CreatePersonalProgramBlockVariables {
+  date: string;
+  time: string;
+  endTime?: string | null;
+  title: string;
+  description?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+```
+### Return Type
+Recall that executing the `CreatePersonalProgramBlock` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `CreatePersonalProgramBlockData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface CreatePersonalProgramBlockData {
+  personalProgramBlock_insert: PersonalProgramBlock_Key;
+}
+```
+### Using `CreatePersonalProgramBlock`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, createPersonalProgramBlock, CreatePersonalProgramBlockVariables } from '@church-central/dataconnect';
+
+// The `CreatePersonalProgramBlock` mutation requires an argument of type `CreatePersonalProgramBlockVariables`:
+const createPersonalProgramBlockVars: CreatePersonalProgramBlockVariables = {
+  date: ..., 
+  time: ..., 
+  endTime: ..., // optional
+  title: ..., 
+  description: ..., // optional
+  location: ..., // optional
+  category: ..., // optional
+  type: ..., // optional
+  hours: ..., // optional
+  dressCode: ..., // optional
+};
+
+// Call the `createPersonalProgramBlock()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await createPersonalProgramBlock(createPersonalProgramBlockVars);
+// Variables can be defined inline as well.
+const { data } = await createPersonalProgramBlock({ date: ..., time: ..., endTime: ..., title: ..., description: ..., location: ..., category: ..., type: ..., hours: ..., dressCode: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await createPersonalProgramBlock(dataConnect, createPersonalProgramBlockVars);
+
+console.log(data.personalProgramBlock_insert);
+
+// Or, you can use the `Promise` API.
+createPersonalProgramBlock(createPersonalProgramBlockVars).then((response) => {
+  const data = response.data;
+  console.log(data.personalProgramBlock_insert);
+});
+```
+
+### Using `CreatePersonalProgramBlock`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, createPersonalProgramBlockRef, CreatePersonalProgramBlockVariables } from '@church-central/dataconnect';
+
+// The `CreatePersonalProgramBlock` mutation requires an argument of type `CreatePersonalProgramBlockVariables`:
+const createPersonalProgramBlockVars: CreatePersonalProgramBlockVariables = {
+  date: ..., 
+  time: ..., 
+  endTime: ..., // optional
+  title: ..., 
+  description: ..., // optional
+  location: ..., // optional
+  category: ..., // optional
+  type: ..., // optional
+  hours: ..., // optional
+  dressCode: ..., // optional
+};
+
+// Call the `createPersonalProgramBlockRef()` function to get a reference to the mutation.
+const ref = createPersonalProgramBlockRef(createPersonalProgramBlockVars);
+// Variables can be defined inline as well.
+const ref = createPersonalProgramBlockRef({ date: ..., time: ..., endTime: ..., title: ..., description: ..., location: ..., category: ..., type: ..., hours: ..., dressCode: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = createPersonalProgramBlockRef(dataConnect, createPersonalProgramBlockVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.personalProgramBlock_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.personalProgramBlock_insert);
+});
+```
+
+## DeletePersonalProgramBlock
+You can execute the `DeletePersonalProgramBlock` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+deletePersonalProgramBlock(vars: DeletePersonalProgramBlockVariables): MutationPromise<DeletePersonalProgramBlockData, DeletePersonalProgramBlockVariables>;
+
+interface DeletePersonalProgramBlockRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeletePersonalProgramBlockVariables): MutationRef<DeletePersonalProgramBlockData, DeletePersonalProgramBlockVariables>;
+}
+export const deletePersonalProgramBlockRef: DeletePersonalProgramBlockRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deletePersonalProgramBlock(dc: DataConnect, vars: DeletePersonalProgramBlockVariables): MutationPromise<DeletePersonalProgramBlockData, DeletePersonalProgramBlockVariables>;
+
+interface DeletePersonalProgramBlockRef {
+  ...
+  (dc: DataConnect, vars: DeletePersonalProgramBlockVariables): MutationRef<DeletePersonalProgramBlockData, DeletePersonalProgramBlockVariables>;
+}
+export const deletePersonalProgramBlockRef: DeletePersonalProgramBlockRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deletePersonalProgramBlockRef:
+```typescript
+const name = deletePersonalProgramBlockRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeletePersonalProgramBlock` mutation requires an argument of type `DeletePersonalProgramBlockVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeletePersonalProgramBlockVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DeletePersonalProgramBlock` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeletePersonalProgramBlockData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeletePersonalProgramBlockData {
+  personalProgramBlock_delete?: PersonalProgramBlock_Key | null;
+}
+```
+### Using `DeletePersonalProgramBlock`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deletePersonalProgramBlock, DeletePersonalProgramBlockVariables } from '@church-central/dataconnect';
+
+// The `DeletePersonalProgramBlock` mutation requires an argument of type `DeletePersonalProgramBlockVariables`:
+const deletePersonalProgramBlockVars: DeletePersonalProgramBlockVariables = {
+  id: ..., 
+};
+
+// Call the `deletePersonalProgramBlock()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deletePersonalProgramBlock(deletePersonalProgramBlockVars);
+// Variables can be defined inline as well.
+const { data } = await deletePersonalProgramBlock({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deletePersonalProgramBlock(dataConnect, deletePersonalProgramBlockVars);
+
+console.log(data.personalProgramBlock_delete);
+
+// Or, you can use the `Promise` API.
+deletePersonalProgramBlock(deletePersonalProgramBlockVars).then((response) => {
+  const data = response.data;
+  console.log(data.personalProgramBlock_delete);
+});
+```
+
+### Using `DeletePersonalProgramBlock`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deletePersonalProgramBlockRef, DeletePersonalProgramBlockVariables } from '@church-central/dataconnect';
+
+// The `DeletePersonalProgramBlock` mutation requires an argument of type `DeletePersonalProgramBlockVariables`:
+const deletePersonalProgramBlockVars: DeletePersonalProgramBlockVariables = {
+  id: ..., 
+};
+
+// Call the `deletePersonalProgramBlockRef()` function to get a reference to the mutation.
+const ref = deletePersonalProgramBlockRef(deletePersonalProgramBlockVars);
+// Variables can be defined inline as well.
+const ref = deletePersonalProgramBlockRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deletePersonalProgramBlockRef(dataConnect, deletePersonalProgramBlockVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.personalProgramBlock_delete);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.personalProgramBlock_delete);
+});
+```
+
+## CreatePersonalReusableBlock
+You can execute the `CreatePersonalReusableBlock` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+createPersonalReusableBlock(vars: CreatePersonalReusableBlockVariables): MutationPromise<CreatePersonalReusableBlockData, CreatePersonalReusableBlockVariables>;
+
+interface CreatePersonalReusableBlockRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreatePersonalReusableBlockVariables): MutationRef<CreatePersonalReusableBlockData, CreatePersonalReusableBlockVariables>;
+}
+export const createPersonalReusableBlockRef: CreatePersonalReusableBlockRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+createPersonalReusableBlock(dc: DataConnect, vars: CreatePersonalReusableBlockVariables): MutationPromise<CreatePersonalReusableBlockData, CreatePersonalReusableBlockVariables>;
+
+interface CreatePersonalReusableBlockRef {
+  ...
+  (dc: DataConnect, vars: CreatePersonalReusableBlockVariables): MutationRef<CreatePersonalReusableBlockData, CreatePersonalReusableBlockVariables>;
+}
+export const createPersonalReusableBlockRef: CreatePersonalReusableBlockRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createPersonalReusableBlockRef:
+```typescript
+const name = createPersonalReusableBlockRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `CreatePersonalReusableBlock` mutation requires an argument of type `CreatePersonalReusableBlockVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface CreatePersonalReusableBlockVariables {
+  title: string;
+  description?: string | null;
+  time: string;
+  endTime?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+```
+### Return Type
+Recall that executing the `CreatePersonalReusableBlock` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `CreatePersonalReusableBlockData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface CreatePersonalReusableBlockData {
+  personalReusableBlock_insert: PersonalReusableBlock_Key;
+}
+```
+### Using `CreatePersonalReusableBlock`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, createPersonalReusableBlock, CreatePersonalReusableBlockVariables } from '@church-central/dataconnect';
+
+// The `CreatePersonalReusableBlock` mutation requires an argument of type `CreatePersonalReusableBlockVariables`:
+const createPersonalReusableBlockVars: CreatePersonalReusableBlockVariables = {
+  title: ..., 
+  description: ..., // optional
+  time: ..., 
+  endTime: ..., // optional
+  location: ..., // optional
+  category: ..., // optional
+  type: ..., // optional
+  hours: ..., // optional
+  dressCode: ..., // optional
+};
+
+// Call the `createPersonalReusableBlock()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await createPersonalReusableBlock(createPersonalReusableBlockVars);
+// Variables can be defined inline as well.
+const { data } = await createPersonalReusableBlock({ title: ..., description: ..., time: ..., endTime: ..., location: ..., category: ..., type: ..., hours: ..., dressCode: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await createPersonalReusableBlock(dataConnect, createPersonalReusableBlockVars);
+
+console.log(data.personalReusableBlock_insert);
+
+// Or, you can use the `Promise` API.
+createPersonalReusableBlock(createPersonalReusableBlockVars).then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlock_insert);
+});
+```
+
+### Using `CreatePersonalReusableBlock`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, createPersonalReusableBlockRef, CreatePersonalReusableBlockVariables } from '@church-central/dataconnect';
+
+// The `CreatePersonalReusableBlock` mutation requires an argument of type `CreatePersonalReusableBlockVariables`:
+const createPersonalReusableBlockVars: CreatePersonalReusableBlockVariables = {
+  title: ..., 
+  description: ..., // optional
+  time: ..., 
+  endTime: ..., // optional
+  location: ..., // optional
+  category: ..., // optional
+  type: ..., // optional
+  hours: ..., // optional
+  dressCode: ..., // optional
+};
+
+// Call the `createPersonalReusableBlockRef()` function to get a reference to the mutation.
+const ref = createPersonalReusableBlockRef(createPersonalReusableBlockVars);
+// Variables can be defined inline as well.
+const ref = createPersonalReusableBlockRef({ title: ..., description: ..., time: ..., endTime: ..., location: ..., category: ..., type: ..., hours: ..., dressCode: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = createPersonalReusableBlockRef(dataConnect, createPersonalReusableBlockVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.personalReusableBlock_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlock_insert);
+});
+```
+
+## DeletePersonalReusableBlock
+You can execute the `DeletePersonalReusableBlock` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+deletePersonalReusableBlock(vars: DeletePersonalReusableBlockVariables): MutationPromise<DeletePersonalReusableBlockData, DeletePersonalReusableBlockVariables>;
+
+interface DeletePersonalReusableBlockRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeletePersonalReusableBlockVariables): MutationRef<DeletePersonalReusableBlockData, DeletePersonalReusableBlockVariables>;
+}
+export const deletePersonalReusableBlockRef: DeletePersonalReusableBlockRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deletePersonalReusableBlock(dc: DataConnect, vars: DeletePersonalReusableBlockVariables): MutationPromise<DeletePersonalReusableBlockData, DeletePersonalReusableBlockVariables>;
+
+interface DeletePersonalReusableBlockRef {
+  ...
+  (dc: DataConnect, vars: DeletePersonalReusableBlockVariables): MutationRef<DeletePersonalReusableBlockData, DeletePersonalReusableBlockVariables>;
+}
+export const deletePersonalReusableBlockRef: DeletePersonalReusableBlockRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deletePersonalReusableBlockRef:
+```typescript
+const name = deletePersonalReusableBlockRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeletePersonalReusableBlock` mutation requires an argument of type `DeletePersonalReusableBlockVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeletePersonalReusableBlockVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DeletePersonalReusableBlock` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeletePersonalReusableBlockData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeletePersonalReusableBlockData {
+  personalReusableBlock_delete?: PersonalReusableBlock_Key | null;
+}
+```
+### Using `DeletePersonalReusableBlock`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deletePersonalReusableBlock, DeletePersonalReusableBlockVariables } from '@church-central/dataconnect';
+
+// The `DeletePersonalReusableBlock` mutation requires an argument of type `DeletePersonalReusableBlockVariables`:
+const deletePersonalReusableBlockVars: DeletePersonalReusableBlockVariables = {
+  id: ..., 
+};
+
+// Call the `deletePersonalReusableBlock()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deletePersonalReusableBlock(deletePersonalReusableBlockVars);
+// Variables can be defined inline as well.
+const { data } = await deletePersonalReusableBlock({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deletePersonalReusableBlock(dataConnect, deletePersonalReusableBlockVars);
+
+console.log(data.personalReusableBlock_delete);
+
+// Or, you can use the `Promise` API.
+deletePersonalReusableBlock(deletePersonalReusableBlockVars).then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlock_delete);
+});
+```
+
+### Using `DeletePersonalReusableBlock`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deletePersonalReusableBlockRef, DeletePersonalReusableBlockVariables } from '@church-central/dataconnect';
+
+// The `DeletePersonalReusableBlock` mutation requires an argument of type `DeletePersonalReusableBlockVariables`:
+const deletePersonalReusableBlockVars: DeletePersonalReusableBlockVariables = {
+  id: ..., 
+};
+
+// Call the `deletePersonalReusableBlockRef()` function to get a reference to the mutation.
+const ref = deletePersonalReusableBlockRef(deletePersonalReusableBlockVars);
+// Variables can be defined inline as well.
+const ref = deletePersonalReusableBlockRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deletePersonalReusableBlockRef(dataConnect, deletePersonalReusableBlockVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.personalReusableBlock_delete);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlock_delete);
+});
+```
+
+## UpdatePersonalReusableBlock
+You can execute the `UpdatePersonalReusableBlock` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+updatePersonalReusableBlock(vars: UpdatePersonalReusableBlockVariables): MutationPromise<UpdatePersonalReusableBlockData, UpdatePersonalReusableBlockVariables>;
+
+interface UpdatePersonalReusableBlockRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: UpdatePersonalReusableBlockVariables): MutationRef<UpdatePersonalReusableBlockData, UpdatePersonalReusableBlockVariables>;
+}
+export const updatePersonalReusableBlockRef: UpdatePersonalReusableBlockRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+updatePersonalReusableBlock(dc: DataConnect, vars: UpdatePersonalReusableBlockVariables): MutationPromise<UpdatePersonalReusableBlockData, UpdatePersonalReusableBlockVariables>;
+
+interface UpdatePersonalReusableBlockRef {
+  ...
+  (dc: DataConnect, vars: UpdatePersonalReusableBlockVariables): MutationRef<UpdatePersonalReusableBlockData, UpdatePersonalReusableBlockVariables>;
+}
+export const updatePersonalReusableBlockRef: UpdatePersonalReusableBlockRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updatePersonalReusableBlockRef:
+```typescript
+const name = updatePersonalReusableBlockRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `UpdatePersonalReusableBlock` mutation requires an argument of type `UpdatePersonalReusableBlockVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface UpdatePersonalReusableBlockVariables {
+  id: UUIDString;
+  title: string;
+  description?: string | null;
+  time: string;
+  endTime?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+```
+### Return Type
+Recall that executing the `UpdatePersonalReusableBlock` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `UpdatePersonalReusableBlockData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface UpdatePersonalReusableBlockData {
+  personalReusableBlock_update?: PersonalReusableBlock_Key | null;
+}
+```
+### Using `UpdatePersonalReusableBlock`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, updatePersonalReusableBlock, UpdatePersonalReusableBlockVariables } from '@church-central/dataconnect';
+
+// The `UpdatePersonalReusableBlock` mutation requires an argument of type `UpdatePersonalReusableBlockVariables`:
+const updatePersonalReusableBlockVars: UpdatePersonalReusableBlockVariables = {
+  id: ..., 
+  title: ..., 
+  description: ..., // optional
+  time: ..., 
+  endTime: ..., // optional
+  location: ..., // optional
+  category: ..., // optional
+  type: ..., // optional
+  hours: ..., // optional
+  dressCode: ..., // optional
+};
+
+// Call the `updatePersonalReusableBlock()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await updatePersonalReusableBlock(updatePersonalReusableBlockVars);
+// Variables can be defined inline as well.
+const { data } = await updatePersonalReusableBlock({ id: ..., title: ..., description: ..., time: ..., endTime: ..., location: ..., category: ..., type: ..., hours: ..., dressCode: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await updatePersonalReusableBlock(dataConnect, updatePersonalReusableBlockVars);
+
+console.log(data.personalReusableBlock_update);
+
+// Or, you can use the `Promise` API.
+updatePersonalReusableBlock(updatePersonalReusableBlockVars).then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlock_update);
+});
+```
+
+### Using `UpdatePersonalReusableBlock`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, updatePersonalReusableBlockRef, UpdatePersonalReusableBlockVariables } from '@church-central/dataconnect';
+
+// The `UpdatePersonalReusableBlock` mutation requires an argument of type `UpdatePersonalReusableBlockVariables`:
+const updatePersonalReusableBlockVars: UpdatePersonalReusableBlockVariables = {
+  id: ..., 
+  title: ..., 
+  description: ..., // optional
+  time: ..., 
+  endTime: ..., // optional
+  location: ..., // optional
+  category: ..., // optional
+  type: ..., // optional
+  hours: ..., // optional
+  dressCode: ..., // optional
+};
+
+// Call the `updatePersonalReusableBlockRef()` function to get a reference to the mutation.
+const ref = updatePersonalReusableBlockRef(updatePersonalReusableBlockVars);
+// Variables can be defined inline as well.
+const ref = updatePersonalReusableBlockRef({ id: ..., title: ..., description: ..., time: ..., endTime: ..., location: ..., category: ..., type: ..., hours: ..., dressCode: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = updatePersonalReusableBlockRef(dataConnect, updatePersonalReusableBlockVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.personalReusableBlock_update);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlock_update);
+});
+```
+
+## AssignPersonalProgramBlock
+You can execute the `AssignPersonalProgramBlock` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+assignPersonalProgramBlock(vars: AssignPersonalProgramBlockVariables): MutationPromise<AssignPersonalProgramBlockData, AssignPersonalProgramBlockVariables>;
+
+interface AssignPersonalProgramBlockRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: AssignPersonalProgramBlockVariables): MutationRef<AssignPersonalProgramBlockData, AssignPersonalProgramBlockVariables>;
+}
+export const assignPersonalProgramBlockRef: AssignPersonalProgramBlockRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+assignPersonalProgramBlock(dc: DataConnect, vars: AssignPersonalProgramBlockVariables): MutationPromise<AssignPersonalProgramBlockData, AssignPersonalProgramBlockVariables>;
+
+interface AssignPersonalProgramBlockRef {
+  ...
+  (dc: DataConnect, vars: AssignPersonalProgramBlockVariables): MutationRef<AssignPersonalProgramBlockData, AssignPersonalProgramBlockVariables>;
+}
+export const assignPersonalProgramBlockRef: AssignPersonalProgramBlockRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the assignPersonalProgramBlockRef:
+```typescript
+const name = assignPersonalProgramBlockRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `AssignPersonalProgramBlock` mutation requires an argument of type `AssignPersonalProgramBlockVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface AssignPersonalProgramBlockVariables {
+  userId: string;
+  assignedBy: string;
+  date: string;
+  time: string;
+  endTime?: string | null;
+  title: string;
+  description?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+```
+### Return Type
+Recall that executing the `AssignPersonalProgramBlock` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `AssignPersonalProgramBlockData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface AssignPersonalProgramBlockData {
+  personalProgramBlock_insert: PersonalProgramBlock_Key;
+}
+```
+### Using `AssignPersonalProgramBlock`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, assignPersonalProgramBlock, AssignPersonalProgramBlockVariables } from '@church-central/dataconnect';
+
+// The `AssignPersonalProgramBlock` mutation requires an argument of type `AssignPersonalProgramBlockVariables`:
+const assignPersonalProgramBlockVars: AssignPersonalProgramBlockVariables = {
+  userId: ..., 
+  assignedBy: ..., 
+  date: ..., 
+  time: ..., 
+  endTime: ..., // optional
+  title: ..., 
+  description: ..., // optional
+  location: ..., // optional
+  category: ..., // optional
+  type: ..., // optional
+  hours: ..., // optional
+  dressCode: ..., // optional
+};
+
+// Call the `assignPersonalProgramBlock()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await assignPersonalProgramBlock(assignPersonalProgramBlockVars);
+// Variables can be defined inline as well.
+const { data } = await assignPersonalProgramBlock({ userId: ..., assignedBy: ..., date: ..., time: ..., endTime: ..., title: ..., description: ..., location: ..., category: ..., type: ..., hours: ..., dressCode: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await assignPersonalProgramBlock(dataConnect, assignPersonalProgramBlockVars);
+
+console.log(data.personalProgramBlock_insert);
+
+// Or, you can use the `Promise` API.
+assignPersonalProgramBlock(assignPersonalProgramBlockVars).then((response) => {
+  const data = response.data;
+  console.log(data.personalProgramBlock_insert);
+});
+```
+
+### Using `AssignPersonalProgramBlock`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, assignPersonalProgramBlockRef, AssignPersonalProgramBlockVariables } from '@church-central/dataconnect';
+
+// The `AssignPersonalProgramBlock` mutation requires an argument of type `AssignPersonalProgramBlockVariables`:
+const assignPersonalProgramBlockVars: AssignPersonalProgramBlockVariables = {
+  userId: ..., 
+  assignedBy: ..., 
+  date: ..., 
+  time: ..., 
+  endTime: ..., // optional
+  title: ..., 
+  description: ..., // optional
+  location: ..., // optional
+  category: ..., // optional
+  type: ..., // optional
+  hours: ..., // optional
+  dressCode: ..., // optional
+};
+
+// Call the `assignPersonalProgramBlockRef()` function to get a reference to the mutation.
+const ref = assignPersonalProgramBlockRef(assignPersonalProgramBlockVars);
+// Variables can be defined inline as well.
+const ref = assignPersonalProgramBlockRef({ userId: ..., assignedBy: ..., date: ..., time: ..., endTime: ..., title: ..., description: ..., location: ..., category: ..., type: ..., hours: ..., dressCode: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = assignPersonalProgramBlockRef(dataConnect, assignPersonalProgramBlockVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.personalProgramBlock_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.personalProgramBlock_insert);
+});
+```
+
+## AssignPersonalReusableBlock
+You can execute the `AssignPersonalReusableBlock` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+assignPersonalReusableBlock(vars: AssignPersonalReusableBlockVariables): MutationPromise<AssignPersonalReusableBlockData, AssignPersonalReusableBlockVariables>;
+
+interface AssignPersonalReusableBlockRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: AssignPersonalReusableBlockVariables): MutationRef<AssignPersonalReusableBlockData, AssignPersonalReusableBlockVariables>;
+}
+export const assignPersonalReusableBlockRef: AssignPersonalReusableBlockRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+assignPersonalReusableBlock(dc: DataConnect, vars: AssignPersonalReusableBlockVariables): MutationPromise<AssignPersonalReusableBlockData, AssignPersonalReusableBlockVariables>;
+
+interface AssignPersonalReusableBlockRef {
+  ...
+  (dc: DataConnect, vars: AssignPersonalReusableBlockVariables): MutationRef<AssignPersonalReusableBlockData, AssignPersonalReusableBlockVariables>;
+}
+export const assignPersonalReusableBlockRef: AssignPersonalReusableBlockRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the assignPersonalReusableBlockRef:
+```typescript
+const name = assignPersonalReusableBlockRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `AssignPersonalReusableBlock` mutation requires an argument of type `AssignPersonalReusableBlockVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface AssignPersonalReusableBlockVariables {
+  userId: string;
+  assignedBy: string;
+  title: string;
+  description?: string | null;
+  time: string;
+  endTime?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+```
+### Return Type
+Recall that executing the `AssignPersonalReusableBlock` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `AssignPersonalReusableBlockData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface AssignPersonalReusableBlockData {
+  personalReusableBlock_insert: PersonalReusableBlock_Key;
+}
+```
+### Using `AssignPersonalReusableBlock`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, assignPersonalReusableBlock, AssignPersonalReusableBlockVariables } from '@church-central/dataconnect';
+
+// The `AssignPersonalReusableBlock` mutation requires an argument of type `AssignPersonalReusableBlockVariables`:
+const assignPersonalReusableBlockVars: AssignPersonalReusableBlockVariables = {
+  userId: ..., 
+  assignedBy: ..., 
+  title: ..., 
+  description: ..., // optional
+  time: ..., 
+  endTime: ..., // optional
+  location: ..., // optional
+  category: ..., // optional
+  type: ..., // optional
+  hours: ..., // optional
+  dressCode: ..., // optional
+};
+
+// Call the `assignPersonalReusableBlock()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await assignPersonalReusableBlock(assignPersonalReusableBlockVars);
+// Variables can be defined inline as well.
+const { data } = await assignPersonalReusableBlock({ userId: ..., assignedBy: ..., title: ..., description: ..., time: ..., endTime: ..., location: ..., category: ..., type: ..., hours: ..., dressCode: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await assignPersonalReusableBlock(dataConnect, assignPersonalReusableBlockVars);
+
+console.log(data.personalReusableBlock_insert);
+
+// Or, you can use the `Promise` API.
+assignPersonalReusableBlock(assignPersonalReusableBlockVars).then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlock_insert);
+});
+```
+
+### Using `AssignPersonalReusableBlock`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, assignPersonalReusableBlockRef, AssignPersonalReusableBlockVariables } from '@church-central/dataconnect';
+
+// The `AssignPersonalReusableBlock` mutation requires an argument of type `AssignPersonalReusableBlockVariables`:
+const assignPersonalReusableBlockVars: AssignPersonalReusableBlockVariables = {
+  userId: ..., 
+  assignedBy: ..., 
+  title: ..., 
+  description: ..., // optional
+  time: ..., 
+  endTime: ..., // optional
+  location: ..., // optional
+  category: ..., // optional
+  type: ..., // optional
+  hours: ..., // optional
+  dressCode: ..., // optional
+};
+
+// Call the `assignPersonalReusableBlockRef()` function to get a reference to the mutation.
+const ref = assignPersonalReusableBlockRef(assignPersonalReusableBlockVars);
+// Variables can be defined inline as well.
+const ref = assignPersonalReusableBlockRef({ userId: ..., assignedBy: ..., title: ..., description: ..., time: ..., endTime: ..., location: ..., category: ..., type: ..., hours: ..., dressCode: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = assignPersonalReusableBlockRef(dataConnect, assignPersonalReusableBlockVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.personalReusableBlock_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.personalReusableBlock_insert);
 });
 ```
 

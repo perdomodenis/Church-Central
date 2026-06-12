@@ -37,6 +37,20 @@ const InboxScreen = () => {
     }
   };
 
+  const handleMarkAllAsRead = async () => {
+    if (!user) return;
+    const updates = {};
+    messages.forEach(msg => {
+      if (!msg.read) {
+        updates[`${msg.id}/read`] = true;
+      }
+    });
+    if (Object.keys(updates).length > 0) {
+      const { update } = await import('firebase/database');
+      await update(ref(rtdb, `inbox/${user.uid}`), updates);
+    }
+  };
+
   const handleApproveFromInbox = async (appointmentId, selectedSlot, date, time) => {
     try {
       await approveAppointment(appointmentId, user?.displayName || user?.email || 'Admin', selectedSlot, date, time);
@@ -180,9 +194,27 @@ const InboxScreen = () => {
 
   return (
     <div className="inbox-screen" style={{ padding: '24px', paddingBottom: '100px' }}>
-      <h2 style={{ margin: '0 0 20px 0', color: '#111', fontSize: '1.5rem', fontWeight: '700' }}>
-        {t('inbox')}
-      </h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2 style={{ margin: 0, color: '#111', fontSize: '1.5rem', fontWeight: '700' }}>
+          {t('inbox')}
+        </h2>
+        {messages.some(m => !m.read) && (
+          <button
+            onClick={handleMarkAllAsRead}
+            style={{
+              backgroundColor: 'transparent',
+              border: 'none',
+              color: 'var(--accent)',
+              cursor: 'pointer',
+              fontWeight: '600',
+              fontSize: '0.9rem',
+              padding: '4px 8px'
+            }}
+          >
+            Mark all as read
+          </button>
+        )}
+      </div>
 
       {messages.length > 0 ? (
         messages.map(message => (

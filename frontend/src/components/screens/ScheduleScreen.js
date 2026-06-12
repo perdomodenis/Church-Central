@@ -11,7 +11,18 @@ import {
   deleteProgramBlock,
   createReusableBlock,
   deleteReusableBlock,
-  updateReusableBlock
+  updateReusableBlock,
+  listPersonalProgramBlocks,
+  listPersonalReusableBlocks,
+  createPersonalProgramBlock,
+  assignPersonalProgramBlock,
+  listMembers,
+  listAssignedPersonalProgramBlocks,
+  assignPersonalReusableBlock,
+  deletePersonalProgramBlock,
+  createPersonalReusableBlock,
+  deletePersonalReusableBlock,
+  updatePersonalReusableBlock
 } from '../../lib/dataconnect';
 
 const isValidEvent = (event) => {
@@ -64,6 +75,8 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
 
   // Dynamic program states
   const [programBlocks, setProgramBlocks] = useState([]);
+  const [personalProgramBlocks, setPersonalProgramBlocks] = useState([]);
+  const [personalReusableBlocks, setPersonalReusableBlocks] = useState([]);
   const [reusableBlocks, setReusableBlocks] = useState([]);
   const [selectedDate, setSelectedDate] = useState(() => new Date().toLocaleDateString('en-CA')); // YYYY-MM-DD local format
   const [loadingProgram, setLoadingProgram] = useState(false);
@@ -75,9 +88,31 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
   const [editTemplateForm, setEditTemplateForm] = useState({ time: '', title: '', minister: '' });
   const [newTemplateForm, setNewTemplateForm] = useState({ time: '', title: '', minister: '' });
   const [isSavingProgram, setIsSavingProgram] = useState(false);
+  const [isPersonalBuilder, setIsPersonalBuilder] = useState(false);
+  const [members, setMembers] = useState([]);
+  const [assignedBlocks, setAssignedBlocks] = useState([]);
+  const [assignedToUsers, setAssignedToUsers] = useState([]);
+  const [alsoAssignToSelf, setAlsoAssignToSelf] = useState(false);
+  
+  const personalSortedBlocks = personalProgramBlocks
+    .filter(b => b.date === selectedDate)
+    .sort((a, b) => getMinutesSinceMidnight(a.time) - getMinutesSinceMidnight(b.time));
+
+  const HIERARCHY = ['member', 'co-leader', 'leader', 'deacon', 'pastor', 'reverend', 'bishop'];
+  const getRank = (position) => {
+    const normalized = (position || 'member').toLowerCase();
+    const idx = HIERARCHY.indexOf(normalized);
+    return idx >= 0 ? idx : 0;
+  };
+  const myRank = getRank(userProp?.position);
+
+  const subordinates = members.filter(m => getRank(m.position) < myRank);
+  console.log("SCHEDULE DEBUG:", { myRank, memberCount: members.length, subordinatesCount: subordinates.length, members });
+
 
   useEffect(() => {
     fetchEvents();
+    fetchPersonalProgramData();
   }, [refreshKey]);
 
   useEffect(() => {
@@ -98,6 +133,23 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
     const allEvents = await getAllEvents();
     setEvents(allEvents);
     setLoading(false);
+  };
+
+  const fetchPersonalProgramData = async () => {
+    try {
+      const [blocksRes, reusableRes, membersRes, assignedRes] = await Promise.all([
+        listPersonalProgramBlocks({ fetchPolicy: 'SERVER_ONLY' }),
+        listPersonalReusableBlocks({ fetchPolicy: 'SERVER_ONLY' }),
+        listMembers({ fetchPolicy: 'SERVER_ONLY' }),
+        listAssignedPersonalProgramBlocks({ fetchPolicy: 'SERVER_ONLY' })
+      ]);
+      setPersonalProgramBlocks(blocksRes.data?.personalProgramBlocks || []);
+      setPersonalReusableBlocks(reusableRes.data?.personalReusableBlocks || []);
+      setMembers(membersRes?.data?.users || []);
+      setAssignedBlocks(assignedRes?.data?.personalProgramBlocks || []);
+    } catch (err) {
+      console.error('Error fetching personal program data:', err);
+    }
   };
 
   const fetchProgramData = async () => {
@@ -211,18 +263,74 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
     setIsSavingProgram(true);
     try {
       // 1. Delete all existing program blocks for the selected date
-      const blocksToDelete = programBlocks.filter(b => b.date === newProgramDate);
+      const blocksToDelete = isPersonalBuilder 
+        ? personalProgramBlocks.filter(b => b.date === newProgramDate)
+        : programBlocks.filter(b => b.date === newProgramDate);
       if (blocksToDelete.length > 0) {
-        await Promise.all(blocksToDelete.map(b => deleteProgramBlock({ id: b.id })));
+        await Promise.all(blocksToDelete.map(b => 
+          isPersonalBuilder ? deletePersonalProgramBlock({ id: b.id }) : deleteProgramBlock({ id: b.id })
+        ));
       }
 
       // 2. Create the new program blocks
-      await Promise.all(formBlocks.map(b => createProgramBlock({
-        date: newProgramDate,
-        time: b.time.trim(),
-        title: b.title.trim(),
-        minister: b.minister.trim()
-      })));
+      if (isPersonalBuilder) {
+        for (const b of formBlocks) {
+          if (assignedToUsers.length > 0) {
+            for (const uid of assignedToUsers) {
+              await assignPersonalProgramBlock({
+                userId: uid,
+                assignedBy: userProp?.uid,
+                date: newProgramDate,
+                time: b.time.trim(),
+                endTime: b.endTime ? b.endTime.trim() : null,
+                title: b.title.trim(),
+                description: b.minister.trim(),
+                location: b.location ? b.location.trim() : null,
+                category: b.category ? b.category.trim() : null,
+                type: b.type ? b.type.trim() : null,
+                hours: b.hours ? parseFloat(b.hours) : null,
+                dressCode: b.dressCode ? b.dressCode.trim() : null
+              });
+            }
+            if (alsoAssignToSelf) {
+              await createPersonalProgramBlock({
+                date: newProgramDate,
+                time: b.time.trim(),
+                endTime: b.endTime ? b.endTime.trim() : null,
+                title: b.title.trim(),
+                description: b.minister.trim(),
+                location: b.location ? b.location.trim() : null,
+                category: b.category ? b.category.trim() : null,
+                type: b.type ? b.type.trim() : null,
+                hours: b.hours ? parseFloat(b.hours) : null,
+                dressCode: b.dressCode ? b.dressCode.trim() : null
+              });
+            }
+          } else {
+            await createPersonalProgramBlock({
+              date: newProgramDate,
+              time: b.time.trim(),
+              endTime: b.endTime ? b.endTime.trim() : null,
+              title: b.title.trim(),
+              description: b.minister.trim(),
+              location: b.location ? b.location.trim() : null,
+              category: b.category ? b.category.trim() : null,
+              type: b.type ? b.type.trim() : null,
+              hours: b.hours ? parseFloat(b.hours) : null,
+              dressCode: b.dressCode ? b.dressCode.trim() : null
+            });
+          }
+        }
+      } else {
+        await Promise.all(formBlocks.map(b => 
+          createProgramBlock({
+            date: newProgramDate,
+            time: b.time.trim(),
+            title: b.title.trim(),
+            minister: b.minister.trim()
+          })
+        ));
+      }
 
       // 3. Create the new reusable blocks (if checked and they don't already exist)
       const reusablesToCreate = formBlocks.filter(b => b.saveAsReusable);
@@ -242,23 +350,39 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
           const titleNorm = newRb.title.trim().toLowerCase();
           const ministerNorm = newRb.minister.trim().toLowerCase();
           const timeNorm = newRb.time.trim().toLowerCase();
-          return !reusableBlocks.some(rb => 
-            rb.title.trim().toLowerCase() === titleNorm &&
-            rb.minister.trim().toLowerCase() === ministerNorm &&
-            rb.time.trim().toLowerCase() === timeNorm
-          );
+          const listToCheck = isPersonalBuilder ? personalReusableBlocks : reusableBlocks;
+          return !listToCheck.some(rb => {
+            const rbMinister = isPersonalBuilder ? rb.description : rb.minister;
+            return rb.title.trim().toLowerCase() === titleNorm &&
+            (rbMinister || '').trim().toLowerCase() === ministerNorm &&
+            rb.time.trim().toLowerCase() === timeNorm;
+          });
         });
 
         if (uniqueNewReusables.length > 0) {
-          await Promise.all(uniqueNewReusables.map(b => createReusableBlock({
-            time: b.time.trim(),
-            title: b.title.trim(),
-            minister: b.minister.trim()
-          })));
+          await Promise.all(uniqueNewReusables.map(b => 
+            isPersonalBuilder
+              ? createPersonalReusableBlock({
+                  time: b.time.trim(),
+                  endTime: b.endTime ? b.endTime.trim() : null,
+                  title: b.title.trim(),
+                  description: b.minister.trim(),
+                  location: b.location ? b.location.trim() : null,
+                  category: b.category ? b.category.trim() : null,
+                  type: b.type ? b.type.trim() : null,
+                  hours: b.hours ? parseFloat(b.hours) : null,
+                  dressCode: b.dressCode ? b.dressCode.trim() : null
+                })
+              : createReusableBlock({
+                  time: b.time.trim(),
+                  title: b.title.trim(),
+                  minister: b.minister.trim()
+                })
+          ));
         }
       }
 
-      await fetchProgramData();
+      if (isPersonalBuilder) await fetchPersonalProgramData(); else await fetchProgramData();
       if (onRefresh) onRefresh();
       setShowCreateProgramModal(false);
       alert('Church program updated successfully!');
@@ -280,9 +404,12 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
         saveAsReusable: false
       })));
     } else {
-      setFormBlocks([{ time: '', title: '', minister: '', saveAsReusable: false }]);
+      setFormBlocks([{ time: '', endTime: '', title: '', minister: '', location: '', category: 'Event', type: 'Personal', hours: '', dressCode: '', saveAsReusable: false, showDetails: false }]);
     }
-    setShowCreateProgramModal(true);
+    setIsPersonalBuilder(false);
+    setAssignedToUsers([]);
+      setAlsoAssignToSelf(false);
+                    setShowCreateProgramModal(true);
   };
 
   const handleDeleteEntireProgram = async () => {
@@ -503,10 +630,13 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                   <button
                     onClick={() => {
                       setNewProgramDate(selectedDate);
-                      setFormBlocks([{ time: '', title: '', minister: '', saveAsReusable: false }]);
-                      setShowCreateProgramModal(true);
-                    }}
-                    style={{
+                      setFormBlocks([{ time: '', endTime: '', title: '', minister: '', location: '', category: 'Event', type: 'Personal', hours: '', dressCode: '', saveAsReusable: false, showDetails: false }]);
+                      setIsPersonalBuilder(true);
+                  setAssignedToUsers([]);
+      setAlsoAssignToSelf(false);
+                    setShowCreateProgramModal(true);
+                }}
+                style={{
                       backgroundColor: 'white',
                       color: 'var(--accent)',
                       border: '1px solid var(--accent)',
@@ -632,52 +762,128 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
             >
               {t('submitTestimony')}
             </button>
+            
+
             {canAddSchedule && (
               <button
-                onClick={() => setShowAddModal(true)}
-                style={{
-                  background: 'none',
+                onClick={() => {
+                  setNewProgramDate(selectedDate);
+                  if (personalSortedBlocks.length > 0) {
+                    setFormBlocks(personalSortedBlocks.map(b => ({
+                      time: b.time,
+                      endTime: b.endTime || '',
+                      title: b.title,
+                      minister: b.description || '',
+                      location: b.location || '',
+                      category: b.category || 'Event',
+                      type: b.type || 'Personal',
+                      hours: b.hours || '',
+                      dressCode: b.dressCode || '',
+                      saveAsReusable: false,
+                      showDetails: false
+                    })));
+                  } else {
+                    setFormBlocks([{ time: '', endTime: '', title: '', minister: '', location: '', category: 'Event', type: 'Personal', hours: '', dressCode: '', saveAsReusable: false, showDetails: false }]);
+                  }
+                  setIsPersonalBuilder(true);
+                    setAssignedToUsers([]);
+      setAlsoAssignToSelf(false);
+                    setShowCreateProgramModal(true);
+                  }}
+                  style={{
+                    background: 'none',
                   border: 'none',
                   color: 'var(--accent)',
                   fontWeight: '600',
-                  fontSize: '1.2rem',
+                  fontSize: '1rem',
                   cursor: 'pointer'
                 }}>
-                + {t('add')}
+                + Build Blocks
               </button>
             )}
+
           </div>
         </div>
 
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
-            {t('loadingEvents')}
-          </div>
-        ) : validEvents.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
-            {t('noEvents')} 📅
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {workShifts.length > 0 && (
-              <div>
-                <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Obligatory Attendance</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {workShifts.map(event => renderEventCard(event))}
-                </div>
-              </div>
-            )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-            {personalEvents.length > 0 && (
-              <div>
-                <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Group Meetings</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {personalEvents.map(event => renderEventCard(event))}
-                </div>
+          {assignedBlocks && assignedBlocks.filter(b => b.date === selectedDate).length > 0 && (
+            <div>
+              <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Assigned By Me</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {Object.entries(assignedBlocks.filter(b => b.date === selectedDate).reduce((acc, b) => {
+                  if (!acc[b.time]) acc[b.time] = [];
+                  acc[b.time].push(b);
+                  return acc;
+                }, {})).sort(([tA], [tB]) => tA.localeCompare(tB)).map(([time, blocks]) => (
+                  <div key={time} style={{ border: '1px solid #e8e0ff', borderRadius: '12px', backgroundColor: '#faf8ff', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ fontWeight: '700', color: 'var(--accent)' }}>{time} — {blocks[0].title}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {blocks.map(item => (
+                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', backgroundColor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
+                          <span style={{ fontWeight: '600', color: '#333' }}>{item.user?.first} {item.user?.last}</span>
+                          <span style={{ fontSize: '0.78rem', color: '#888' }}>({item.user?.position || 'Member'})</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+
+          {personalSortedBlocks.length > 0 && (
+            <div>
+              <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>My Schedule Blocks</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {personalSortedBlocks.map((item) => (
+                  <div key={item.id} style={{ ...cardStyle, padding: '12px 16px', gap: '12px' }}>
+                    <div style={{ fontWeight: '700', color: 'var(--accent)', minWidth: '80px' }}>{item.time}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: '600', color: '#111' }}>{item.title}</div>
+                      <div style={{ fontSize: '0.85rem', color: '#666' }}>{item.description}</div>
+                      {item.location && <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '2px' }}>📍 {item.location}</div>}
+                      {item.endTime && <div style={{ fontSize: '0.8rem', color: '#888' }}>End: {item.endTime}</div>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
+              {t('loadingEvents')}
+            </div>
+          ) : validEvents.length === 0 ? null : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {workShifts.length > 0 && (
+                <div>
+                  <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Obligatory Attendance</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {workShifts.map(event => renderEventCard(event))}
+                  </div>
+                </div>
+              )}
+
+              {personalEvents.length > 0 && (
+                <div>
+                  <h4 style={{ margin: '0 0 12px 0', color: '#666', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Group Meetings</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {personalEvents.map(event => renderEventCard(event))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {!loading && validEvents.length === 0 && personalSortedBlocks.length === 0 && (!assignedBlocks || assignedBlocks.filter(b => b.date === selectedDate).length === 0) && (
+            <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
+              {t('noEvents')} 📅
+            </div>
+          )}
+
+        </div>
       </>
     );
   };
@@ -901,7 +1107,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
             gap: '16px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '12px' }}>
-              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', color: '#111' }}>{sortedBlocks.length > 0 ? 'Edit Church Program' : 'Create Church Program'}</h3>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', color: '#111' }}>{isPersonalBuilder ? (personalSortedBlocks.length > 0 ? 'Edit Personal Blocks' : 'Build Personal Blocks') : (sortedBlocks.length > 0 ? 'Edit Church Program' : 'Create Church Program')}</h3>
               <button
                 onClick={() => setShowCreateProgramModal(false)}
                 style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#666' }}
@@ -912,7 +1118,94 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
 
             <div style={{ overflowY: 'auto', flex: 1, paddingRight: '4px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontWeight: '700', fontSize: '0.85rem', color: '#555', marginBottom: '6px' }}>Program Date</label>
+                
+                
+                {isPersonalBuilder && subordinates.length > 0 && (
+                  <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f0f4f8', borderRadius: '12px' }}>
+                    <label style={{ display: 'block', fontWeight: '700', fontSize: '0.85rem', color: 'var(--accent)', marginBottom: '8px' }}>Assign to Subordinates (Optional)</label>
+                    <p style={{ fontSize: '0.75rem', color: '#666', marginTop: 0, marginBottom: '8px' }}>Select users to assign this schedule to them instead of yourself.</p>
+                    
+                    <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
+                      {Object.entries(subordinates.reduce((acc, sub) => {
+                        const group = (sub.court || 'No Court') + ' - ' + (sub.dept || 'No Department');
+                        if (!acc[group]) acc[group] = [];
+                        acc[group].push(sub);
+                        return acc;
+                      }, {}))
+                      .sort(([keyA], [keyB]) => {
+                         const myGroup = (userProp?.court || 'No Court') + ' - ' + (userProp?.dept || 'No Department');
+                         if (keyA === myGroup && keyB !== myGroup) return -1;
+                         if (keyB === myGroup && keyA !== myGroup) return 1;
+                         
+                         const myCourtStr = (userProp?.court || 'No Court') + ' -';
+                         const aIsMyCourt = keyA.startsWith(myCourtStr);
+                         const bIsMyCourt = keyB.startsWith(myCourtStr);
+                         
+                         if (aIsMyCourt && !bIsMyCourt) return -1;
+                         if (!aIsMyCourt && bIsMyCourt) return 1;
+                         
+                         return keyA.localeCompare(keyB);
+                      })
+                      .map(([groupKey, groupBlocks]) => {
+                        const myGroup = (userProp?.court || 'No Court') + ' - ' + (userProp?.dept || 'No Department');
+                        const myCourtStr = (userProp?.court || 'No Court') + ' -';
+                        
+                        return (
+                        <details key={groupKey} style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '8px', backgroundColor: 'white' }}>
+                          <summary style={{ fontWeight: '600', fontSize: '0.85rem', cursor: 'pointer', outline: 'none', color: '#333' }}>
+                            {groupKey === myGroup ? '📌 ' : ''}
+                            {groupKey.startsWith(myCourtStr) && groupKey !== myGroup ? '📍 ' : ''}
+                            {groupKey} ({groupBlocks.length} users)
+                          </summary>
+                          <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '8px' }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const groupUids = groupBlocks.map(g => g.uid);
+                                const allSelected = groupUids.every(uid => assignedToUsers.includes(uid));
+                                if (allSelected) {
+                                  setAssignedToUsers(assignedToUsers.filter(id => !groupUids.includes(id)));
+                                } else {
+                                  const newSet = new Set([...assignedToUsers, ...groupUids]);
+                                  setAssignedToUsers(Array.from(newSet));
+                                }
+                              }}
+                              style={{ alignSelf: 'flex-start', fontSize: '0.75rem', padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', cursor: 'pointer', backgroundColor: '#fafafa' }}
+                            >
+                              Toggle Select All
+                            </button>
+                            {groupBlocks.map(sub => (
+                              <label key={sub.uid} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#444', cursor: 'pointer' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={assignedToUsers.includes(sub.uid)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) setAssignedToUsers([...assignedToUsers, sub.uid]);
+                                    else setAssignedToUsers(assignedToUsers.filter(id => id !== sub.uid));
+                                  }}
+                                />
+                                {sub.first} {sub.last} <span style={{ color: '#888', fontSize: '0.75rem' }}>({sub.position || 'Member'})</span>
+                              </label>
+                            ))}
+                          </div>
+                        </details>
+                      );
+                      })}
+                    </div>
+
+                    {assignedToUsers.length > 0 && (
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#333', cursor: 'pointer', borderTop: '1px solid #ddd', paddingTop: '8px' }}>
+                        <input
+                          type="checkbox"
+                          checked={alsoAssignToSelf}
+                          onChange={(e) => setAlsoAssignToSelf(e.target.checked)}
+                        />
+                        <strong>Also add this schedule to my own personal schedule</strong>
+                      </label>
+                    )}
+                  </div>
+                )}
+                <label style={{ display: 'block', fontWeight: '700', fontSize: '0.85rem', color: '#555', marginBottom: '6px' }}>{isPersonalBuilder ? 'Date' : 'Program Date'}</label>
                 <input
                   type="date"
                   value={newProgramDate}
@@ -931,7 +1224,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <label style={{ fontWeight: '700', fontSize: '0.85rem', color: '#555', margin: 0 }}>
-                    {showManageTemplates ? 'Saved Templates' : 'Program Blocks'}
+                    {showManageTemplates ? 'Saved Templates' : (isPersonalBuilder ? 'Personal Blocks' : 'Program Blocks')}
                   </label>
                   <button
                     type="button"
@@ -1035,7 +1328,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                         <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#666' }}>Minister:</span>
                         <input
                           type="text"
-                          placeholder="e.g. Pastor John"
+                          placeholder={isPersonalBuilder ? "e.g. Meeting with team" : "e.g. Pastor John"}
                           value={newTemplateForm.minister}
                           onChange={(e) => setNewTemplateForm({ ...newTemplateForm, minister: e.target.value })}
                           style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem', outline: 'none' }}
@@ -1334,10 +1627,10 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                               </div>
                             </div>
                             <div>
-                              <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '4px', fontWeight: '600' }}>Minister</label>
+                              <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '4px', fontWeight: '600' }}>{isPersonalBuilder ? 'Description' : 'Minister'}</label>
                               <input
                                 type="text"
-                                placeholder="e.g. Pastor John"
+                                placeholder={isPersonalBuilder ? "e.g. Meeting with team" : "e.g. Pastor John"}
                                 value={block.minister}
                                 onChange={(e) => {
                                   const updated = [...formBlocks];
@@ -1393,6 +1686,122 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                             />
                             Save as reusable block template
                           </label>
+
+                          {isPersonalBuilder && (
+                            <div style={{ marginTop: '8px', borderTop: '1px solid #ddd', paddingTop: '12px' }}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = [...formBlocks];
+                                  updated[idx].showDetails = !updated[idx].showDetails;
+                                  setFormBlocks(updated);
+                                }}
+                                style={{
+                                  background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600', padding: 0
+                                }}
+                              >
+                                {block.showDetails ? 'Hide Additional Details ▲' : 'Show Additional Details ▼'}
+                              </button>
+                              
+                              {block.showDetails && (
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '12px' }}>
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '4px', fontWeight: '600' }}>End Time</label>
+                                    <input
+                                      type="time"
+                                      value={block.endTime || ''}
+                                      onChange={(e) => {
+                                        const updated = [...formBlocks];
+                                        updated[idx].endTime = e.target.value;
+                                        setFormBlocks(updated);
+                                      }}
+                                      style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '4px', fontWeight: '600' }}>Location</label>
+                                    <input
+                                      type="text"
+                                      placeholder="Location"
+                                      value={block.location || ''}
+                                      onChange={(e) => {
+                                        const updated = [...formBlocks];
+                                        updated[idx].location = e.target.value;
+                                        setFormBlocks(updated);
+                                      }}
+                                      style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '4px', fontWeight: '600' }}>Category</label>
+                                    <select
+                                      value={block.category || 'Event'}
+                                      onChange={(e) => {
+                                        const updated = [...formBlocks];
+                                        updated[idx].category = e.target.value;
+                                        setFormBlocks(updated);
+                                      }}
+                                      style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                                    >
+                                      <option value="Worship">Worship</option>
+                                      <option value="Youth">Youth</option>
+                                      <option value="Study">Study</option>
+                                      <option value="Outreach">Outreach</option>
+                                      <option value="Baptism">Baptism</option>
+                                      <option value="Event">Event</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '4px', fontWeight: '600' }}>Type</label>
+                                    <select
+                                      value={block.type || 'Personal'}
+                                      onChange={(e) => {
+                                        const updated = [...formBlocks];
+                                        updated[idx].type = e.target.value;
+                                        setFormBlocks(updated);
+                                      }}
+                                      style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                                    >
+                                      <option value="Personal">Personal Event</option>
+                                      <option value="Work Shift">Work Shift</option>
+                                    </select>
+                                  </div>
+                                  {block.type === 'Work Shift' && (
+                                    <div>
+                                      <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '4px', fontWeight: '600' }}>Hours Logged</label>
+                                      <input
+                                        type="number"
+                                        placeholder="Hours"
+                                        value={block.hours || ''}
+                                        onChange={(e) => {
+                                          const updated = [...formBlocks];
+                                          updated[idx].hours = e.target.value;
+                                          setFormBlocks(updated);
+                                        }}
+                                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                                        step="0.5"
+                                        min="0"
+                                      />
+                                    </div>
+                                  )}
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '4px', fontWeight: '600' }}>Dress Code</label>
+                                    <input
+                                      type="text"
+                                      placeholder="Dress Code"
+                                      value={block.dressCode || ''}
+                                      onChange={(e) => {
+                                        const updated = [...formBlocks];
+                                        updated[idx].dressCode = e.target.value;
+                                        setFormBlocks(updated);
+                                      }}
+                                      style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1460,7 +1869,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                   boxShadow: '0 4px 12px rgba(91, 63, 187, 0.2)'
                 }}
               >
-                {isSavingProgram ? 'Saving Program...' : 'Save Program'}
+                {isPersonalBuilder ? (isSavingProgram ? 'Saving Blocks...' : 'Save Blocks') : (isSavingProgram ? 'Saving Program...' : 'Save Program')}
               </button>
             </div>
           </div>

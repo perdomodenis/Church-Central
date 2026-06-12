@@ -30,6 +30,43 @@ export interface ApproveAppointmentVariables {
   time: string;
 }
 
+export interface AssignPersonalProgramBlockData {
+  personalProgramBlock_insert: PersonalProgramBlock_Key;
+}
+
+export interface AssignPersonalProgramBlockVariables {
+  userId: string;
+  assignedBy: string;
+  date: string;
+  time: string;
+  endTime?: string | null;
+  title: string;
+  description?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+
+export interface AssignPersonalReusableBlockData {
+  personalReusableBlock_insert: PersonalReusableBlock_Key;
+}
+
+export interface AssignPersonalReusableBlockVariables {
+  userId: string;
+  assignedBy: string;
+  title: string;
+  description?: string | null;
+  time: string;
+  endTime?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+
 export interface BaptismEvent_Key {
   id: UUIDString;
   __typename?: 'BaptismEvent_Key';
@@ -123,6 +160,39 @@ export interface CreateEventVariables {
   createdByUid: string;
 }
 
+export interface CreatePersonalProgramBlockData {
+  personalProgramBlock_insert: PersonalProgramBlock_Key;
+}
+
+export interface CreatePersonalProgramBlockVariables {
+  date: string;
+  time: string;
+  endTime?: string | null;
+  title: string;
+  description?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+
+export interface CreatePersonalReusableBlockData {
+  personalReusableBlock_insert: PersonalReusableBlock_Key;
+}
+
+export interface CreatePersonalReusableBlockVariables {
+  title: string;
+  description?: string | null;
+  time: string;
+  endTime?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
+}
+
 export interface CreateProgramBlockData {
   programBlock_insert: ProgramBlock_Key;
 }
@@ -157,6 +227,22 @@ export interface DeleteEventData {
 }
 
 export interface DeleteEventVariables {
+  id: UUIDString;
+}
+
+export interface DeletePersonalProgramBlockData {
+  personalProgramBlock_delete?: PersonalProgramBlock_Key | null;
+}
+
+export interface DeletePersonalProgramBlockVariables {
+  id: UUIDString;
+}
+
+export interface DeletePersonalReusableBlockData {
+  personalReusableBlock_delete?: PersonalReusableBlock_Key | null;
+}
+
+export interface DeletePersonalReusableBlockVariables {
   id: UUIDString;
 }
 
@@ -317,6 +403,59 @@ export interface ListApprovedAppointmentsData {
   } & AppointmentRequest_Key)[];
 }
 
+export interface ListAssignedPersonalProgramBlocksData {
+  personalProgramBlocks: ({
+    id: UUIDString;
+    user: {
+      uid: string;
+      first: string;
+      last: string;
+      email: string;
+      position?: string | null;
+      court?: string | null;
+      dept?: string | null;
+      district?: string | null;
+    } & User_Key;
+      date: string;
+      time: string;
+      endTime?: string | null;
+      title: string;
+      description?: string | null;
+      location?: string | null;
+      category?: string | null;
+      type?: string | null;
+      hours?: number | null;
+      dressCode?: string | null;
+      assignedBy?: string | null;
+  } & PersonalProgramBlock_Key)[];
+}
+
+export interface ListAssignedPersonalReusableBlocksData {
+  personalReusableBlocks: ({
+    id: UUIDString;
+    user: {
+      uid: string;
+      first: string;
+      last: string;
+      email: string;
+      position?: string | null;
+      court?: string | null;
+      dept?: string | null;
+      district?: string | null;
+    } & User_Key;
+      title: string;
+      description?: string | null;
+      time: string;
+      endTime?: string | null;
+      location?: string | null;
+      category?: string | null;
+      type?: string | null;
+      hours?: number | null;
+      dressCode?: string | null;
+      assignedBy?: string | null;
+  } & PersonalReusableBlock_Key)[];
+}
+
 export interface ListBaptismsData {
   baptismEvents: ({
     id: UUIDString;
@@ -460,6 +599,37 @@ export interface ListPendingAppointmentsData {
   } & AppointmentRequest_Key)[];
 }
 
+export interface ListPersonalProgramBlocksData {
+  personalProgramBlocks: ({
+    id: UUIDString;
+    date: string;
+    time: string;
+    endTime?: string | null;
+    title: string;
+    description?: string | null;
+    location?: string | null;
+    category?: string | null;
+    type?: string | null;
+    hours?: number | null;
+    dressCode?: string | null;
+  } & PersonalProgramBlock_Key)[];
+}
+
+export interface ListPersonalReusableBlocksData {
+  personalReusableBlocks: ({
+    id: UUIDString;
+    title: string;
+    description?: string | null;
+    time: string;
+    endTime?: string | null;
+    location?: string | null;
+    category?: string | null;
+    type?: string | null;
+    hours?: number | null;
+    dressCode?: string | null;
+  } & PersonalReusableBlock_Key)[];
+}
+
 export interface ListProgramBlocksData {
   programBlocks: ({
     id: UUIDString;
@@ -513,6 +683,16 @@ export interface ListReusableBlocksData {
     minister: string;
     time: string;
   } & ReusableBlock_Key)[];
+}
+
+export interface PersonalProgramBlock_Key {
+  id: UUIDString;
+  __typename?: 'PersonalProgramBlock_Key';
+}
+
+export interface PersonalReusableBlock_Key {
+  id: UUIDString;
+  __typename?: 'PersonalReusableBlock_Key';
 }
 
 export interface ProgramBlock_Key {
@@ -608,6 +788,23 @@ export interface UpdateEventVariables {
   description?: string | null;
   type?: string | null;
   capacity?: number | null;
+}
+
+export interface UpdatePersonalReusableBlockData {
+  personalReusableBlock_update?: PersonalReusableBlock_Key | null;
+}
+
+export interface UpdatePersonalReusableBlockVariables {
+  id: UUIDString;
+  title: string;
+  description?: string | null;
+  time: string;
+  endTime?: string | null;
+  location?: string | null;
+  category?: string | null;
+  type?: string | null;
+  hours?: number | null;
+  dressCode?: string | null;
 }
 
 export interface UpdateReusableBlockData {
@@ -754,6 +951,41 @@ export function updateReusableBlock(dc: DataConnect, vars: UpdateReusableBlockVa
 /** Generated Node Admin SDK operation action function for the 'UpdateReusableBlock' Mutation. Allow users to pass in custom DataConnect instances. */
 export function updateReusableBlock(vars: UpdateReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateReusableBlockData>>;
 
+/** Generated Node Admin SDK operation action function for the 'CreatePersonalProgramBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function createPersonalProgramBlock(dc: DataConnect, vars: CreatePersonalProgramBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreatePersonalProgramBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'CreatePersonalProgramBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function createPersonalProgramBlock(vars: CreatePersonalProgramBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreatePersonalProgramBlockData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeletePersonalProgramBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function deletePersonalProgramBlock(dc: DataConnect, vars: DeletePersonalProgramBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeletePersonalProgramBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'DeletePersonalProgramBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deletePersonalProgramBlock(vars: DeletePersonalProgramBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeletePersonalProgramBlockData>>;
+
+/** Generated Node Admin SDK operation action function for the 'CreatePersonalReusableBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function createPersonalReusableBlock(dc: DataConnect, vars: CreatePersonalReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreatePersonalReusableBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'CreatePersonalReusableBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function createPersonalReusableBlock(vars: CreatePersonalReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreatePersonalReusableBlockData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeletePersonalReusableBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function deletePersonalReusableBlock(dc: DataConnect, vars: DeletePersonalReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeletePersonalReusableBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'DeletePersonalReusableBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deletePersonalReusableBlock(vars: DeletePersonalReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeletePersonalReusableBlockData>>;
+
+/** Generated Node Admin SDK operation action function for the 'UpdatePersonalReusableBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function updatePersonalReusableBlock(dc: DataConnect, vars: UpdatePersonalReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdatePersonalReusableBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'UpdatePersonalReusableBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function updatePersonalReusableBlock(vars: UpdatePersonalReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdatePersonalReusableBlockData>>;
+
+/** Generated Node Admin SDK operation action function for the 'AssignPersonalProgramBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function assignPersonalProgramBlock(dc: DataConnect, vars: AssignPersonalProgramBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<AssignPersonalProgramBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'AssignPersonalProgramBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function assignPersonalProgramBlock(vars: AssignPersonalProgramBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<AssignPersonalProgramBlockData>>;
+
+/** Generated Node Admin SDK operation action function for the 'AssignPersonalReusableBlock' Mutation. Allow users to execute without passing in DataConnect. */
+export function assignPersonalReusableBlock(dc: DataConnect, vars: AssignPersonalReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<AssignPersonalReusableBlockData>>;
+/** Generated Node Admin SDK operation action function for the 'AssignPersonalReusableBlock' Mutation. Allow users to pass in custom DataConnect instances. */
+export function assignPersonalReusableBlock(vars: AssignPersonalReusableBlockVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<AssignPersonalReusableBlockData>>;
+
 /** Generated Node Admin SDK operation action function for the 'GetUserContext' Query. Allow users to execute without passing in DataConnect. */
 export function getUserContext(dc: DataConnect, vars: GetUserContextVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetUserContextData>>;
 /** Generated Node Admin SDK operation action function for the 'GetUserContext' Query. Allow users to pass in custom DataConnect instances. */
@@ -818,4 +1050,24 @@ export function listProgramBlocks(options?: OperationOptions): Promise<ExecuteOp
 export function listReusableBlocks(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListReusableBlocksData>>;
 /** Generated Node Admin SDK operation action function for the 'ListReusableBlocks' Query. Allow users to pass in custom DataConnect instances. */
 export function listReusableBlocks(options?: OperationOptions): Promise<ExecuteOperationResponse<ListReusableBlocksData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListPersonalProgramBlocks' Query. Allow users to execute without passing in DataConnect. */
+export function listPersonalProgramBlocks(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListPersonalProgramBlocksData>>;
+/** Generated Node Admin SDK operation action function for the 'ListPersonalProgramBlocks' Query. Allow users to pass in custom DataConnect instances. */
+export function listPersonalProgramBlocks(options?: OperationOptions): Promise<ExecuteOperationResponse<ListPersonalProgramBlocksData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListPersonalReusableBlocks' Query. Allow users to execute without passing in DataConnect. */
+export function listPersonalReusableBlocks(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListPersonalReusableBlocksData>>;
+/** Generated Node Admin SDK operation action function for the 'ListPersonalReusableBlocks' Query. Allow users to pass in custom DataConnect instances. */
+export function listPersonalReusableBlocks(options?: OperationOptions): Promise<ExecuteOperationResponse<ListPersonalReusableBlocksData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListAssignedPersonalProgramBlocks' Query. Allow users to execute without passing in DataConnect. */
+export function listAssignedPersonalProgramBlocks(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListAssignedPersonalProgramBlocksData>>;
+/** Generated Node Admin SDK operation action function for the 'ListAssignedPersonalProgramBlocks' Query. Allow users to pass in custom DataConnect instances. */
+export function listAssignedPersonalProgramBlocks(options?: OperationOptions): Promise<ExecuteOperationResponse<ListAssignedPersonalProgramBlocksData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListAssignedPersonalReusableBlocks' Query. Allow users to execute without passing in DataConnect. */
+export function listAssignedPersonalReusableBlocks(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListAssignedPersonalReusableBlocksData>>;
+/** Generated Node Admin SDK operation action function for the 'ListAssignedPersonalReusableBlocks' Query. Allow users to pass in custom DataConnect instances. */
+export function listAssignedPersonalReusableBlocks(options?: OperationOptions): Promise<ExecuteOperationResponse<ListAssignedPersonalReusableBlocksData>>;
 

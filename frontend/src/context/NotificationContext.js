@@ -14,6 +14,7 @@ export const NotificationProvider = ({ children }) => {
     const [hasNewInbox, setHasNewInbox] = useState(false);
     const [sessionStartTime] = useState(() => Date.now());
     const [notifiedIds, setNotifiedIds] = useState(new Set());
+    const [hasNewMessages, setHasNewMessages] = useState(false);
 
     // Sync notification settings with browser permission
     useEffect(() => {
@@ -86,6 +87,64 @@ export const NotificationProvider = ({ children }) => {
         return () => unsubscribe();
     }, [user?.uid, pushEnabled, sessionStartTime, notifiedIds]);
 
+    // Listen to Firebase RTDB for new chat messages
+    useEffect(() => {
+        if (!user?.uid) {
+            setHasNewMessages(false);
+            return;
+        }
+
+        const checkMessages = (data, isGroup) => {
+            if (!data) return false;
+            
+            const readStatuses = JSON.parse(localStorage.getItem('chatReadStatuses') || '{}');
+            return Object.entries(data).some(([chatId, chat]) => {
+                const members = isGroup ? chat.members : chat.participants;
+                if (members?.includes(user.uid)) {
+                    const lastMsg = chat.lastMessage;
+                    if (lastMsg && lastMsg.userId !== user.uid) { // Use userId instead of senderId as defined in chatService
+                        const msgTime = new Date(lastMsg.timestamp).getTime();
+                        const lastRead = readStatuses[chatId] || 0;
+                        if (msgTime > lastRead) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            });
+        };
+
+        let groupsData = null;
+        let chatsData = null;
+
+        const evaluateMessages = () => {
+            const hasUnreadGroups = checkMessages(groupsData, true);
+            const hasUnreadChats = checkMessages(chatsData, false);
+            setHasNewMessages(hasUnreadGroups || hasUnreadChats);
+        };
+
+        const groupsRef = ref(rtdb, 'groups');
+        const chatsRef = ref(rtdb, 'chats');
+
+        const unsubscribeGroups = onValue(groupsRef, (snapshot) => {
+            groupsData = snapshot.val();
+            evaluateMessages();
+        });
+
+        const unsubscribeChats = onValue(chatsRef, (snapshot) => {
+            chatsData = snapshot.val();
+            evaluateMessages();
+        });
+
+        window.addEventListener('chatReadStatusesUpdated', evaluateMessages);
+
+        return () => {
+            unsubscribeGroups();
+            unsubscribeChats();
+            window.removeEventListener('chatReadStatusesUpdated', evaluateMessages);
+        };
+    }, [user?.uid]);
+
     const addNotification = useCallback((message, type = 'info', duration = 5000) => {
         const id = Date.now();
         const notificationData = { id, message, type }; 
@@ -138,7 +197,9 @@ export const NotificationProvider = ({ children }) => {
             removeNotification, 
             pushEnabled, 
             togglePushNotifications,
-            hasNewInbox 
+            hasNewInbox,
+            hasNewMessages,
+            setHasNewMessages
         }}>
             {children}
         </NotificationContext.Provider>
