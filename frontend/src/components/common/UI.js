@@ -21,7 +21,7 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
 
   const tabs = [
     { id: 'home', icon: <Icon.Home />, label: t('home') || 'Home' },
-    { id: 'mgmt', icon: <Icon.Management />, label: t('management') || 'Management' },
+    ...(level >= 2 ? [{ id: 'mgmt', icon: <Icon.Management />, label: t('management') || 'Management' }] : []),
     { id: 'members', icon: <Icon.Church />, label: t('church') || 'Church' },
     { id: 'inbox', icon: <Icon.Inbox />, label: t('inbox') || 'Inbox' },
   ];

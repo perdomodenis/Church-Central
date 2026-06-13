@@ -46,7 +46,10 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
   const [loading, setLoading] = useState(false);
 
   // Hub Navigation State
-  const [activeSubTab, setActiveSubTab] = useState((user?.accessLevel >= 3) ? 'directory' : 'baptism');
+  const [activeSubTab, setActiveSubTab] = useState(
+    (user?.accessLevel >= 3) ? 'directory' : 
+    (user?.accessLevel >= 2) ? 'baptism' : 'appointments'
+  );
 
   // Court and folder navigation states
   const [activeCourt, setActiveCourt] = useState('Glory Court');

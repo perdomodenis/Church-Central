@@ -33,7 +33,10 @@ const ManagementScreen = ({
   const { user: authUser } = useAuth();
   
   // Hub Navigation State
-  const [activeSubTab, setActiveSubTab] = useState((user?.accessLevel >= 3 || user?.isPA) ? 'admin' : 'events');
+  const [activeSubTab, setActiveSubTab] = useState(
+    (user?.accessLevel >= 3 || user?.isPA) ? 'admin' : 
+    (user?.accessLevel >= 2) ? 'documents' : 'events'
+  );
 
   const [activeTab, setActiveTab] = useState('pending');
   const [pendingAppointments, setPendingAppointments] = useState([]);
