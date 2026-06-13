@@ -2,9 +2,11 @@
 
 :root {
   /* ─── Base Palette ──────────────────────────────────────── */
-  --bg: #F9F8F6;            /* Warm off-white */
+  --bg: #F9F8F6;
+  /* Warm off-white */
   --surface: #FFFFFF;
-  --ink: #2A2F4D;            /* Deep, soft navy */
+  --ink: #2A2F4D;
+  /* Deep soft navy */
   --ink-2: #5D6484;
   --ink-3: #9DA3BF;
   --line: #EAEBF0;
