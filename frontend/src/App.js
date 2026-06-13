@@ -35,9 +35,60 @@ import {
 import { getAllMembers } from './services/memberService';
 
 // UI Components
-import { TopBar, MenuDrawer, FabMenu, Sheet, useToast } from './components/common/UI';
+import { TopHeader, TabBar, Sheet, useToast } from './components/common/UI';
 import { getAccessLevel } from './services/churchConstants';
 import * as Icon from './components/common/Icons';
+
+const MenuScreen = ({ route, onNavigate, onLogout, user, t }) => {
+  const level = user?.accessLevel || 1;
+  const menuItems = [
+    ...(level >= 2 ? [{ id: 'documents', label: t('documents'), icon: <Icon.Drop /> }] : []),
+    { id: 'appointment', label: t('appointments'), icon: <Icon.Appointment /> },
+    { id: 'events', label: t('events'), icon: <Icon.Calendar /> },
+    ...((level >= 3 || user?.isPA) ? [{ id: 'mgmt', label: t('management'), icon: <Icon.Management /> }] : []),
+    { id: 'baptism', label: t('baptism'), icon: <Icon.Drop /> },
+    ...((level === 1 || level >= 3) ? [{ id: 'nls', label: t('nls'), icon: <Icon.Spark /> }] : []),
+    { id: 'profile', label: t('profile'), icon: <Icon.Profile /> },
+    { id: 'feedback', label: t('feedback'), icon: <Icon.Feedback /> },
+    ...(level >= 4 ? [{ id: 'debug', label: t('debug'), icon: <Icon.Management /> }] : []),
+  ];
+
+  return (
+    <div style={{ padding: '16px' }}>
+      <h2 style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '20px', color: 'var(--ink)' }}>More</h2>
+      <div style={{ display: 'grid', gap: '12px' }}>
+        {menuItems.map(item => (
+          <button
+            key={item.id}
+            onClick={() => onNavigate(item.id)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '16px',
+              padding: '16px', backgroundColor: 'var(--surface)',
+              border: '1px solid var(--line)', borderRadius: '12px',
+              color: 'var(--ink)', fontSize: '1.1rem', fontWeight: '500',
+              cursor: 'pointer', textAlign: 'left', boxShadow: 'var(--shadow-1)'
+            }}
+          >
+            <span style={{ fontSize: '1.4rem', color: 'var(--accent)' }}>{item.icon}</span>
+            {item.label}
+          </button>
+        ))}
+        <button
+          onClick={onLogout}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '16px',
+            padding: '16px', backgroundColor: 'var(--surface)',
+            border: '1px solid var(--line)', borderRadius: '12px',
+            color: 'var(--rose)', fontSize: '1.1rem', fontWeight: '600',
+            cursor: 'pointer', textAlign: 'left', marginTop: '20px'
+          }}
+        >
+          Sign Out
+        </button>
+      </div>
+    </div>
+  );
+};
 
 
 import { listMembers, upsertUserProfile } from './lib/dataconnect';
@@ -160,7 +211,6 @@ function App() {
     }
   };
 
-  const [menuOpen, setMenuOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [openDocUploadOnMount, setOpenDocUploadOnMount] = useState(false);
   const [openAddScheduleOnMount, setOpenAddScheduleOnMount] = useState(false);
@@ -557,6 +607,8 @@ function App() {
     body = <MemberProfileScreen member={selectedMember} user={user} onBack={() => handleNavigate(level >= 3 ? 'members' : 'home')} onMessage={() => handleNavigate('messages')} onNavigate={handleNavigate} onUpdateMember={(m) => setSelectedMember(m)} />;
   } else if (route === 'debug') {
     body = level >= 4 ? <DebugScreen onBack={() => handleNavigate('home')} /> : <AccessDenied requiredLevel={4} />;
+  } else if (route === 'menu') {
+    body = <MenuScreen route={route} onNavigate={handleNavigate} onLogout={() => { auth.signOut(); handleNavigate('login'); }} user={user} t={t} />;
   } else {
     body = <FeedScreen scope={scope} onScope={setScope} onAction={onAction} user={user} refreshKey={refreshKey} />;
   }
@@ -570,14 +622,7 @@ function App() {
         />
       )}
       {!inAuth && (
-        <TopBar
-          route={route}
-          onNavigate={handleNavigate}
-          scope={scope}
-          scopeOptions={route === 'home' ? scopeOptions : null}
-          user={user}
-          hasNewInbox={hasNewInbox}
-          hasNewMessages={hasNewMessages}
+        <TopHeader
           title={
             route === 'inbox' ? t('inbox') :
             route === 'messages' ? t('messages') :
@@ -589,28 +634,30 @@ function App() {
             route === 'profile' ? t('profile') :
             route === 'settings' ? t('settings') :
             route === 'feedback' ? t('feedback') :
-            route === 'nls' ? t('nls') : ''
+            route === 'nls' ? t('nls') :
+            route === 'documents' ? t('documents') :
+            route === 'members' ? t('church') :
+            route === 'menu' ? 'Menu' : 'Church Central'
           }
-          onScope={setScope}
-          onMenu={() => setMenuOpen(true)}
+          user={user}
+          hasNewInbox={hasNewInbox}
+          hasNewMessages={hasNewMessages}
           onProfile={() => handleNavigate('profile')}
+          onAction={handleFab}
         />
       )}
 
-      <div className="nice-scroll" style={{ flex: 1, overflow: 'auto', paddingTop: inAuth ? 0 : 6, position: 'relative' }}>
+      <div className="nice-scroll" style={{ flex: 1, overflow: 'auto', paddingTop: inAuth ? 0 : 6, paddingBottom: inAuth ? 0 : 80, position: 'relative' }}>
         {body}
       </div>
 
-      {!inAuth && route === 'home' && <FabMenu onAction={handleFab} user={user} />}
-
-      <MenuDrawer
-        open={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        route={route}
-        onNavigate={handleNavigate}
-        onLogout={() => { setMenuOpen(false); auth.signOut(); handleNavigate('login'); }}
-        user={user}
-      />
+      {!inAuth && (
+        <TabBar 
+          route={route}
+          onNavigate={handleNavigate}
+          user={user}
+        />
+      )}
 
       {uploadOpen && (
         <UploadScreen
