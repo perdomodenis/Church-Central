@@ -90,3 +90,6 @@ Thumbs.db
 # Cypress
 cypress/downloads/
 cypress/videos/
+
+# Cloud Run Deployment
+env.yaml
