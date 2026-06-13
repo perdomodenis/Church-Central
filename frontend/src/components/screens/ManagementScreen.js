@@ -4,6 +4,9 @@ import { getDepartmentRequests, approveDepartmentRequest, rejectDepartmentReques
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { sendInboxNotificationByEmail } from '../../services/notificationService';
+import DocumentsScreen from './DocumentsScreen';
+import EventsScreen from './EventsScreen';
+import ScheduleScreen from './ScheduleScreen';
 
 const toCamelCase = (str) => {
   if (!str) return '';
@@ -17,9 +20,24 @@ const toCamelCase = (str) => {
     .join('');
 };
 
-const ManagementScreen = ({ user }) => {
+const ManagementScreen = ({ 
+  user, 
+  openDocUploadOnMount, 
+  setOpenDocUploadOnMount,
+  openAddScheduleOnMount,
+  setOpenAddScheduleOnMount,
+  refreshKey,
+  triggerRefresh
+}) => {
   const { t } = useLanguage();
   const { user: authUser } = useAuth();
+  
+  // Hub Navigation State
+  const [activeSubTab, setActiveSubTab] = useState(
+    (user?.accessLevel >= 3 || user?.isPA) ? 'admin' : 
+    (user?.accessLevel >= 2) ? 'documents' : 'events'
+  );
+
   const [activeTab, setActiveTab] = useState('pending');
   const [pendingAppointments, setPendingAppointments] = useState([]);
   const [approvedAppointments, setApprovedAppointments] = useState([]);
@@ -182,11 +200,65 @@ const ManagementScreen = ({ user }) => {
   };
 
   return (
-    <div className="management-screen" style={{ padding: '16px', paddingBottom: '80px' }}>
-      <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>{t('adminDashboard')}</h2>
-        <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>{t('adminDashboardSubtitle')}</p>
+    <div className="management-screen" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      
+      {/* --- HORIZONTAL NAV BAR --- */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        padding: '16px 20px',
+        overflowX: 'auto',
+        backgroundColor: 'var(--surface)',
+        borderBottom: '1px solid var(--line)',
+        scrollbarWidth: 'none', // Firefox
+        msOverflowStyle: 'none'  // IE 10+
+      }}>
+        <style>{`
+          .mgmt-nav-bar::-webkit-scrollbar { display: none; }
+        `}</style>
+
+        {(user?.accessLevel >= 3 || user?.isPA) && (
+          <button 
+            onClick={() => setActiveSubTab('admin')} 
+            style={topTabStyle(activeSubTab === 'admin')}
+          >
+            Dashboard
+          </button>
+        )}
+        
+        {user?.accessLevel >= 2 && (
+          <button 
+            onClick={() => setActiveSubTab('documents')} 
+            style={topTabStyle(activeSubTab === 'documents')}
+          >
+            Documents
+          </button>
+        )}
+
+        <button 
+          onClick={() => setActiveSubTab('events')} 
+          style={topTabStyle(activeSubTab === 'events')}
+        >
+          Events
+        </button>
+
+        {user?.accessLevel >= 2 && (
+          <button 
+            onClick={() => setActiveSubTab('schedule')} 
+            style={topTabStyle(activeSubTab === 'schedule')}
+          >
+            Schedule
+          </button>
+        )}
       </div>
+
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        {activeSubTab === 'admin' && (user?.accessLevel >= 3 || user?.isPA) && (
+          <div style={{ padding: '24px', paddingBottom: '80px' }}>
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px', color: 'var(--ink)' }}>{t('adminDashboard')}</h2>
+              <p style={{ opacity: 0.7, fontSize: '0.9rem', color: 'var(--ink-2)' }}>{t('adminDashboardSubtitle')}</p>
+            </div>
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
         <select
@@ -213,19 +285,19 @@ const ManagementScreen = ({ user }) => {
             onClick={() => setActiveTab('pending')}
             style={tabButtonStyle(activeTab === 'pending')}
           >
-            ⏳ {t('pending')} ({displayPending.length})
+            {t('pending')} ({displayPending.length})
           </button>
           <button
             onClick={() => setActiveTab('approved')}
             style={tabButtonStyle(activeTab === 'approved')}
           >
-            ✅ {t('approved')} ({displayApproved.length})
+            {t('approved')} ({displayApproved.length})
           </button>
           <button
             onClick={() => setActiveTab('rejected')}
             style={tabButtonStyle(activeTab === 'rejected')}
           >
-            ❌ {t('rejected')} ({displayRejected.length})
+            {t('rejected')} ({displayRejected.length})
           </button>
         </div>
       ) : (
@@ -241,13 +313,13 @@ const ManagementScreen = ({ user }) => {
             onClick={() => setActiveTab('dept_pending')}
             style={tabButtonStyle(activeTab === 'dept_pending')}
           >
-            ⏳ {t('pending')} ({departmentRequests.filter(r => r.status === 'pending').length})
+            {t('pending')} ({departmentRequests.filter(r => r.status === 'pending').length})
           </button>
           <button
             onClick={() => setActiveTab('dept_history')}
             style={tabButtonStyle(activeTab === 'dept_history')}
           >
-            📚 {t('history')} ({departmentRequests.filter(r => r.status !== 'pending').length})
+            {t('history')} ({departmentRequests.filter(r => r.status !== 'pending').length})
           </button>
         </div>
       )}
@@ -436,9 +508,33 @@ const ManagementScreen = ({ user }) => {
             </div>
           )
         ) : null}
+        </div>
       </div>
+    )}
 
-    </div>
+    {activeSubTab === 'documents' && user?.accessLevel >= 2 && (
+      <DocumentsScreen 
+        user={user} 
+        openUploadOnMount={openDocUploadOnMount} 
+        onCloseUploadOnMount={() => setOpenDocUploadOnMount(false)} 
+      />
+    )}
+
+    {activeSubTab === 'events' && (
+      <EventsScreen user={user} />
+    )}
+
+    {activeSubTab === 'schedule' && user?.accessLevel >= 2 && (
+      <ScheduleScreen 
+        user={user}
+        refreshKey={refreshKey}
+        onRefresh={triggerRefresh}
+        openAddEventOnMount={openAddScheduleOnMount}
+        onCloseAddEventOnMount={() => setOpenAddScheduleOnMount(false)}
+      />
+    )}
+  </div>
+</div>
   );
 };
 
@@ -492,5 +588,19 @@ const slotApproveButtonStyle = {
   alignItems: 'center',
   marginBottom: '6px'
 };
+
+const topTabStyle = (isActive) => ({
+  whiteSpace: 'nowrap',
+  padding: '8px 16px',
+  borderRadius: '20px',
+  border: 'none',
+  fontWeight: '600',
+  fontSize: '0.95rem',
+  cursor: 'pointer',
+  backgroundColor: isActive ? 'var(--accent)' : 'var(--line)',
+  color: isActive ? 'white' : 'var(--ink-2)',
+  transition: 'all 0.2s',
+  flexShrink: 0
+});
 
 export default ManagementScreen;
