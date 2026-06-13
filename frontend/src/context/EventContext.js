@@ -34,6 +34,6 @@ export function EventsProvider({ children }) {
 }
 
 // Hook um die events überall in der App zu verwenden
-export function useEvents() {
+function useEvents() {
   return useContext(EventsContext);
 }

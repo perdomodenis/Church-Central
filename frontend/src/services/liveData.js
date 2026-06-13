@@ -26,7 +26,7 @@ const day4Str = new Date(today.getTime() + 3*24*60*60*1000).toISOString().split(
 const day5Str = new Date(today.getTime() + 4*24*60*60*1000).toISOString().split('T')[0];
 
 // LIVE CHURCH DATA
-export const LIVE_CHURCH_INFO = {
+const LIVE_CHURCH_INFO = {
   name: 'Grace Community Church',
   shortName: 'GCC',
   email: 'info@gracecommunity.church',
@@ -51,7 +51,7 @@ export const LIVE_CHURCH_INFO = {
 };
 
 // LIVE ACTIVE MEMBERS
-export const LIVE_MEMBERS = [
+const LIVE_MEMBERS = [
   {
     uid: 'pastor_001',
     email: 'pastor.james@gracecommunity.church',
@@ -249,7 +249,7 @@ export const LIVE_MEMBERS = [
 ];
 
 // LIVE FEED POSTS (Recent activity)
-export const LIVE_FEED_POSTS = [
+const LIVE_FEED_POSTS = [
   {
     id: 1,
     author: 'Elena Rodriguez',
@@ -375,7 +375,7 @@ export const LIVE_FEED_POSTS = [
 ];
 
 // LIVE CHURCH EVENTS (Today, tomorrow, and upcoming)
-export const LIVE_CHURCH_EVENTS = [
+const LIVE_CHURCH_EVENTS = [
   {
     id: 'event_today_1',
     title: 'Food Bank Volunteer Drive',
@@ -495,7 +495,7 @@ export const LIVE_CHURCH_EVENTS = [
 ];
 
 // LIVE BAPTISM EVENTS
-export const LIVE_BAPTISM_EVENTS = [
+const LIVE_BAPTISM_EVENTS = [
   {
     id: 'baptism_this_week',
     title: 'Water Baptism Service',
@@ -538,7 +538,7 @@ export const LIVE_BAPTISM_EVENTS = [
 ];
 
 // LIVE CHAT MESSAGES (Recent conversations)
-export const LIVE_CHAT_MESSAGES = {
+const LIVE_CHAT_MESSAGES = {
   'member_001_member_002': {
     participants: ['member_001', 'member_002'],
     participantNames: { 'member_001': 'Juan Rivera', 'member_002': 'Sofia Garcia' },
@@ -573,7 +573,7 @@ export const LIVE_CHAT_MESSAGES = {
 };
 
 // LIVE GROUP CHATS (Active groups)
-export const LIVE_GROUP_CHATS = {
+const LIVE_GROUP_CHATS = {
   'youth_ministry': {
     type: 'group',
     name: 'Disciples Training Ministry (DTM)',
@@ -645,7 +645,7 @@ export const seedLiveData = async () => {
     console.log('✅ Información de iglesia (EN VIVO)');
 
     // PostgreSQL Members (Users)
-    for (const member of LIVE_MEMBERS) {
+    await Promise.all(LIVE_MEMBERS.map(async (member) => {
       await upsertUserProfile({
         uid: member.uid,
         email: member.email,
@@ -666,7 +666,7 @@ export const seedLiveData = async () => {
         authorizedPostAsDept: member.authorizedPostAsDept || false,
         authorizedPostAsCourt: member.authorizedPostAsCourt || false
       });
-    }
+    }));
     console.log(`✅ ${LIVE_MEMBERS.length} miembros activos inyectados en PostgreSQL`);
 
     // PostgreSQL Announcements
@@ -682,7 +682,7 @@ export const seedLiveData = async () => {
     // console.log(`✅ ${LIVE_FEED_POSTS.length} posts recientes inyectados en PostgreSQL`);
 
     // PostgreSQL Events
-    for (const event of LIVE_CHURCH_EVENTS) {
+    await Promise.all(LIVE_CHURCH_EVENTS.map(async (event) => {
       await createEvent({
         title: event.title,
         date: event.date,
@@ -694,11 +694,11 @@ export const seedLiveData = async () => {
         capacity: event.capacity || 100,
         createdByUid: event.createdBy || 'pastor_001'
       });
-    }
+    }));
     console.log(`✅ ${LIVE_CHURCH_EVENTS.length} eventos inyectados en PostgreSQL`);
 
     // PostgreSQL Baptism Events
-    for (const baptism of LIVE_BAPTISM_EVENTS) {
+    await Promise.all(LIVE_BAPTISM_EVENTS.map(async (baptism) => {
       await createBaptism({
         title: baptism.title,
         date: baptism.date,
@@ -708,11 +708,11 @@ export const seedLiveData = async () => {
         capacity: baptism.capacity || 100,
         createdByUid: baptism.createdBy || 'pastor_001'
       });
-    }
+    }));
     console.log(`✅ ${LIVE_BAPTISM_EVENTS.length} eventos de bautismo inyectados en PostgreSQL`);
 
     // Chat Messages
-    for (const [chatId, chatData] of Object.entries(LIVE_CHAT_MESSAGES)) {
+    await Promise.all(Object.entries(LIVE_CHAT_MESSAGES).map(async ([chatId, chatData]) => {
       const chatRef = ref(rtdb, `chats/${chatId}`);
       await set(chatRef, {
         type: 'direct',
@@ -721,15 +721,15 @@ export const seedLiveData = async () => {
         createdAt: hoursAgo(24)
       });
 
-      for (const msg of chatData.messages) {
+      await Promise.all(chatData.messages.map(async (msg) => {
         const msgRef = ref(rtdb, `chats/${chatId}/messages/${msg.userId}_${Date.now()}`);
         await set(msgRef, msg);
-      }
-    }
+      }));
+    }));
     console.log(`✅ ${Object.keys(LIVE_CHAT_MESSAGES).length} conversaciones directas (EN VIVO)`);
 
     // Group Chats
-    for (const [groupId, groupData] of Object.entries(LIVE_GROUP_CHATS)) {
+    await Promise.all(Object.entries(LIVE_GROUP_CHATS).map(async ([groupId, groupData]) => {
       const groupRef = ref(rtdb, `groups/${groupId}`);
       await set(groupRef, {
         type: 'group',
@@ -741,11 +741,11 @@ export const seedLiveData = async () => {
         createdAt: groupData.createdAt
       });
 
-      for (const msg of groupData.messages) {
+      await Promise.all(groupData.messages.map(async (msg) => {
         const msgRef = ref(rtdb, `groups/${groupId}/messages/${msg.userId}_${Date.now()}`);
         await set(msgRef, msg);
-      }
-    }
+      }));
+    }));
     console.log(`✅ ${Object.keys(LIVE_GROUP_CHATS).length} grupos activos (EN VIVO)`);
 
     console.log('\n' + '═'.repeat(50));

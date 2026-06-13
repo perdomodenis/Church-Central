@@ -339,7 +339,6 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
               borderRadius: '10px',
               border: '1px solid var(--line-2, #ddd)',
               fontSize: '0.95rem',
-              outline: 'none',
               fontFamily: 'inherit',
               transition: 'border-color 0.2s',
               backgroundColor: '#fafafa'
@@ -377,7 +376,6 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
                 borderRadius: '8px',
                 border: '1px solid var(--line-2, #ddd)',
                 fontSize: '0.85rem',
-                outline: 'none',
                 backgroundColor: 'white',
                 cursor: 'pointer'
               }}
@@ -400,7 +398,6 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
                 borderRadius: '8px',
                 border: '1px solid var(--line-2, #ddd)',
                 fontSize: '0.85rem',
-                outline: 'none',
                 backgroundColor: 'white',
                 cursor: 'pointer'
               }}
@@ -426,8 +423,7 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
                     padding: '6px 10px',
                     borderRadius: '8px',
                     border: '1px solid var(--line-2, #ddd)',
-                    fontSize: '0.85rem',
-                    outline: 'none'
+                    fontSize: '0.85rem'
                   }}
                 />
               </div>
@@ -441,8 +437,7 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
                     padding: '6px 10px',
                     borderRadius: '8px',
                     border: '1px solid var(--line-2, #ddd)',
-                    fontSize: '0.85rem',
-                    outline: 'none'
+                    fontSize: '0.85rem'
                   }}
                 />
               </div>

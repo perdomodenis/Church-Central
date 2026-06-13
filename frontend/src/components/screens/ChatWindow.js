@@ -31,13 +31,16 @@ const ContextMenuOption = ({ onClick, children, style }) => {
         alignItems: 'center',
         gap: '8px',
         transition: 'background-color 0.15s ease',
-        outline: 'none',
         ...style
       }}
     >
       {children}
     </button>
   );
+};
+
+const handleCopy = (text) => {
+  navigator.clipboard.writeText(text);
 };
 
 const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
@@ -106,9 +109,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
     });
   };
 
-  const handleCopy = (text) => {
-    navigator.clipboard.writeText(text);
-  };
+
 
   const handleStartEdit = (msg) => {
     setEditingMessage(msg);
@@ -316,7 +317,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
                     })}
                   </span>
                   {msg.isEdited && (
-                    <span style={{ fontSize: '0.7rem', fontStyle: 'italic', opacity: 0.8 }}>
+                    <span style={{ fontSize: '0.75rem', fontStyle: 'italic', opacity: 0.8 }}>
                       ({t('edited')})
                     </span>
                   )}
@@ -421,7 +422,6 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
             borderRadius: '20px',
             fontSize: '0.95rem',
             fontFamily: 'inherit',
-            outline: 'none',
             boxSizing: 'border-box'
           }}
         />

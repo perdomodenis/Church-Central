@@ -30,8 +30,9 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
               onClick={() => onNavigate(tab.id)}
               className={`grace-nav-btn ${isActive ? 'active' : ''}`}
             >
-              <span className="nav-icon">
+              <span className="nav-icon" style={{ position: 'relative' }}>
                 {tab.icon}
+                {tab.id === 'inbox' && hasNewInbox && <div className="grace-red-dot" style={{ top: -4, right: -4 }} />}
               </span>
               <span className="nav-label desktop-only">
                 {tab.label}
@@ -45,7 +46,7 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
         <button onClick={() => onAction && onAction('upload')} className="grace-new-post-btn" title="New Post">
           <Icon.Plus />
         </button>
-        <div style={{ position: 'relative' }} onClick={onProfile}>
+        <div onClick={onProfile} style={{ cursor: 'pointer' }}>
            <div className="grace-profile-avatar">
              {user?.profilePhoto ? (
                <img src={user.profilePhoto} alt="Profile" />
@@ -55,7 +56,6 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
                </span>
              )}
            </div>
-           {(hasNewInbox || hasNewMessages) && <div className="grace-red-dot" />}
         </div>
       </div>
     </div>

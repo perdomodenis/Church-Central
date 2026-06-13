@@ -18,7 +18,7 @@ const WelcomeScreen = ({ name, onContinue }) => {
       <div style={{ 
         fontSize: '4rem', 
         marginBottom: '20px',
-        animation: 'bounce 2s infinite' 
+        animation: 'popIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)' 
       }}>
         🎉
       </div>

@@ -75,7 +75,7 @@ export const updateUserProfile = async (userId, data) => {
 
   // Clean up fields to avoid potential issues (e.g. converting interests to array)
   if (merged.interests && typeof merged.interests === 'string') {
-    merged.interests = merged.interests.split(',').map(i => i.trim()).filter(Boolean);
+    merged.interests = merged.interests.split(',').flatMap(i => { const trimmed = i.trim(); return trimmed ? [trimmed] : []; });
   }
 
   await upsertUserProfileInDb(merged);

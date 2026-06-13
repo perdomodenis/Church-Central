@@ -13,9 +13,9 @@ const AppointmentScreen = ({ user }) => {
   
   const [selectedLeader, setSelectedLeader] = useState(null);
   const [slots, setSlots] = useState([
-    { date: '', time: '' },
-    { date: '', time: '' },
-    { date: '', time: '' }
+    { id: 'slot-1', date: '', time: '' },
+    { id: 'slot-2', date: '', time: '' },
+    { id: 'slot-3', date: '', time: '' }
   ]);
   const [reason, setReason] = useState('');
 
@@ -183,7 +183,7 @@ const AppointmentScreen = ({ user }) => {
                     <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#111', lineHeight: '1.2' }}>{name}</div>
                     <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px', fontWeight: '500' }}>{l.position}</div>
                     {l.pa && (
-                      <div style={{ fontSize: '0.65rem', color: 'var(--accent)', marginTop: '6px', fontStyle: 'italic', backgroundColor: 'rgba(91, 63, 187, 0.08)', padding: '2px 6px', borderRadius: '4px' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--accent)', marginTop: '6px', fontStyle: 'italic', backgroundColor: 'rgba(91, 63, 187, 0.08)', padding: '2px 6px', borderRadius: '4px' }}>
                         PA: {l.pa.first}
                       </div>
                     )}
@@ -199,7 +199,7 @@ const AppointmentScreen = ({ user }) => {
           <label style={{ ...labelStyle, marginBottom: '12px' }}>Suggested Date Suggestions (3 Required)</label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {slots.map((slot, index) => (
-              <div key={index} style={{
+              <div key={slot.id || index} style={{
                 border: '1px solid #eee',
                 padding: '12px',
                 borderRadius: '12px',

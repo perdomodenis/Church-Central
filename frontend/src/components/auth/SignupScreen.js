@@ -5,10 +5,10 @@ import { useLanguage } from '../../context/LanguageContext';
 const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
   const { t } = useLanguage();
 
-  const renderStep = () => {
-    switch (step) {
-      case 1:
-        return (
+  let stepContent = null;
+  switch (step) {
+    case 1:
+      stepContent = (
           <>
             <h2 style={{ marginBottom: '20px', fontSize: '1.5rem' }}>{t('personalInfo')}</h2>
             <div style={{ display: 'flex', gap: '10px' }}>
@@ -21,8 +21,9 @@ const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
             <InputField label={t('confirmPassword')} type="password" value={data.pw2} onChange={(v) => onChange({ pw2: v })} placeholder="••••••••" />
           </>
         );
+        break;
       case 2:
-        return (
+        stepContent = (
           <>
             <h2 style={{ marginBottom: '20px', fontSize: '1.5rem' }}>{t('locationAndChurch')}</h2>
             <div style={{ display: 'flex', gap: '10px' }}>
@@ -60,8 +61,9 @@ const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
             <SelectField label={t('district') || 'District'} value={data.district} onChange={(v) => onChange({ district: v })} options={DISTRICTS} t={t} />
           </>
         );
+        break;
       case 3:
-        return (
+        stepContent = (
           <>
             <h2 style={{ marginBottom: '20px', fontSize: '1.5rem' }}>{t('yourRole')}</h2>
             <SelectField label={t('positionLabel')} value={data.position} onChange={(v) => onChange({ position: v })} options={ROLES} t={t} />
@@ -116,10 +118,11 @@ const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
             </div>
           </>
         );
+        break;
       default:
-        return null;
+        stepContent = null;
+        break;
     }
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -150,7 +153,7 @@ const SignupScreen = ({ step, data, onChange, onNext, onBack }) => {
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {renderStep()}
+        {stepContent}
 
         <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
           <button 

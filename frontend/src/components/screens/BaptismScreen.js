@@ -28,10 +28,10 @@ const BaptismScreen = ({ user }) => {
         setEvents(eventsList);
 
         const regs = {};
-        for (const event of eventsList) {
+        await Promise.all(eventsList.map(async (event) => {
           const isRegistered = await checkBaptismRegistration(event.id, authUser?.uid);
           regs[event.id] = isRegistered;
-        }
+        }));
         setRegistrations(regs);
       } else {
         setEvents([]);

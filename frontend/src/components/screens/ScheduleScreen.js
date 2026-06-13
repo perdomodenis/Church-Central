@@ -65,6 +65,14 @@ const convertTime24To12Hr = (time24) => {
   return '';
 };
 
+const HIERARCHY = ['member', 'co-leader', 'leader', 'deacon', 'pastor', 'reverend', 'bishop'];
+
+const getRank = (position) => {
+  const normalized = (position || 'member').toLowerCase();
+  const idx = HIERARCHY.indexOf(normalized);
+  return idx >= 0 ? idx : 0;
+};
+
 const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnMount, onCloseAddEventOnMount }) => {
   const { t } = useLanguage();
   const { user: authUser } = useAuth();
@@ -98,12 +106,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
     .filter(b => b.date === selectedDate)
     .sort((a, b) => getMinutesSinceMidnight(a.time) - getMinutesSinceMidnight(b.time));
 
-  const HIERARCHY = ['member', 'co-leader', 'leader', 'deacon', 'pastor', 'reverend', 'bishop'];
-  const getRank = (position) => {
-    const normalized = (position || 'member').toLowerCase();
-    const idx = HIERARCHY.indexOf(normalized);
-    return idx >= 0 ? idx : 0;
-  };
+
   const myRank = getRank(userProp?.position);
 
   const subordinates = members.filter(m => getRank(m.position) < myRank);
@@ -274,9 +277,9 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
 
       // 2. Create the new program blocks
       if (isPersonalBuilder) {
-        for (const b of formBlocks) {
+        await Promise.all(formBlocks.map(async (b) => {
           if (assignedToUsers.length > 0) {
-            for (const uid of assignedToUsers) {
+            await Promise.all(assignedToUsers.map(async (uid) => {
               await assignPersonalProgramBlock({
                 userId: uid,
                 assignedBy: userProp?.uid,
@@ -291,7 +294,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                 hours: b.hours ? parseFloat(b.hours) : null,
                 dressCode: b.dressCode ? b.dressCode.trim() : null
               });
-            }
+            }));
             if (alsoAssignToSelf) {
               await createPersonalProgramBlock({
                 date: newProgramDate,
@@ -320,7 +323,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
               dressCode: b.dressCode ? b.dressCode.trim() : null
             });
           }
-        }
+        }));
       } else {
         await Promise.all(formBlocks.map(b => 
           createProgramBlock({
@@ -517,7 +520,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
   const workShifts = validEvents.filter(e => e.type === 'Work Shift');
   const totalHours = workShifts.reduce((acc, curr) => acc + (parseFloat(curr.hours) || 0), 0);
 
-  const renderTabContent = () => {
+  const tabContent = (() => {
     if (activeTab === 'church') {
       return (
         <div style={{ marginTop: '16px' }}>
@@ -557,7 +560,6 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                     color: '#333',
                     fontFamily: 'inherit',
                     fontWeight: '600',
-                    outline: 'none',
                     cursor: 'pointer'
                   }}
                 />
@@ -886,7 +888,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
         </div>
       </>
     );
-  };
+  })();
 
   const renderEventCard = (event) => {
     const dateInfo = formatEventDate(event.startTime);
@@ -1069,7 +1071,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
         ))}
       </div>
 
-      {renderTabContent()}
+      {tabContent}
 
       {showAddModal && (
         <AddEventModal
@@ -1152,7 +1154,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                         
                         return (
                         <details key={groupKey} style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '8px', backgroundColor: 'white' }}>
-                          <summary style={{ fontWeight: '600', fontSize: '0.85rem', cursor: 'pointer', outline: 'none', color: '#333' }}>
+                          <summary style={{ fontWeight: '600', fontSize: '0.85rem', cursor: 'pointer', color: '#333' }}>
                             {groupKey === myGroup ? '📌 ' : ''}
                             {groupKey.startsWith(myCourtStr) && groupKey !== myGroup ? '📍 ' : ''}
                             {groupKey} ({groupBlocks.length} users)
@@ -1216,7 +1218,6 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                     borderRadius: '8px',
                     border: '1px solid #ccc',
                     fontSize: '0.95rem',
-                    outline: 'none',
                     boxSizing: 'border-box'
                   }}
                 />
@@ -1270,7 +1271,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                             placeholder="e.g. 10:00 AM"
                             value={newTemplateForm.time}
                             onChange={(e) => setNewTemplateForm({ ...newTemplateForm, time: e.target.value })}
-                            style={{ flex: 1, padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem', outline: 'none' }}
+                            style={{ flex: 1, padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem' }}
                           />
                           <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
                             <input
@@ -1321,7 +1322,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                           placeholder="e.g. Praise & Worship"
                           value={newTemplateForm.title}
                           onChange={(e) => setNewTemplateForm({ ...newTemplateForm, title: e.target.value })}
-                          style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem', outline: 'none' }}
+                          style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem' }}
                         />
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '8px', alignItems: 'center' }}>
@@ -1331,7 +1332,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                           placeholder={isPersonalBuilder ? "e.g. Meeting with team" : "e.g. Pastor John"}
                           value={newTemplateForm.minister}
                           onChange={(e) => setNewTemplateForm({ ...newTemplateForm, minister: e.target.value })}
-                          style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem', outline: 'none' }}
+                          style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem' }}
                         />
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
@@ -1383,7 +1384,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                                       type="text"
                                       value={editTemplateForm.time}
                                       onChange={(e) => setEditTemplateForm({ ...editTemplateForm, time: e.target.value })}
-                                      style={{ flex: 1, padding: '6px 8px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem', outline: 'none' }}
+                                      style={{ flex: 1, padding: '6px 8px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.85rem' }}
                                     />
                                     <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
                                       <input
@@ -1500,9 +1501,11 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                 ) : (
                   <>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      {formBlocks.map((block, idx) => (
+                      {formBlocks.map((block, idx) => {
+                        const blockId = block.id || (block.id = crypto.randomUUID());
+                        return (
                         <div
-                          key={idx}
+                          key={blockId}
                           style={{
                             padding: '16px',
                             backgroundColor: '#f9f9f9',
@@ -1526,8 +1529,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                                     borderRadius: '6px',
                                     border: '1px solid #ddd',
                                     fontSize: '0.75rem',
-                                    color: '#555',
-                                    outline: 'none'
+                                    color: '#555'
                                   }}
                                 >
                                   <option value="">Use template...</option>
@@ -1578,7 +1580,6 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                                     borderRadius: '6px',
                                     border: '1px solid #ddd',
                                     fontSize: '0.85rem',
-                                    outline: 'none',
                                     boxSizing: 'border-box'
                                   }}
                                 />
@@ -1643,7 +1644,6 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                                   borderRadius: '6px',
                                   border: '1px solid #ddd',
                                   fontSize: '0.85rem',
-                                  outline: 'none',
                                   boxSizing: 'border-box'
                                 }}
                               />
@@ -1667,7 +1667,6 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                                 borderRadius: '6px',
                                 border: '1px solid #ddd',
                                 fontSize: '0.85rem',
-                                outline: 'none',
                                 boxSizing: 'border-box'
                               }}
                             />
@@ -1803,7 +1802,8 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                             </div>
                           )}
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     <button

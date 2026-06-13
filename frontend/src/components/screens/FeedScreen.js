@@ -14,7 +14,7 @@ const getDepartments = (member) => {
   const deptVal = member.dept || member.department || 'General';
   if (Array.isArray(deptVal)) return deptVal;
   if (typeof deptVal === 'string') {
-    return deptVal.split(',').map(s => s.trim()).filter(Boolean);
+    return deptVal.split(',').flatMap(s => { const trimmed = s.trim(); return trimmed ? [trimmed] : []; });
   }
   return ['General'];
 };
@@ -24,7 +24,7 @@ const getCourts = (member) => {
   const courtVal = member.court || member.campus || 'Global';
   if (Array.isArray(courtVal)) return courtVal;
   if (typeof courtVal === 'string') {
-    return courtVal.split(',').map(s => s.trim()).filter(Boolean);
+    return courtVal.split(',').flatMap(s => { const trimmed = s.trim(); return trimmed ? [trimmed] : []; });
   }
   return ['Global'];
 };
@@ -69,11 +69,11 @@ const extractMentions = (text, members) => {
   if (!text || !members || members.length === 0) return [];
   
   // Sort members by full name length descending to match the longest name first
-  const sortedMembers = [...members].map(m => ({
-    member: m,
-    fullName: `${(m.first || '').trim()} ${(m.last || '').trim()}`.trim()
-  })).filter(m => m.fullName.length > 0)
-    .sort((a, b) => b.fullName.length - a.fullName.length);
+  const sortedMembers = members.reduce((acc, m) => {
+    const fullName = `${(m.first || '').trim()} ${(m.last || '').trim()}`.trim();
+    if (fullName.length > 0) acc.push({ member: m, fullName });
+    return acc;
+  }, []).sort((a, b) => b.fullName.length - a.fullName.length);
 
   const matches = [];
   let index = text.indexOf('@');
@@ -82,16 +82,22 @@ const extractMentions = (text, members) => {
     const remainingText = text.substring(index + 1);
     
     // Find the first member that matches the start of remainingText
-    const matched = sortedMembers.find(m => {
+    let matched = undefined;
+    for (const m of sortedMembers) {
       const name = m.fullName.toLowerCase();
       if (remainingText.toLowerCase().startsWith(name)) {
         const nextCharIndex = name.length;
-        if (nextCharIndex >= remainingText.length) return true;
+        if (nextCharIndex >= remainingText.length) {
+          matched = m;
+          break;
+        }
         const nextChar = remainingText[nextCharIndex];
-        return /[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]/.test(nextChar);
+        if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]/.test(nextChar)) {
+          matched = m;
+          break;
+        }
       }
-      return false;
-    });
+    }
 
     if (matched) {
       matches.push({
@@ -103,22 +109,28 @@ const extractMentions = (text, members) => {
       index = text.indexOf('@', index + 1 + matched.fullName.length);
     } else {
       // Try matching by first name only if it is unique
-      const firstNamesOnly = [...members].map(m => ({
-        member: m,
-        firstName: (m.first || '').trim()
-      })).filter(m => m.firstName.length > 0)
-        .sort((a, b) => b.firstName.length - a.firstName.length);
+      const firstNamesOnly = members.reduce((acc, m) => {
+        const firstName = (m.first || '').trim();
+        if (firstName.length > 0) acc.push({ member: m, firstName });
+        return acc;
+      }, []).sort((a, b) => b.firstName.length - a.firstName.length);
         
-      const matchedFirst = firstNamesOnly.find(m => {
+      let matchedFirst = undefined;
+      for (const m of firstNamesOnly) {
         const name = m.firstName.toLowerCase();
         if (remainingText.toLowerCase().startsWith(name)) {
           const nextCharIndex = name.length;
-          if (nextCharIndex >= remainingText.length) return true;
+          if (nextCharIndex >= remainingText.length) {
+            matchedFirst = m;
+            break;
+          }
           const nextChar = remainingText[nextCharIndex];
-          return /[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]/.test(nextChar);
+          if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]/.test(nextChar)) {
+            matchedFirst = m;
+            break;
+          }
         }
-        return false;
-      });
+      }
       
       if (matchedFirst) {
         const count = members.filter(m => (m.first || '').trim().toLowerCase() === matchedFirst.firstName.toLowerCase()).length;
@@ -139,7 +151,7 @@ const extractMentions = (text, members) => {
   return matches;
 };
 
-const renderCommentText = (text, members, onSelectMember, level) => {
+const CommentText = ({ text, members, onSelectMember, level }) => {
   if (!text || !members || members.length === 0) return text;
 
   const matches = extractMentions(text, members);
@@ -491,7 +503,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
       }
     }
 
-    for (const targetUid of notifiedUsers) {
+    await Promise.all(Array.from(notifiedUsers).map(async (targetUid) => {
       await sendInboxNotification(targetUid, {
         sender: `${user.first} ${user.last}`.trim(),
         senderId: user.uid,
@@ -499,7 +511,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
         preview: `${user.first} mentioned you: "${text.substring(0, 40)}${text.length > 40 ? '...' : ''}"`,
         body: `Hi! ${user.first} ${user.last} mentioned you in a comment on a feed post:\n\n"${text}"\n\nGo check it out in the home feed!`
       });
-    }
+    }));
 
     setCommentText(prev => ({
       ...prev,
@@ -834,7 +846,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                               {t('reply')}
                             </button>
                           </div>
-                          <div className="comment-body">{renderCommentText(comment.text, members, onSelectMember, user?.accessLevel || 1)}</div>
+                          <div className="comment-body"><CommentText text={comment.text} members={members} onSelectMember={onSelectMember} level={user?.accessLevel || 1} /></div>
                         </div>
                       ))}
                     </div>

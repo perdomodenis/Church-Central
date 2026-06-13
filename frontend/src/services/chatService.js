@@ -25,11 +25,11 @@ export const createGroupChat = async (creatorId, groupName, memberIds, isPublic 
   const groupId = groupRef.key;
 
   const memberNames = {};
-  for (const memberId of memberIds) {
+  await Promise.all(memberIds.map(async (memberId) => {
     const snapshot = await get(ref(rtdb, `users/${memberId}`));
     const userData = snapshot.val();
     memberNames[memberId] = userData?.displayName || 'Unknown';
-  }
+  }));
 
   await set(groupRef, {
     type: 'group',
@@ -268,10 +268,12 @@ export const syncUserChatGroups = async (userProfile) => {
 
   // Cleanup old unwanted groups
   try {
-    await remove(ref(rtdb, 'groups/system_court_main_campus'));
-    await remove(ref(rtdb, 'groups/system_court_main_campus_court'));
-    await remove(ref(rtdb, 'groups/system_district_central'));
-    await remove(ref(rtdb, 'groups/system_district_central_district'));
+    await Promise.all([
+      remove(ref(rtdb, 'groups/system_court_main_campus')),
+      remove(ref(rtdb, 'groups/system_court_main_campus_court')),
+      remove(ref(rtdb, 'groups/system_district_central')),
+      remove(ref(rtdb, 'groups/system_district_central_district'))
+    ]);
   } catch (err) {
     // Ignore permissions or existence errors
   }
@@ -331,7 +333,7 @@ export const syncUserChatGroups = async (userProfile) => {
     icon: '🗺️'
   });
 
-  for (const target of targets) {
+  await Promise.all(targets.map(async (target) => {
     try {
       const groupRef = ref(rtdb, `groups/${target.key}`);
       const snapshot = await get(groupRef);
@@ -379,7 +381,7 @@ export const syncUserChatGroups = async (userProfile) => {
     } catch (err) {
       console.error(`Error syncing group ${target.name}:`, err);
     }
-  }
+  }));
 };
 
 export const editMessage = async (chatId, messageId, newText) => {

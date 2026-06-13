@@ -143,7 +143,7 @@ app.get('/api/download', async (req, res) => {
   }
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { redirect: 'manual' });
     if (!response.ok) {
       throw new Error(`Failed to fetch file: ${response.statusText}`);
     }
