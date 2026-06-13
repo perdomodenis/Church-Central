@@ -608,38 +608,19 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
     <div className="feed-screen-container">
       
       {/* 1. Left Sidebar: Grace Community Church Info (Desktop Only) */}
-      <aside className="left-sidebar desktop-only" style={{
-        background: 'linear-gradient(135deg, var(--accent) 0%, #7c5dfa 100%)',
-        borderRadius: '24px',
-        padding: '24px 20px',
-        color: 'white',
-        boxShadow: '0 10px 30px rgba(91, 63, 187, 0.25)',
-        position: 'relative',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px'
-      }}>
-        <div style={{ position: 'relative', zIndex: 2 }}>
-          <h2 className="serif" style={{ margin: '0 0 8px 0', fontSize: '1.6rem', fontWeight: '400', lineHeight: '1.2' }}>
-            ⛪ {t('graceCommunityChurch')}
-          </h2>
-          <p style={{ margin: '0 0 20px 0', opacity: 0.9, fontSize: '0.85rem', lineHeight: '1.5' }}>
-            {t('churchSubtitle')}
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ backgroundColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)', padding: '12px 16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div style={{ fontSize: '0.7rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('mainService')}</div>
-              <div style={{ fontWeight: '700', fontSize: '0.95rem', marginTop: '2px' }}>{t('sunday10am')}</div>
-            </div>
-            <div style={{ backgroundColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)', padding: '12px 16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div style={{ fontSize: '0.7rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('activeMembers')}</div>
-              <div style={{ fontWeight: '700', fontSize: '0.95rem', marginTop: '2px' }}>{activeMembersCount > 0 ? activeMembersCount : '...'}</div>
-            </div>
+      <aside className="left-sidebar grace-left-widget desktop-only">
+        <h2>⛪ {t('graceCommunityChurch')}</h2>
+        <p>{t('churchSubtitle')}</p>
+        <div>
+          <div className="grace-info-box">
+            <div className="label">{t('mainService')}</div>
+            <div className="value">{t('sunday10am')}</div>
+          </div>
+          <div className="grace-info-box">
+            <div className="label">{t('activeMembers')}</div>
+            <div className="value">{activeMembersCount > 0 ? activeMembersCount : '...'}</div>
           </div>
         </div>
-        {/* Subtle background glow graphics */}
-        <div style={{ position: 'absolute', right: '-40px', bottom: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'var(--gold)', opacity: 0.15, filter: 'blur(40px)', zIndex: 1 }}></div>
       </aside>
 
       {/* 2. Main Feed Section */}
@@ -910,29 +891,25 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
             );
           })
         ) : (
-          <div style={{ textAlign: 'center', padding: '60px 40px', backgroundColor: 'var(--surface)', borderRadius: '24px', border: '1px solid var(--line-2)' }}>
-            <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '12px' }}>🔔</span>
-            <p style={{ color: 'var(--ink-3)', fontWeight: '600' }}>{t('noUpdates')}</p>
+          <div className="grace-empty-state">
+            <div className="icon">🔔</div>
+            <p>{t('noUpdates')}</p>
           </div>
         )}
       </main>
 
       {/* 3. Right Sidebar: Events & RSVP Widget */}
-      <aside className="sidebar-widget right-sidebar">
-        <div>
-          <h3 className="serif" style={{ fontSize: '1.5rem', fontWeight: '400', marginBottom: '4px' }}>
-            📅 {t('upcomingEventsTitle')}
-          </h3>
-          <p style={{ fontSize: '0.8rem', color: 'var(--ink-3)', marginBottom: '12px' }}>
-            {t('connectFellowship')}
-          </p>
+      <aside className="right-sidebar">
+        <div className="grace-right-widget">
+          <h3>📅 {t('upcomingEventsTitle')}</h3>
+          <p className="subtitle">{t('connectFellowship')}</p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {loadingEvents ? (
-              <p style={{ color: '#999', fontSize: '0.8rem' }}>{t('loadingEvents')}</p>
+              <p style={{ color: 'var(--ink-3)', fontSize: '0.8rem' }}>{t('loadingEvents')}</p>
             ) : events.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '20px 0', color: '#999', fontSize: '0.85rem' }}>
-                <p style={{ fontSize: '1.5rem', margin: '0 0 4px 0' }}>📭</p>
+              <div className="grace-empty-state">
+                <div className="icon">📅</div>
                 <p>No upcoming events yet.</p>
               </div>
             ) : (
@@ -957,26 +934,14 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                       <div style={{ fontSize: '0.75rem', color: 'var(--ink-3)', marginTop: '2px' }}>
                         {formattedTime} • {event.location}
                       </div>
-                      <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                      <div className="rsvp-button-group">
                         <button
                           onClick={() => handleRSVP(event, 'going')}
                           disabled={!user || submittingRSVP[event.id]}
+                          className={`rsvp-btn ${isAttending ? 'selected' : ''}`}
                           style={{
-                            flex: 1,
-                            padding: '6px 4px',
-                            backgroundColor: isAttending ? '#2e7d32' : 'var(--surface)',
-                            color: isAttending ? 'white' : 'var(--ink-2)',
-                            border: isAttending ? '1px solid #2e7d32' : '1px solid var(--line)',
-                            borderRadius: '6px',
-                            fontWeight: '700',
-                            fontSize: '0.7rem',
-                            cursor: (user && !submittingRSVP[event.id]) ? 'pointer' : 'not-allowed',
                             opacity: submittingRSVP[event.id] ? 0.7 : 1,
-                            transition: 'all 0.2s ease',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '2px'
+                            cursor: (user && !submittingRSVP[event.id]) ? 'pointer' : 'not-allowed'
                           }}
                         >
                           {isAttending ? `✓ ${t('going')}` : t('going')}
@@ -984,22 +949,11 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                         <button
                           onClick={() => handleRSVP(event, 'declined')}
                           disabled={!user || submittingRSVP[event.id]}
+                          className={`rsvp-btn ${isDeclined ? 'selected' : ''}`}
                           style={{
-                            flex: 1,
-                            padding: '6px 4px',
-                            backgroundColor: isDeclined ? '#c62828' : 'var(--surface)',
-                            color: isDeclined ? 'white' : 'var(--ink-2)',
-                            border: isDeclined ? '1px solid #c62828' : '1px solid var(--line)',
-                            borderRadius: '6px',
-                            fontWeight: '700',
-                            fontSize: '0.7rem',
-                            cursor: (user && !submittingRSVP[event.id]) ? 'pointer' : 'not-allowed',
                             opacity: submittingRSVP[event.id] ? 0.7 : 1,
-                            transition: 'all 0.2s ease',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '2px'
+                            cursor: (user && !submittingRSVP[event.id]) ? 'pointer' : 'not-allowed',
+                            ...(isDeclined ? { backgroundColor: '#c62828', borderColor: '#c62828' } : {})
                           }}
                         >
                           {t('notGoing')}
@@ -1011,16 +965,16 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
               })
             )}
           </div>
-        </div>
 
-        <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: '16px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <button
-            onClick={() => onAction && onAction('compose')}
-            className="btn btn-primary"
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            ➕ {t('composeAnnouncement')}
-          </button>
+          <div style={{ borderTop: '1px solid var(--line)', paddingTop: 'var(--space-4)', marginTop: 'var(--space-4)' }}>
+            <button
+              onClick={() => onAction && onAction('compose')}
+              className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              {t('composeAnnouncement')}
+            </button>
+          </div>
         </div>
       </aside>
 

@@ -1,58 +1,76 @@
-/* CCI Central Design System */
+/* CCI Central Design System — "Grace" (from Open Design) */
 
 :root {
-  /* Light mode (Open Design) */
-  --bg: oklch(99% 0.008 85);
-  --surface: oklch(100% 0 0);
-  --ink: oklch(25% 0.03 240);
-  --ink-2: oklch(60% 0.02 240);
-  --ink-3: oklch(70% 0.02 240);
-  --line: oklch(94% 0.01 240);
-  --line-2: oklch(90% 0.01 240);
+  /* ─── Base Palette ──────────────────────────────────────── */
+  --bg: #F9F8F6;            /* Warm off-white */
+  --surface: #FFFFFF;
+  --ink: #2A2F4D;            /* Deep, soft navy */
+  --ink-2: #5D6484;
+  --ink-3: #9DA3BF;
+  --line: #EAEBF0;
+  --line-2: #F2F3F7;
 
-  /* Primary brand color (Navy/Teal) */
-  --accent: oklch(45% 0.15 260);
-  --accent-ink: oklch(100% 0 0);
-  --accent-soft: oklch(95% 0.05 260);
+  /* ─── Primary Accent (Calmer traditional blue) ─────────── */
+  --accent: #3A5F9A;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #EBF0F7;
 
-  /* Accent colors */
-  --gold: oklch(88% 0.08 85);
-  --gold-soft: oklch(95% 0.04 85);
-  --rose: oklch(70% 0.14 25);
+  /* ─── Secondary / Gold ─────────────────────────────────── */
+  --gold: #D4AF37;
+  --gold-soft: #F9F5E8;
+  --secondary: #D4AF37;
+  --secondary-soft: #F9F5E8;
+
+  /* ─── Semantic Colors ──────────────────────────────────── */
+  --rose: #B8385E;
   --green: #4F8C6E;
 
-  /* Spacing scale */
+  /* ─── Spacing Scale ────────────────────────────────────── */
+  --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-10: 40px;
 
-  /* Typography */
-  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  /* ─── Typography ───────────────────────────────────────── */
+  --font-display: 'Lora', georgia, serif;
   --font-body: 'Inter', system-ui, sans-serif;
-  --font-serif: 'Instrument Serif', georgia, serif;
+  --font-serif: 'Lora', georgia, serif;
 
-  /* Breakpoints */
+  /* ─── Radius ───────────────────────────────────────────── */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* ─── Elevation ────────────────────────────────────────── */
+  --shadow-1: 0px 4px 16px rgba(42, 47, 77, 0.06);
+  --shadow-2: 0px 8px 24px rgba(42, 47, 77, 0.10);
+  --shadow-hover: 0px 8px 24px rgba(42, 47, 77, 0.12);
+
+  /* ─── Breakpoints (reference only) ─────────────────────── */
   --mobile: 640px;
   --tablet: 1024px;
 }
 
-/* Dark mode */
+/* ─── Dark Mode ──────────────────────────────────────────── */
 [data-theme='dark'] {
-  --bg: oklch(20% 0.03 240);
-  --surface: oklch(25% 0.03 240);
-  --ink: oklch(99% 0.008 85);
-  --ink-2: oklch(80% 0.02 240);
-  --ink-3: oklch(70% 0.02 240);
-  --line: oklch(35% 0.03 240);
-  --line-2: oklch(40% 0.03 240);
-  --accent-soft: oklch(30% 0.1 260);
-  --gold-soft: oklch(30% 0.05 85);
+  --bg: #1A1D2E;
+  --surface: #242840;
+  --ink: #F0F0F5;
+  --ink-2: #B5B8D0;
+  --ink-3: #7E82A0;
+  --line: #353858;
+  --line-2: #3E4168;
+  --accent-soft: #2A3458;
+  --gold-soft: #2E2A1E;
+  --secondary-soft: #2E2A1E;
 }
 
-/* Global reset */
+/* ─── Global Reset ───────────────────────────────────────── */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -70,37 +88,39 @@ body {
   font-family: var(--font-body);
   background-color: var(--bg);
   color: var(--ink);
-  line-height: 1.5;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* Typography */
+/* ─── Typography ─────────────────────────────────────────── */
 .serif {
   font-family: var(--font-serif);
   font-weight: 400;
   letter-spacing: -0.01em;
 }
 
-/* Cards */
+/* ─── Cards ──────────────────────────────────────────────── */
 .card {
   background-color: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-1);
 }
 
-/* Buttons */
+/* ─── Buttons ────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  font-size: 15px;
-  border-radius: 14px;
-  padding: 14px 18px;
+  font-size: 14px;
+  border-radius: var(--radius-sm);
+  padding: 12px 18px;
   border: none;
   cursor: pointer;
-  transition: transform 0.15s, background-color 0.15s;
+  transition: all 0.2s;
 }
 
 .btn:active {
@@ -110,10 +130,13 @@ body {
 .btn-primary {
   background-color: var(--accent);
   color: var(--accent-ink);
+  box-shadow: 0 4px 12px -2px rgba(58, 95, 154, 0.35);
 }
 
 .btn-primary:hover {
   opacity: 0.9;
+  box-shadow: 0 6px 16px -2px rgba(58, 95, 154, 0.4);
+  transform: translateY(-1px);
 }
 
 .btn-ghost {
@@ -144,20 +167,20 @@ body {
   opacity: 0.9;
 }
 
-/* Chips */
+/* ─── Chips ──────────────────────────────────────────────── */
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   font-size: 12px;
   font-weight: 600;
   background-color: var(--accent-soft);
   color: var(--accent);
 }
 
-/* Form fields */
+/* ─── Form Fields ────────────────────────────────────────── */
 .field-wrap {
   display: flex;
   flex-direction: column;
@@ -196,14 +219,14 @@ body {
 
 .field-wrap select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2354506B' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%235D6484' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 18px;
   padding-right: 40px;
 }
 
-/* Scrollbar customization */
+/* ─── Scrollbar Customization ────────────────────────────── */
 .nice-scroll {
   scrollbar-width: none;
 }
@@ -212,7 +235,7 @@ body {
   display: none;
 }
 
-/* App root */
+/* ─── App Root ───────────────────────────────────────────── */
 .app-root {
   font-family: var(--font-body);
   background-color: var(--bg);
@@ -222,7 +245,7 @@ body {
   color: var(--ink);
 }
 
-/* Animations */
+/* ─── Animations ─────────────────────────────────────────── */
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -253,12 +276,12 @@ body {
   animation: fadeIn 0.3s ease-out;
 }
 
-/* Avatar gradient */
+/* ─── Avatar Gradient ────────────────────────────────────── */
 .av-grad {
   background: linear-gradient(135deg, var(--accent) 0%, var(--gold) 100%);
 }
 
-/* Utility classes */
+/* ─── Utility Classes ────────────────────────────────────── */
 .loading {
   text-align: center;
   padding: 40px;
