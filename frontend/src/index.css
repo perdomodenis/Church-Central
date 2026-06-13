@@ -1,3 +1,6 @@
+/* Google Fonts — Lora (serif display) + Inter (body) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@400;500;600;700&display=swap');
+
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
@@ -5,8 +8,9 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif);
-  letter-spacing: -0.02em;
+  font-family: var(--font-display, 'Lora', serif);
+  font-weight: 600;
+  color: var(--ink);
 }
 
 code {

@@ -3,18 +3,6 @@ import ReactDOM from 'react-dom';
 import * as Icon from './Icons';
 import { useLanguage } from '../../context/LanguageContext';
 
-const RED_DOT_STYLE = {
-  position: 'absolute',
-  top: '-2px',
-  right: '-2px',
-  width: '10px',
-  height: '10px',
-  backgroundColor: '#ff3b30',
-  borderRadius: '50%',
-  border: '2px solid white',
-  boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-};
-
 export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewMessages = false, onAction, route, onNavigate }) => {
   const { t } = useLanguage();
   const level = user?.accessLevel || 1;
@@ -27,56 +15,47 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
   ];
 
   return (
-    <div style={{ ...topHeaderStyle, display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-      <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--ink)', minWidth: 'fit-content' }}>
+    <div className="grace-header">
+      <div className="grace-header-logo">
         {title || 'Church Central'}
       </div>
       
       {/* Navigation Tabs - Center */}
-      <div style={{ display: 'flex', flex: 1, justifyContent: 'center', gap: '8px', minWidth: '300px' }}>
+      <div className="grace-header-nav">
         {tabs.map(tab => {
-          const isActive = route === tab.id || (tab.id === 'menu' && !tabs.map(t=>t.id).includes(route) && route !== 'home' && route !== 'mgmt' && route !== 'members' && route !== 'inbox');
+          const isActive = route === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => onNavigate(tab.id)}
-              style={{
-                background: 'none',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                padding: '8px 16px',
-                borderRadius: '20px',
-                backgroundColor: isActive ? 'var(--accent-soft)' : 'transparent',
-                transition: 'background-color 0.2s'
-              }}
+              className={`grace-nav-btn ${isActive ? 'active' : ''}`}
             >
-              <div style={{ fontSize: '1.2rem', color: isActive ? 'var(--accent)' : '#000' }}>
+              <span className="nav-icon">
                 {tab.icon}
-              </div>
-              <div style={{ fontSize: '0.8rem', fontWeight: isActive ? '600' : '500', color: isActive ? 'var(--accent)' : '#000' }} className="desktop-only">
+              </span>
+              <span className="nav-label desktop-only">
                 {tab.label}
-              </div>
+              </span>
             </button>
-          )
+          );
         })}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 'fit-content' }}>
-        <button onClick={() => onAction && onAction('upload')} style={iconButtonStyle} title="New Post">
+      <div className="grace-header-actions">
+        <button onClick={() => onAction && onAction('upload')} className="grace-new-post-btn" title="New Post">
           <Icon.Plus />
         </button>
         <div style={{ position: 'relative' }} onClick={onProfile}>
-           <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden' }}>
+           <div className="grace-profile-avatar">
              {user?.profilePhoto ? (
-               <img src={user.profilePhoto} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+               <img src={user.profilePhoto} alt="Profile" />
              ) : (
-               <span style={{ fontSize: '1.2rem', color: 'var(--accent)' }}><Icon.User /></span>
+               <span className="avatar-initial">
+                 {user?.first ? user.first[0].toUpperCase() : <Icon.User />}
+               </span>
              )}
            </div>
-           {(hasNewInbox || hasNewMessages) && <div style={RED_DOT_STYLE} />}
+           {(hasNewInbox || hasNewMessages) && <div className="grace-red-dot" />}
         </div>
       </div>
     </div>
@@ -146,65 +125,13 @@ export const useToast = () => {
 };
 
 // Styles
-const topHeaderStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '12px 20px',
-  backgroundColor: 'var(--surface)',
-  borderBottom: '1px solid var(--line)',
-  zIndex: 1000,
-  position: 'sticky',
-  top: 0
-};
-
-const iconButtonStyle = {
-  background: 'var(--surface)',
-  border: '1px solid var(--line)',
-  borderRadius: '8px',
-  fontSize: '1.2rem',
-  cursor: 'pointer',
-  color: 'var(--ink-2)',
-  padding: '8px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  transition: 'background-color 0.2s',
-};
-
-const tabBarStyle = {
-  display: 'flex',
-  justifyContent: 'space-around',
-  alignItems: 'center',
-  padding: '8px 8px 24px 8px', // Extra padding at bottom for safe area
-  backgroundColor: 'var(--surface)',
-  borderTop: '1px solid var(--line)',
-  position: 'fixed',
-  bottom: 0,
-  left: 0,
-  right: 0,
-  zIndex: 1000,
-  boxShadow: 'var(--shadow-2)',
-};
-
-const tabButtonStyle = (isActive) => ({
-  background: 'none',
-  border: 'none',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  cursor: 'pointer',
-  padding: '8px',
-  flex: 1,
-});
-
 const sheetOverlayStyle = {
   position: 'fixed',
   top: 0,
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(15, 23, 42, 0.4)',
+  backgroundColor: 'rgba(42, 47, 77, 0.4)',
   display: 'flex',
   alignItems: 'flex-end',
   zIndex: 3000,
@@ -215,8 +142,8 @@ const sheetContentStyle = (height) => ({
   backgroundColor: 'var(--surface)',
   width: '100%',
   height: height,
-  borderTopLeftRadius: '20px',
-  borderTopRightRadius: '20px',
+  borderTopLeftRadius: 'var(--radius-lg)',
+  borderTopRightRadius: 'var(--radius-lg)',
   boxShadow: 'var(--shadow-2)',
   display: 'flex',
   flexDirection: 'column',
