@@ -285,19 +285,19 @@ const ManagementScreen = ({
             onClick={() => setActiveTab('pending')}
             style={tabButtonStyle(activeTab === 'pending')}
           >
-            ⏳ {t('pending')} ({displayPending.length})
+            {t('pending')} ({displayPending.length})
           </button>
           <button
             onClick={() => setActiveTab('approved')}
             style={tabButtonStyle(activeTab === 'approved')}
           >
-            ✅ {t('approved')} ({displayApproved.length})
+            {t('approved')} ({displayApproved.length})
           </button>
           <button
             onClick={() => setActiveTab('rejected')}
             style={tabButtonStyle(activeTab === 'rejected')}
           >
-            ❌ {t('rejected')} ({displayRejected.length})
+            {t('rejected')} ({displayRejected.length})
           </button>
         </div>
       ) : (
@@ -313,13 +313,13 @@ const ManagementScreen = ({
             onClick={() => setActiveTab('dept_pending')}
             style={tabButtonStyle(activeTab === 'dept_pending')}
           >
-            ⏳ {t('pending')} ({departmentRequests.filter(r => r.status === 'pending').length})
+            {t('pending')} ({departmentRequests.filter(r => r.status === 'pending').length})
           </button>
           <button
             onClick={() => setActiveTab('dept_history')}
             style={tabButtonStyle(activeTab === 'dept_history')}
           >
-            📚 {t('history')} ({departmentRequests.filter(r => r.status !== 'pending').length})
+            {t('history')} ({departmentRequests.filter(r => r.status !== 'pending').length})
           </button>
         </div>
       )}

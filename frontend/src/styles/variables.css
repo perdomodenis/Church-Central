@@ -1,24 +1,24 @@
 /* CCI Central Design System */
 
 :root {
-  /* Light mode (default) */
-  --bg: #F4EFE6;
-  --surface: #FFFFFF;
-  --ink: #1E1830;
-  --ink-2: #54506B;
-  --ink-3: #8C879F;
-  --line: #E7E2D8;
-  --line-2: #EFEAE0;
+  /* Light mode (Open Design) */
+  --bg: oklch(99% 0.008 85);
+  --surface: oklch(100% 0 0);
+  --ink: oklch(25% 0.03 240);
+  --ink-2: oklch(60% 0.02 240);
+  --ink-3: oklch(70% 0.02 240);
+  --line: oklch(94% 0.01 240);
+  --line-2: oklch(90% 0.01 240);
 
-  /* Primary brand color */
-  --accent: #5B3FBB;
-  --accent-ink: #FFFFFF;
-  --accent-soft: #EFE9FF;
+  /* Primary brand color (Navy/Teal) */
+  --accent: oklch(45% 0.15 260);
+  --accent-ink: oklch(100% 0 0);
+  --accent-soft: oklch(95% 0.05 260);
 
   /* Accent colors */
-  --gold: #C9974A;
-  --gold-soft: #F6ECD8;
-  --rose: #C75B7A;
+  --gold: oklch(88% 0.08 85);
+  --gold-soft: oklch(95% 0.04 85);
+  --rose: oklch(70% 0.14 25);
   --green: #4F8C6E;
 
   /* Spacing scale */
@@ -30,7 +30,8 @@
   --space-8: 32px;
 
   /* Typography */
-  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
   --font-serif: 'Instrument Serif', georgia, serif;
 
   /* Breakpoints */
@@ -40,15 +41,15 @@
 
 /* Dark mode */
 [data-theme='dark'] {
-  --bg: #15101F;
-  --surface: #1F1A2C;
-  --ink: #F2EFE8;
-  --ink-2: #BCB6CC;
-  --ink-3: #7A7591;
-  --line: #2C2640;
-  --line-2: #261F38;
-  --accent-soft: #2A1F4D;
-  --gold-soft: #3A2D14;
+  --bg: oklch(20% 0.03 240);
+  --surface: oklch(25% 0.03 240);
+  --ink: oklch(99% 0.008 85);
+  --ink-2: oklch(80% 0.02 240);
+  --ink-3: oklch(70% 0.02 240);
+  --line: oklch(35% 0.03 240);
+  --line-2: oklch(40% 0.03 240);
+  --accent-soft: oklch(30% 0.1 260);
+  --gold-soft: oklch(30% 0.05 85);
 }
 
 /* Global reset */

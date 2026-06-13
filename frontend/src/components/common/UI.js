@@ -53,10 +53,10 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
                 transition: 'background-color 0.2s'
               }}
             >
-              <div style={{ fontSize: '1.2rem', color: isActive ? 'var(--accent)' : 'var(--ink-3)' }}>
+              <div style={{ fontSize: '1.2rem', color: isActive ? 'var(--accent)' : '#000' }}>
                 {tab.icon}
               </div>
-              <div style={{ fontSize: '0.8rem', fontWeight: isActive ? '600' : '500', color: isActive ? 'var(--accent)' : 'var(--ink-3)' }} className="desktop-only">
+              <div style={{ fontSize: '0.8rem', fontWeight: isActive ? '600' : '500', color: isActive ? 'var(--accent)' : '#000' }} className="desktop-only">
                 {tab.label}
               </div>
             </button>

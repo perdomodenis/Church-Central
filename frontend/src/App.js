@@ -97,7 +97,7 @@ const runMigration = async () => {
 };
 
 const ACCENT_PRESETS = [
-  ['#5B3FBB', '#EFE9FF'],
+  ['oklch(45% 0.15 260)', 'oklch(95% 0.05 260)'], // Navy/Teal
   ['#C9974A', '#F6ECD8'],
   ['#2E6B5E', '#E1EFEB'],
   ['#1F4D8F', '#E3ECF7'],
@@ -169,7 +169,7 @@ function App() {
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
 
   // Theme
-  const [accentColor, setAccentColor] = useState('#5B3FBB');
+  const [accentColor, setAccentColor] = useState('oklch(45% 0.15 260)');
   const [darkMode, setDarkMode] = useState(false);
 
   // User data
@@ -282,8 +282,9 @@ function App() {
   // Apply theme
   useEffect(() => {
     const root = document.documentElement;
-    const [accent] = ACCENT_PRESETS.find(p => p[0] === accentColor) || ACCENT_PRESETS[0];
+    const [accent, accentSoft] = ACCENT_PRESETS.find(p => p[0] === accentColor) || ACCENT_PRESETS[0];
     root.style.setProperty('--accent', accent);
+    if (accentSoft) root.style.setProperty('--accent-soft', accentSoft);
     root.setAttribute('data-theme', darkMode ? 'dark' : 'light');
   }, [accentColor, darkMode]);
 
