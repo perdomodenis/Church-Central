@@ -760,10 +760,10 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                         </div>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button
-                            onClick={() => setViewingPdfInline(prev => ({ ...prev, [post.id]: !prev[post.id] }))}
+                            onClick={() => setSelectedPost(post)}
                             className="pdf-download-btn"
                           >
-                            👁️ {showPdfInline ? t('hide') : t('view')}
+                            👁️ {t('view')}
                           </button>
                           <a
                             href={`${backendUrl}/api/download?url=${encodeURIComponent(post.image)}`}
@@ -775,16 +775,6 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                           </a>
                         </div>
                       </div>
-
-                      {showPdfInline && (
-                        <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--line-2)', marginTop: '8px' }}>
-                          <iframe
-                            src={post.image}
-                            title={`PDF ${post.id}`}
-                            style={{ width: '100%', height: '400px', border: 'none' }}
-                          />
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div style={{ borderRadius: '16px', overflow: 'hidden', marginBottom: '16px', border: '1px solid var(--line-2)' }}>
@@ -1048,17 +1038,31 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
             </button>
 
             {selectedPost.image && (
-              <img
-                src={selectedPost.image}
-                alt="Post Detail"
-                style={{
-                  width: '100%',
-                  height: '320px',
-                  objectFit: 'cover',
-                  borderTopLeftRadius: '24px',
-                  borderTopRightRadius: '24px'
-                }}
-              />
+              isPdfUrl(selectedPost.image) ? (
+                <iframe
+                  src={selectedPost.image}
+                  title={`PDF ${selectedPost.id}`}
+                  style={{
+                    width: '100%',
+                    height: '600px',
+                    border: 'none',
+                    borderTopLeftRadius: '24px',
+                    borderTopRightRadius: '24px'
+                  }}
+                />
+              ) : (
+                <img
+                  src={selectedPost.image}
+                  alt="Post Detail"
+                  style={{
+                    width: '100%',
+                    height: '320px',
+                    objectFit: 'cover',
+                    borderTopLeftRadius: '24px',
+                    borderTopRightRadius: '24px'
+                  }}
+                />
+              )
             )}
 
             <div style={{ padding: '28px' }}>
