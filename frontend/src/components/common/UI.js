@@ -15,13 +15,56 @@ const RED_DOT_STYLE = {
   boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
 };
 
-export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewMessages = false, onAction }) => {
+export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewMessages = false, onAction, route, onNavigate }) => {
+  const { t } = useLanguage();
+  const level = user?.accessLevel || 1;
+
+  const tabs = [
+    { id: 'home', icon: <Icon.Home />, label: t('home') || 'Home' },
+    { id: 'mgmt', icon: <Icon.Management />, label: t('management') || 'Management' },
+    { id: 'members', icon: <Icon.Church />, label: t('church') || 'Church' },
+    { id: 'inbox', icon: <Icon.Inbox />, label: t('inbox') || 'Inbox' },
+  ];
+
   return (
-    <div style={topHeaderStyle}>
-      <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--ink)' }}>
+    <div style={{ ...topHeaderStyle, display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--ink)', minWidth: 'fit-content' }}>
         {title || 'Church Central'}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      
+      {/* Navigation Tabs - Center */}
+      <div style={{ display: 'flex', flex: 1, justifyContent: 'center', gap: '8px', minWidth: '300px' }}>
+        {tabs.map(tab => {
+          const isActive = route === tab.id || (tab.id === 'menu' && !tabs.map(t=>t.id).includes(route) && route !== 'home' && route !== 'mgmt' && route !== 'members' && route !== 'inbox');
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onNavigate(tab.id)}
+              style={{
+                background: 'none',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                backgroundColor: isActive ? 'var(--accent-soft)' : 'transparent',
+                transition: 'background-color 0.2s'
+              }}
+            >
+              <div style={{ fontSize: '1.2rem', color: isActive ? 'var(--accent)' : 'var(--ink-3)' }}>
+                {tab.icon}
+              </div>
+              <div style={{ fontSize: '0.8rem', fontWeight: isActive ? '600' : '500', color: isActive ? 'var(--accent)' : 'var(--ink-3)' }} className="desktop-only">
+                {tab.label}
+              </div>
+            </button>
+          )
+        })}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 'fit-content' }}>
         <button onClick={() => onAction && onAction('upload')} style={iconButtonStyle} title="New Post">
           <Icon.Plus />
         </button>
@@ -36,41 +79,6 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
            {(hasNewInbox || hasNewMessages) && <div style={RED_DOT_STYLE} />}
         </div>
       </div>
-    </div>
-  );
-};
-
-export const TabBar = ({ route, onNavigate, user }) => {
-  const { t } = useLanguage();
-  const level = user?.accessLevel || 1;
-
-  const tabs = [
-    { id: 'home', icon: <Icon.Home />, label: t('home') || 'Home' },
-    { id: 'schedule', icon: <Icon.Calendar />, label: t('schedule') || 'Schedule' },
-    ...(level >= 3 ? [{ id: 'members', icon: <Icon.Church />, label: t('church') || 'Church' }] : []),
-    { id: 'inbox', icon: <Icon.Inbox />, label: t('inbox') || 'Inbox' },
-    { id: 'menu', icon: <Icon.More />, label: 'Menu' },
-  ];
-
-  return (
-    <div style={tabBarStyle}>
-      {tabs.map(tab => {
-        const isActive = route === tab.id || (tab.id === 'menu' && !tabs.map(t=>t.id).includes(route) && route !== 'home' && route !== 'schedule' && route !== 'members' && route !== 'inbox');
-        return (
-          <button
-            key={tab.id}
-            onClick={() => onNavigate(tab.id)}
-            style={tabButtonStyle(isActive)}
-          >
-            <div style={{ fontSize: '1.4rem', marginBottom: '4px', color: isActive ? 'var(--accent)' : 'var(--ink-3)', transition: 'color 0.2s' }}>
-              {tab.icon}
-            </div>
-            <div style={{ fontSize: '0.7rem', fontWeight: isActive ? '600' : '500', color: isActive ? 'var(--accent)' : 'var(--ink-3)', transition: 'color 0.2s' }}>
-              {tab.label}
-            </div>
-          </button>
-        )
-      })}
     </div>
   );
 };

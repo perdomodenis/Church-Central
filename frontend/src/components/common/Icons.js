@@ -12,6 +12,7 @@ export const Calendar = () => <span>🗓️</span>;
 export const Appointment = () => <span>🤝</span>;
 export const Management = () => <span>⚙️</span>;
 export const Profile = () => <span>🧑‍💻</span>;
-export const Feedback = () => <span>💬</span>;
+export const Feedback = () => <span>📝</span>;
 export const Church = () => <span>⛪</span>;
 export const More = () => <span>⋯</span>;
+export const Message = () => <span>💬</span>;

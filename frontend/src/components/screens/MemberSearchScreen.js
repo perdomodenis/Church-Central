@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { searchMembers } from '../../services/memberService';
 import { COURTS } from '../../services/churchConstants';
+import * as Icon from '../common/Icons';
+import BaptismScreen from './BaptismScreen';
+import NLSScreen from './NLSScreen';
+import AppointmentScreen from './AppointmentScreen';
 
 const toCamelCase = (str) => {
   if (!str) return '';
@@ -40,6 +44,9 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
   const [members, setMembers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Hub Navigation State
+  const [activeSubTab, setActiveSubTab] = useState((user?.accessLevel >= 3) ? 'directory' : 'baptism');
 
   // Court and folder navigation states
   const [activeCourt, setActiveCourt] = useState('Glory Court');
@@ -146,13 +153,64 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
   };
 
   return (
-    <div style={{ padding: '24px', paddingBottom: '100px', maxWidth: '800px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: 0, color: 'var(--ink, #111)' }}>⛪ {t('church')}</h2>
-        <p style={{ color: 'var(--ink-3, #666)', fontSize: '0.95rem', margin: '4px 0 0 0' }}>Connect with members and leadership</p>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+
+      {/* --- HORIZONTAL NAV BAR --- */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        padding: '16px 20px',
+        overflowX: 'auto',
+        backgroundColor: 'var(--surface)',
+        borderBottom: '1px solid var(--line)',
+        scrollbarWidth: 'none', // Firefox
+        msOverflowStyle: 'none'  // IE 10+
+      }}>
+        <style>{`
+          .church-nav-bar::-webkit-scrollbar { display: none; }
+        `}</style>
+
+        {(user?.accessLevel >= 3) && (
+          <button 
+            onClick={() => setActiveSubTab('directory')} 
+            style={topTabStyle(activeSubTab === 'directory')}
+          >
+            Directory
+          </button>
+        )}
+        
+        {user?.accessLevel >= 2 && (
+          <button 
+            onClick={() => setActiveSubTab('baptism')} 
+            style={topTabStyle(activeSubTab === 'baptism')}
+          >
+            Baptism
+          </button>
+        )}
+
+        <button 
+          onClick={() => setActiveSubTab('appointments')} 
+          style={topTabStyle(activeSubTab === 'appointments')}
+        >
+          Appointments
+        </button>
+
+        <button 
+          onClick={() => setActiveSubTab('nls')} 
+          style={topTabStyle(activeSubTab === 'nls')}
+        >
+          New Life School
+        </button>
       </div>
 
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        {activeSubTab === 'directory' && (user?.accessLevel >= 3) && (
+          <div style={{ padding: '24px', paddingBottom: '100px', maxWidth: '800px', margin: '0 auto' }}>
+            {/* Header */}
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: 0, color: 'var(--ink, #111)' }}>⛪ {t('church')}</h2>
+              <p style={{ color: 'var(--ink-3, #666)', fontSize: '0.95rem', margin: '4px 0 0 0' }}>Connect with your church family</p>
+            </div>
       {/* Search Bar */}
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
         <span style={{ position: 'absolute', left: '14px', fontSize: '1.1rem', color: '#888' }}>🔍</span>
@@ -411,8 +469,37 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
           })}
         </div>
       )}
+      </div>
+    )}
+
+    {activeSubTab === 'baptism' && user?.accessLevel >= 2 && (
+      <BaptismScreen user={user} />
+    )}
+
+    {activeSubTab === 'appointments' && (
+      <AppointmentScreen user={user} />
+    )}
+
+    {activeSubTab === 'nls' && (
+      <NLSScreen user={user} />
+    )}
     </div>
+  </div>
   );
 };
+
+const topTabStyle = (isActive) => ({
+  whiteSpace: 'nowrap',
+  padding: '8px 16px',
+  borderRadius: '20px',
+  border: 'none',
+  fontWeight: '600',
+  fontSize: '0.95rem',
+  cursor: 'pointer',
+  backgroundColor: isActive ? 'var(--accent)' : 'var(--line)',
+  color: isActive ? 'white' : 'var(--ink-2)',
+  transition: 'all 0.2s',
+  flexShrink: 0
+});
 
 export default MemberSearchScreen;

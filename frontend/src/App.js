@@ -28,68 +28,15 @@ import {
   MessagesScreen,
   MemberSearchScreen,
   MemberProfileScreen,
-  DebugScreen,
   DocumentsScreen,
   NLSScreen
 } from './components/screens';
 import { getAllMembers } from './services/memberService';
 
 // UI Components
-import { TopHeader, TabBar, Sheet, useToast } from './components/common/UI';
+import { TopHeader, Sheet, useToast } from './components/common/UI';
 import { getAccessLevel } from './services/churchConstants';
 import * as Icon from './components/common/Icons';
-
-const MenuScreen = ({ route, onNavigate, onLogout, user, t }) => {
-  const level = user?.accessLevel || 1;
-  const menuItems = [
-    ...(level >= 2 ? [{ id: 'documents', label: t('documents'), icon: <Icon.Drop /> }] : []),
-    { id: 'appointment', label: t('appointments'), icon: <Icon.Appointment /> },
-    { id: 'events', label: t('events'), icon: <Icon.Calendar /> },
-    ...((level >= 3 || user?.isPA) ? [{ id: 'mgmt', label: t('management'), icon: <Icon.Management /> }] : []),
-    { id: 'baptism', label: t('baptism'), icon: <Icon.Drop /> },
-    ...((level === 1 || level >= 3) ? [{ id: 'nls', label: t('nls'), icon: <Icon.Spark /> }] : []),
-    { id: 'profile', label: t('profile'), icon: <Icon.Profile /> },
-    { id: 'feedback', label: t('feedback'), icon: <Icon.Feedback /> },
-    ...(level >= 4 ? [{ id: 'debug', label: t('debug'), icon: <Icon.Management /> }] : []),
-  ];
-
-  return (
-    <div style={{ padding: '16px' }}>
-      <h2 style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '20px', color: 'var(--ink)' }}>More</h2>
-      <div style={{ display: 'grid', gap: '12px' }}>
-        {menuItems.map(item => (
-          <button
-            key={item.id}
-            onClick={() => onNavigate(item.id)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '16px',
-              padding: '16px', backgroundColor: 'var(--surface)',
-              border: '1px solid var(--line)', borderRadius: '12px',
-              color: 'var(--ink)', fontSize: '1.1rem', fontWeight: '500',
-              cursor: 'pointer', textAlign: 'left', boxShadow: 'var(--shadow-1)'
-            }}
-          >
-            <span style={{ fontSize: '1.4rem', color: 'var(--accent)' }}>{item.icon}</span>
-            {item.label}
-          </button>
-        ))}
-        <button
-          onClick={onLogout}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '16px',
-            padding: '16px', backgroundColor: 'var(--surface)',
-            border: '1px solid var(--line)', borderRadius: '12px',
-            color: 'var(--rose)', fontSize: '1.1rem', fontWeight: '600',
-            cursor: 'pointer', textAlign: 'left', marginTop: '20px'
-          }}
-        >
-          Sign Out
-        </button>
-      </div>
-    </div>
-  );
-};
-
 
 import { listMembers, upsertUserProfile } from './lib/dataconnect';
 
@@ -217,6 +164,9 @@ function App() {
   const [scope, setScope] = useState('News');
   const [selectedMember, setSelectedMember] = useState(null);
   const toast = useToast();
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMessagesOpen, setIsMessagesOpen] = useState(false);
 
   // Theme
   const [accentColor, setAccentColor] = useState('#5B3FBB');
@@ -558,40 +508,22 @@ function App() {
     body = <InboxScreen />;
   } else if (route === 'messages') {
     body = <MessagesScreen user={user} />;
-  } else if (route === 'documents') {
-    body = level >= 2 ? (
-      <DocumentsScreen 
-        user={user} 
-        openUploadOnMount={openDocUploadOnMount} 
-        onCloseUploadOnMount={() => setOpenDocUploadOnMount(false)} 
-      />
-    ) : <AccessDenied requiredLevel={2} />;
-  } else if (route === 'schedule') {
-    body = level >= 2 ? (
-      <ScheduleScreen 
-        user={user}
-        refreshKey={refreshKey}
-        onRefresh={triggerRefresh}
-        openAddEventOnMount={openAddScheduleOnMount}
-        onCloseAddEventOnMount={() => setOpenAddScheduleOnMount(false)}
-      />
-    ) : <AccessDenied requiredLevel={2} />;
-  } else if (route === 'appointment') {
-    body = <AppointmentScreen user={user} />;
-  } else if (route === 'events') {
-    body = <EventsScreen user={user} />;
   } else if (route === 'mgmt') {
-    body = (level >= 3 || user.isPA) ? <ManagementScreen user={user} /> : <AccessDenied requiredLevel={3} />;
+    body = <ManagementScreen 
+      user={user} 
+      openDocUploadOnMount={openDocUploadOnMount} 
+      setOpenDocUploadOnMount={setOpenDocUploadOnMount}
+      openAddScheduleOnMount={openAddScheduleOnMount}
+      setOpenAddScheduleOnMount={setOpenAddScheduleOnMount}
+      refreshKey={refreshKey}
+      triggerRefresh={triggerRefresh}
+    />;
   } else if (route === 'feedback') {
     body = <FeedbackScreen />;
-  } else if (route === 'baptism') {
-    body = level >= 2 ? <BaptismScreen user={user} /> : <AccessDenied requiredLevel={2} />;
-  } else if (route === 'nls') {
-    body = <NLSScreen user={user} />;
   } else if (route === 'group') {
     body = <SimpleScreen icon={<Icon.Spark />} title="New Life Steps" subtitle="Your discipleship journey" />;
   } else if (route === 'profile') {
-    body = <ProfileScreen user={user} onUpdateUser={setUser} onSettings={() => handleNavigate('settings')} onLogout={() => { auth.signOut(); handleNavigate('login'); }} />;
+    body = <ProfileScreen user={user} onUpdateUser={setUser} onSettings={() => handleNavigate('settings')} onFeedback={() => handleNavigate('feedback')} onLogout={() => { auth.signOut(); handleNavigate('login'); }} />;
   } else if (route === 'settings') {
     body = (
       <SettingsScreen
@@ -602,13 +534,9 @@ function App() {
       />
     );
   } else if (route === 'members') {
-    body = level >= 3 ? <MemberSearchScreen user={user} onSelectMember={(m) => { setSelectedMember(m); handleNavigate('member-profile'); }} onNavigate={handleNavigate} /> : <AccessDenied requiredLevel={3} />;
+    body = <MemberSearchScreen user={user} onSelectMember={(m) => { setSelectedMember(m); handleNavigate('member-profile'); }} onNavigate={handleNavigate} />;
   } else if (route === 'member-profile') {
     body = <MemberProfileScreen member={selectedMember} user={user} onBack={() => handleNavigate(level >= 3 ? 'members' : 'home')} onMessage={() => handleNavigate('messages')} onNavigate={handleNavigate} onUpdateMember={(m) => setSelectedMember(m)} />;
-  } else if (route === 'debug') {
-    body = level >= 4 ? <DebugScreen onBack={() => handleNavigate('home')} /> : <AccessDenied requiredLevel={4} />;
-  } else if (route === 'menu') {
-    body = <MenuScreen route={route} onNavigate={handleNavigate} onLogout={() => { auth.signOut(); handleNavigate('login'); }} user={user} t={t} />;
   } else {
     body = <FeedScreen scope={scope} onScope={setScope} onAction={onAction} user={user} refreshKey={refreshKey} />;
   }
@@ -644,19 +572,57 @@ function App() {
           hasNewMessages={hasNewMessages}
           onProfile={() => handleNavigate('profile')}
           onAction={handleFab}
+          route={route}
+          onNavigate={handleNavigate}
         />
       )}
 
-      <div className="nice-scroll" style={{ flex: 1, overflow: 'auto', paddingTop: inAuth ? 0 : 6, paddingBottom: inAuth ? 0 : 80, position: 'relative' }}>
+      <div className="nice-scroll" style={{ flex: 1, overflow: 'auto', paddingTop: inAuth ? 0 : 6, paddingBottom: inAuth ? 0 : 24, position: 'relative' }}>
         {body}
       </div>
 
       {!inAuth && (
-        <TabBar 
-          route={route}
-          onNavigate={handleNavigate}
-          user={user}
-        />
+        <button 
+          onClick={() => setIsMessagesOpen(!isMessagesOpen)}
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            width: '60px',
+            height: '60px',
+            borderRadius: '30px',
+            backgroundColor: 'var(--accent)',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: 'var(--shadow-hover)',
+            zIndex: 2000,
+            cursor: 'pointer',
+            border: 'none',
+            transition: 'transform 0.2s'
+          }}
+        >
+          <span style={{ fontSize: '1.8rem' }}><Icon.Message /></span>
+          {hasNewMessages && (
+            <div style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              width: '12px',
+              height: '12px',
+              backgroundColor: '#ff3b30',
+              borderRadius: '50%',
+              border: '2px solid var(--accent)'
+            }} />
+          )}
+        </button>
+      )}
+
+      {isMessagesOpen && (
+        <div className="messages-overlay-panel">
+          <MessagesScreen user={user} onClose={() => setIsMessagesOpen(false)} isOverlay={true} />
+        </div>
       )}
 
       {uploadOpen && (
@@ -677,3 +643,4 @@ function App() {
 }
 
 export default App;
+

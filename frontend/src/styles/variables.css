@@ -21,10 +21,6 @@
   --rose: #C75B7A;
   --green: #4F8C6E;
 
-  /* Shadows */
-  --shadow-1: 0 1px 2px rgba(20, 16, 40, 0.05);
-  --shadow-2: 0 8px 24px rgba(20, 16, 40, 0.08);
-
   /* Spacing scale */
   --space-2: 8px;
   --space-3: 12px;
@@ -62,7 +58,9 @@
   padding: 0;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   width: 100%;
   height: 100%;
 }
@@ -229,6 +227,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -243,6 +242,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

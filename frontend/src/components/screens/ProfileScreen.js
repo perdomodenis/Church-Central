@@ -18,7 +18,7 @@ const toCamelCase = (str) => {
     .join('');
 };
 
-const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
+const ProfileScreen = ({ user, onUpdateUser, onSettings, onFeedback, onLogout }) => {
   const { t } = useLanguage();
   const initials = `${user.first?.[0] || ''}${user.last?.[0] || ''}`.toUpperCase() || '??';
   const [photos, setPhotos] = useState([]);
@@ -936,6 +936,9 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onLogout }) => {
 
       {/* Actions */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <button onClick={onFeedback} style={secondaryButtonStyle}>
+          {t('feedback')}
+        </button>
         <button onClick={onSettings} style={primaryButtonStyle}>
           {t('accountSettings')}
         </button>
@@ -1021,6 +1024,8 @@ const interestTagStyle = {
 };
 
 const primaryButtonStyle = { width: '100%', padding: '16px', backgroundColor: 'var(--accent)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '1rem', cursor: 'pointer' };
+
+const secondaryButtonStyle = { width: '100%', padding: '16px', backgroundColor: 'var(--surface)', color: 'var(--accent)', border: '1px solid var(--accent)', borderRadius: '12px', fontWeight: '700', fontSize: '1rem', cursor: 'pointer' };
 
 const logoutButtonStyle = { width: '100%', padding: '16px', backgroundColor: '#FFF0F0', color: '#D32F2F', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '1rem', cursor: 'pointer' };
 

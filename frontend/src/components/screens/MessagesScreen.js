@@ -79,7 +79,7 @@ const renderGroupAvatar = (name, icon) => {
   );
 };
 
-const MessagesScreen = ({ user }) => {
+const MessagesScreen = ({ user, onClose, isOverlay }) => {
   const { t } = useLanguage();
   const [directChats, setDirectChats] = useState([]);
   const [groupChats, setGroupChats] = useState([]);
@@ -284,7 +284,7 @@ const MessagesScreen = ({ user }) => {
   }
 
   return (
-    <div style={{ paddingBottom: '100px' }}>
+    <div style={{ paddingBottom: isOverlay ? '24px' : '100px', flex: 1, overflowY: 'auto' }}>
       {/* Header */}
       <div style={{
         position: 'sticky',
@@ -359,6 +359,24 @@ const MessagesScreen = ({ user }) => {
             >
               👥
             </button>
+            {isOverlay && onClose && (
+              <button
+                onClick={onClose}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: '#999',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  fontSize: '1.2rem',
+                  marginLeft: '8px'
+                }}
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
       </div>
