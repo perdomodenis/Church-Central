@@ -116,9 +116,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onFeedback, onLogout })
 
     setUploading(true);
     try {
-      for (let i = 0; i < files.length; i++) {
-        await uploadPhoto(user.uid, files[i]);
-      }
+      await Promise.all(Array.from(files).map(file => uploadPhoto(user.uid, file)));
       await loadPhotos();
     } catch (error) {
       console.error('Error uploading photos:', error);
@@ -181,9 +179,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onFeedback, onLogout })
 
       const newDepts = (editUser.depts || []).filter(d => !(user.depts || []).includes(d));
       if (newDepts.length > 0) {
-        for (const newDept of newDepts) {
-          await requestDepartmentJoin(user.uid, `${editUser.first} ${editUser.last}`, newDept);
-        }
+        await Promise.all(newDepts.map(newDept => requestDepartmentJoin(user.uid, `${editUser.first} ${editUser.last}`, newDept)));
         alert(`Department join request(s) sent for review: ${newDepts.join(', ')}`);
         
         updates.depts = (editUser.depts || []).filter(d => (user.depts || []).includes(d) || d === 'General');

@@ -1,19 +1,20 @@
 import React, { createContext, useState, useEffect } from 'react';
 import translations from '../services/translations';
 
-export const LanguageContext = createContext();
+const LanguageContext = createContext();
+
+const setLanguage = () => {};
+
+const t = (key) => {
+  return translations.en?.[key] || key;
+};
 
 export const LanguageProvider = ({ children }) => {
   const language = 'en';
-  const setLanguage = () => {};
 
   useEffect(() => {
     localStorage.removeItem('appLanguage');
   }, []);
-
-  const t = (key) => {
-    return translations.en?.[key] || key;
-  };
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>

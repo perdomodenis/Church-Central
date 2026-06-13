@@ -9,28 +9,30 @@ import { useLanguage } from './context/LanguageContext';
 import LoadingScreen from './components/common/LoadingScreen';
 
 // Auth Screens
-import { LoginScreen, SignupScreen, WelcomeScreen, ForgotScreen, ForgotSent } from './components/auth';
+import LoginScreen from './components/auth/LoginScreen';
+import SignupScreen from './components/auth/SignupScreen';
+import WelcomeScreen from './components/auth/WelcomeScreen';
+import ForgotScreen from './components/auth/ForgotScreen';
+import ForgotSent from './components/auth/ForgotSent';
 
 // Main Screens
-import {
-  FeedScreen,
-  InboxScreen,
-  ScheduleScreen,
-  AppointmentScreen,
-  ManagementScreen,
-  UploadScreen,
-  ProfileScreen,
-  SettingsScreen,
-  FeedbackScreen,
-  SimpleScreen,
-  BaptismScreen,
-  EventsScreen,
-  MessagesScreen,
-  MemberSearchScreen,
-  MemberProfileScreen,
-  DocumentsScreen,
-  NLSScreen
-} from './components/screens';
+import FeedScreen from './components/screens/FeedScreen';
+import InboxScreen from './components/screens/InboxScreen';
+import ScheduleScreen from './components/screens/ScheduleScreen';
+import AppointmentScreen from './components/screens/AppointmentScreen';
+import ManagementScreen from './components/screens/ManagementScreen';
+import UploadScreen from './components/screens/UploadScreen';
+import ProfileScreen from './components/screens/ProfileScreen';
+import SettingsScreen from './components/screens/SettingsScreen';
+import FeedbackScreen from './components/screens/FeedbackScreen';
+import SimpleScreen from './components/screens/SimpleScreen';
+import BaptismScreen from './components/screens/BaptismScreen';
+import EventsScreen from './components/screens/EventsScreen';
+import MessagesScreen from './components/screens/MessagesScreen';
+import MemberSearchScreen from './components/screens/MemberSearchScreen';
+import MemberProfileScreen from './components/screens/MemberProfileScreen';
+import DocumentsScreen from './components/screens/DocumentsScreen';
+import NLSScreen from './components/screens/NLSScreen';
 import { getAllMembers } from './services/memberService';
 
 // UI Components
@@ -354,13 +356,13 @@ function App() {
 
       if (deptsToRequest.length > 0) {
         const { requestDepartmentJoin } = await import('./services/departmentService');
-        for (const dept of deptsToRequest) {
+        await Promise.all(deptsToRequest.map(async (dept) => {
           try {
             await requestDepartmentJoin(newUser.uid, `${signupData.first} ${signupData.last}`.trim(), dept);
           } catch (err) {
             console.error(`Failed to request joining department ${dept}:`, err);
           }
-        }
+        }));
       }
 
       setUser(profileData);

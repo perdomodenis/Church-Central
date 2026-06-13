@@ -4,7 +4,7 @@
 const API_KEY = process.env.REACT_APP_GOOGLE_CALENDAR_API_KEY;
 const CALENDAR_ID = process.env.REACT_APP_GOOGLE_CALENDAR_ID;
 
-export const getCalendarEvents = async () => {
+const getCalendarEvents = async () => {
   // If not configured, return null to signal using mock data
   if (!API_KEY || !CALENDAR_ID) {
     return null;
@@ -44,7 +44,7 @@ export const getCalendarEvents = async () => {
   }
 };
 
-export const extractCategory = (title) => {
+const extractCategory = (title) => {
   const lowerTitle = title.toLowerCase();
   if (lowerTitle.includes('worship') || lowerTitle.includes('service')) return 'Worship';
   if (lowerTitle.includes('youth')) return 'Youth';
@@ -94,7 +94,7 @@ export const formatEventTime = (startTime, endTime) => {
   return `${startTimeStr} - ${endTimeStr}`;
 };
 
-export const getCalendarUrl = () => {
+const getCalendarUrl = () => {
   if (!CALENDAR_ID) return null;
   return `https://calendar.google.com/calendar/u/0?cid=${CALENDAR_ID}`;
 };

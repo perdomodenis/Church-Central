@@ -25,7 +25,7 @@ const getCourts = (member) => {
   const courtVal = member.court || member.campus || 'Global';
   if (Array.isArray(courtVal)) return courtVal;
   if (typeof courtVal === 'string') {
-    return courtVal.split(',').map(s => s.trim()).filter(Boolean);
+    return courtVal.split(',').flatMap(s => { const trimmed = s.trim(); return trimmed ? [trimmed] : []; });
   }
   return ['Global'];
 };
@@ -34,7 +34,7 @@ const getDepartments = (member) => {
   const deptVal = member.dept || 'General';
   if (Array.isArray(deptVal)) return deptVal;
   if (typeof deptVal === 'string') {
-    return deptVal.split(',').map(s => s.trim()).filter(Boolean);
+    return deptVal.split(',').flatMap(s => { const trimmed = s.trim(); return trimmed ? [trimmed] : []; });
   }
   return ['General'];
 };
@@ -230,7 +230,6 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
             fontSize: '0.95rem',
             boxSizing: 'border-box',
             fontFamily: 'inherit',
-            outline: 'none',
             backgroundColor: '#fafafa',
             transition: 'border-color 0.2s'
           }}

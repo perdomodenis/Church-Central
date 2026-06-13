@@ -38,7 +38,7 @@ export const createBaptismEvent = async (eventData, userId, userName) => {
   }
 };
 
-export const getAllBaptismEvents = async () => {
+const getAllBaptismEvents = async () => {
   try {
     const response = await fetchAllBaptismsFromDb();
     const events = response.data?.baptismEvents || [];
@@ -106,7 +106,7 @@ export const checkBaptismRegistration = async (eventId, userId) => {
   }
 };
 
-export const getBaptismEventAttendees = async (eventId) => {
+const getBaptismEventAttendees = async (eventId) => {
   try {
     const events = await getAllBaptismEvents();
     const event = events.find(e => e.id === eventId);
@@ -117,7 +117,7 @@ export const getBaptismEventAttendees = async (eventId) => {
   }
 };
 
-export const deleteBaptismEvent = async (eventId) => {
+const deleteBaptismEvent = async (eventId) => {
   try {
     await deleteBaptismEventInDb({ id: eventId });
     return true;

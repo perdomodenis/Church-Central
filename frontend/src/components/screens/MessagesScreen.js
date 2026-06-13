@@ -13,7 +13,17 @@ import {
 import { COURTS, DEPARTMENTS, DISTRICTS } from '../../services/churchConstants';
 import ChatWindow from './ChatWindow';
 
-const renderAvatar = (name, photoUrl) => {
+const formatTime = (isoString) => {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  const today = new Date();
+  if (d.toDateString() === today.toDateString()) {
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+};
+
+const Avatar = ({ name, photoUrl }) => {
   if (photoUrl) {
     return (
       <img
@@ -55,7 +65,7 @@ const renderAvatar = (name, photoUrl) => {
   );
 };
 
-const renderGroupAvatar = (name, icon) => {
+const GroupAvatar = ({ name, icon }) => {
   const groupIcon = icon || '👥';
   return (
     <div
@@ -81,6 +91,7 @@ const renderGroupAvatar = (name, icon) => {
 
 const MessagesScreen = ({ user, onClose, isOverlay }) => {
   const { t } = useLanguage();
+  const cachedReadStatuses = JSON.parse(localStorage.getItem('chatReadStatuses') || '{}');
   const [directChats, setDirectChats] = useState([]);
   const [groupChats, setGroupChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -118,8 +129,10 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
   const loadChats = async () => {
     // Kept for manual refresh if needed, but primarily handled by real-time listeners now
     if (!user?.uid) return;
-    const direct = await getDirectChats(user.uid);
-    const groups = await getGroupChats(user.uid);
+    const [direct, groups] = await Promise.all([
+      getDirectChats(user.uid),
+      getGroupChats(user.uid)
+    ]);
     setDirectChats(direct.sort((a,b) => (b.lastMessage?.timestamp ? new Date(b.lastMessage.timestamp).getTime() : 0) - (a.lastMessage?.timestamp ? new Date(a.lastMessage.timestamp).getTime() : 0)));
     setGroupChats(groups.sort((a,b) => (b.lastMessage?.timestamp ? new Date(b.lastMessage.timestamp).getTime() : 0) - (a.lastMessage?.timestamp ? new Date(a.lastMessage.timestamp).getTime() : 0)));
   };
@@ -181,7 +194,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
   };
 
   const handleMarkAllAsRead = () => {
-    const readStatuses = JSON.parse(localStorage.getItem('chatReadStatuses') || '{}');
+    const readStatuses = { ...cachedReadStatuses };
     const now = Date.now();
     let updated = false;
 
@@ -206,21 +219,12 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
     }
   };
 
-  const formatTime = (isoString) => {
-    if (!isoString) return '';
-    const d = new Date(isoString);
-    const today = new Date();
-    if (d.toDateString() === today.toDateString()) {
-      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-    return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
-  };
+
 
   const renderGroupCard = (group) => {
     const groupIcon = group.groupIcon || '👥';
-    const readStatuses = JSON.parse(localStorage.getItem('chatReadStatuses') || '{}');
     const lastMsgTime = group.lastMessage ? new Date(group.lastMessage.timestamp).getTime() : 0;
-    const isUnread = group.lastMessage && group.lastMessage.userId !== user?.uid && lastMsgTime > (readStatuses[group.id] || 0);
+    const isUnread = group.lastMessage && group.lastMessage.userId !== user?.uid && lastMsgTime > (cachedReadStatuses[group.id] || 0);
 
     return (
       <button
@@ -245,7 +249,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
         onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
         onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
       >
-        {renderGroupAvatar(group.name, groupIcon)}
+        <GroupAvatar name={group.name} icon={groupIcon} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px', overflow: 'hidden' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <div style={{ fontWeight: isUnread ? '800' : '600', color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{group.name}</div>
@@ -304,7 +308,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
                 {t('chatWithFriends')}
               </p>
               {(() => {
-                const readStatuses = JSON.parse(localStorage.getItem('chatReadStatuses') || '{}');
+                const readStatuses = cachedReadStatuses;
                 const hasUnread = [...groupChats, ...directChats].some(chat => {
                   const lastMsgTime = chat.lastMessage ? new Date(chat.lastMessage.timestamp).getTime() : 0;
                   return chat.lastMessage && chat.lastMessage.userId !== user?.uid && lastMsgTime > (readStatuses[chat.id] || 0);
@@ -514,7 +518,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
               const otherUser = allUsers.find(u => u.uid === otherUserId);
               const profilePhoto = otherUser?.profilePhoto;
 
-              const readStatuses = JSON.parse(localStorage.getItem('chatReadStatuses') || '{}');
+              const readStatuses = cachedReadStatuses;
               const lastMsgTime = chat.lastMessage ? new Date(chat.lastMessage.timestamp).getTime() : 0;
               const isUnread = chat.lastMessage && chat.lastMessage.userId !== user?.uid && lastMsgTime > (readStatuses[chat.id] || 0);
 
@@ -541,7 +545,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
                 >
-                  {renderAvatar(otherUserName, profilePhoto)}
+                  <Avatar name={otherUserName} photoUrl={profilePhoto} />
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px', overflow: 'hidden' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                       <div style={{ fontWeight: isUnread ? '800' : '600', color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{otherUserName}</div>

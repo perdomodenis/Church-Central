@@ -114,7 +114,7 @@ export const getAllEvents = async () => {
   }
 };
 
-export const updateEvent = async (eventId, eventData) => {
+const updateEvent = async (eventId, eventData) => {
   try {
     let date = eventData.date;
     let time = eventData.time;
@@ -168,7 +168,7 @@ export const deleteEvent = async (eventId) => {
   }
 };
 
-export const getEventsByUser = async (userId) => {
+const getEventsByUser = async (userId) => {
   try {
     const allEvents = await getAllEvents();
     return allEvents.filter(event => event.createdBy === userId);

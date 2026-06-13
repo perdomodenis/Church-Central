@@ -5,12 +5,12 @@ import { ref, onValue } from 'firebase/database';
 
 const NotificationContext = createContext();
 
+const INITIAL_PUSH_ENABLED = localStorage.getItem('pushNotificationsEnabled') !== 'false';
+
 export const NotificationProvider = ({ children }) => {
     const { user } = useAuth();
     const [notifications, setNotifications] = useState([]);
-    const [pushEnabled, setPushEnabled] = useState(() => {
-        return localStorage.getItem('pushNotificationsEnabled') !== 'false';
-    });
+    const [pushEnabled, setPushEnabled] = useState(() => INITIAL_PUSH_ENABLED);
     const [hasNewInbox, setHasNewInbox] = useState(false);
     const [sessionStartTime] = useState(() => Date.now());
     const [notifiedIds, setNotifiedIds] = useState(new Set());
@@ -20,8 +20,7 @@ export const NotificationProvider = ({ children }) => {
     useEffect(() => {
         if ('Notification' in window) {
             if (Notification.permission === 'granted') {
-                const localVal = localStorage.getItem('pushNotificationsEnabled') !== 'false';
-                setPushEnabled(localVal);
+                setPushEnabled(INITIAL_PUSH_ENABLED);
             } else {
                 setPushEnabled(false);
             }
