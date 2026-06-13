@@ -40,63 +40,6 @@ import { TopHeader, Sheet, useToast } from './components/common/UI';
 import { getAccessLevel } from './services/churchConstants';
 import * as Icon from './components/common/Icons';
 
-import { listMembers, upsertUserProfile } from './lib/dataconnect';
-
-const runMigration = async () => {
-  if (localStorage.getItem('migrationRun')) return;
-  console.log("Starting messy database migration...");
-  try {
-    const res = await listMembers({ fetchPolicy: 'SERVER_ONLY' });
-    const users = res.data.users;
-    
-    const COURT_MAP = {
-      'Downtown Campus': 'Hope Court',
-      'Main Campus': 'Praise Court',
-      'South Campus': 'Glory Court'
-    };
-    const DEPT_MAP = {
-      'Communications': 'Media Ministry',
-      'Bible Study': 'Disciples Training Ministry (DTM)',
-      'Community Outreach': 'Outreach',
-      'Prayer Ministry': 'Prayer ministry',
-      'Worship Team': 'Zamar',
-      'Youth Ministry': 'Glorious Vessels of Virtue (GVV)'
-    };
-    
-    for (const u of users) {
-      let changed = false;
-      let newCourt = u.court;
-      let newDept = u.dept;
-      
-      if (COURT_MAP[u.court]) {
-        newCourt = COURT_MAP[u.court];
-        changed = true;
-      }
-      if (DEPT_MAP[u.dept]) {
-        newDept = DEPT_MAP[u.dept];
-        changed = true;
-      }
-      
-      if (changed) {
-        console.log(`Migrating user ${u.first} ${u.last}: ${u.court} -> ${newCourt}, ${u.dept} -> ${newDept}`);
-        await upsertUserProfile({
-          uid: u.uid,
-          email: u.email,
-          first: u.first,
-          last: u.last,
-          court: newCourt,
-          dept: newDept
-        });
-      }
-    }
-    console.log("Migration complete!");
-    localStorage.setItem('migrationRun', 'true');
-    alert("Migration complete! You can refresh the page.");
-  } catch (e) {
-    console.error("Migration failed:", e);
-    alert("Migration failed: " + e.message);
-  }
-};
 
 const ACCENT_PRESETS = [
   ['oklch(45% 0.15 260)', 'oklch(95% 0.05 260)'], // Navy/Teal
@@ -120,7 +63,6 @@ function App() {
 
   // Track page window load
   useEffect(() => {
-    runMigration();
     if (document.readyState === 'complete') {
       setWindowLoaded(true);
       return;
