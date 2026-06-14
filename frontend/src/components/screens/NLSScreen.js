@@ -110,7 +110,7 @@ const NLSScreen = ({ user }) => {
     return (
       <div style={{ padding: '24px', paddingBottom: '100px', maxWidth: '600px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📚</div>
+          <div style={{ fontSize: '3rem', marginBottom: '16px' }}></div>
           <h2 style={{ fontSize: '2rem', fontWeight: '800', color: '#111', margin: '0 0 12px 0' }}>New Life School</h2>
           <p style={{ color: '#555', fontSize: '1.1rem', lineHeight: '1.5' }}>
             {t('nlsDescription') || 'New Life School is our foundational course series designed to equip believers with essential biblical principles.'}
@@ -123,14 +123,14 @@ const NLSScreen = ({ user }) => {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
               <div style={detailRowStyle}>
-                <span style={{ fontSize: '1.2rem' }}>📅</span>
+                <span style={{ fontSize: '1.2rem' }}></span>
                 <div>
                   <div style={{ fontWeight: '600', color: '#333' }}>Dates</div>
                   <div style={{ color: '#666' }}>{config.startDate} to {config.endDate}</div>
                 </div>
               </div>
               <div style={detailRowStyle}>
-                <span style={{ fontSize: '1.2rem' }}>⏰</span>
+                <span style={{ fontSize: '1.2rem' }}></span>
                 <div>
                   <div style={{ fontWeight: '600', color: '#333' }}>Registration Deadline</div>
                   <div style={{ color: isPastDeadline ? '#e53935' : '#666', fontWeight: isPastDeadline ? 'bold' : 'normal' }}>
@@ -143,7 +143,7 @@ const NLSScreen = ({ user }) => {
             {isRegistered ? (
               <div style={{ textAlign: 'center' }}>
                 <div style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', padding: '16px', borderRadius: '12px', fontWeight: 'bold', marginBottom: '16px' }}>
-                  ✅ You are successfully registered!
+                   You are successfully registered!
                 </div>
                 <button onClick={handleUnregister} style={secondaryButtonStyle}>
                   Cancel Registration
@@ -171,7 +171,7 @@ const NLSScreen = ({ user }) => {
   // --- Management View (Level 3+) ---
   return (
     <div style={{ padding: '24px', paddingBottom: '100px', maxWidth: '800px', margin: '0 auto' }}>
-      <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: '0 0 8px 0', color: '#111' }}>📚 NLS Management Dashboard</h2>
+      <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: '0 0 8px 0', color: '#111' }}> NLS Management Dashboard</h2>
       <p style={{ color: '#666', marginBottom: '32px' }}>Manage the current New Life School cohort and view registries.</p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

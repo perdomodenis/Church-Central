@@ -78,7 +78,7 @@ const AddEventModal = ({ onClose, onEventAdded, user }) => {
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
         <div style={headerStyle}>
           <h2 style={{ margin: 0, color: '#111' }}>{t('addEvent')}</h2>
-          <button onClick={onClose} style={closeButtonStyle}>✕</button>
+          <button onClick={onClose} style={closeButtonStyle}>&times;</button>
         </div>
 
         <form onSubmit={handleSubmit} style={formStyle}>

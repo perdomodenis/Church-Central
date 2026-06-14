@@ -289,7 +289,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onFeedback, onLogout })
             fontSize: '16px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
           }}>
-            📷
+            
           </div>
         </label>
         <h2 style={{ fontSize: '1.75rem', fontWeight: '800', margin: '12px 0 4px 0', color: '#111' }}>
@@ -648,7 +648,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onFeedback, onLogout })
                         padding: 0
                       }}
                     >
-                      ✕
+                      
                     </button>
                   </div>
                 ))
@@ -874,7 +874,7 @@ const ProfileScreen = ({ user, onUpdateUser, onSettings, onFeedback, onLogout })
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#c0392b'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#e74c3c'}
               >
-                🗑️ {t('delete')}
+                 {t('delete')}
               </button>
 
               {/* Next Button */}

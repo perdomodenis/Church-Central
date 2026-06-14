@@ -4,7 +4,6 @@ import { useAuth } from './context/AuthContext';
 import { useNotification } from './context/NotificationContext';
 import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from './services/firebase';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { seedLiveData } from './services/liveData';
 import { useLanguage } from './context/LanguageContext';
 import LoadingScreen from './components/common/LoadingScreen';
 
@@ -18,21 +17,15 @@ import ForgotSent from './components/auth/ForgotSent';
 // Main Screens
 import FeedScreen from './components/screens/FeedScreen';
 import InboxScreen from './components/screens/InboxScreen';
-import ScheduleScreen from './components/screens/ScheduleScreen';
-import AppointmentScreen from './components/screens/AppointmentScreen';
 import ManagementScreen from './components/screens/ManagementScreen';
 import UploadScreen from './components/screens/UploadScreen';
 import ProfileScreen from './components/screens/ProfileScreen';
 import SettingsScreen from './components/screens/SettingsScreen';
 import FeedbackScreen from './components/screens/FeedbackScreen';
 import SimpleScreen from './components/screens/SimpleScreen';
-import BaptismScreen from './components/screens/BaptismScreen';
-import EventsScreen from './components/screens/EventsScreen';
 import MessagesScreen from './components/screens/MessagesScreen';
 import MemberSearchScreen from './components/screens/MemberSearchScreen';
 import MemberProfileScreen from './components/screens/MemberProfileScreen';
-import DocumentsScreen from './components/screens/DocumentsScreen';
-import NLSScreen from './components/screens/NLSScreen';
 import { getAllMembers } from './services/memberService';
 
 // UI Components
@@ -111,6 +104,16 @@ function App() {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
+  const [isMessagesClosing, setIsMessagesClosing] = useState(false);
+
+  const closeMessages = () => {
+    setIsMessagesClosing(true);
+    setTimeout(() => {
+      setIsMessagesOpen(false);
+      setIsMessagesClosing(false);
+    }, 300);
+  };
+
 
   // Theme
   const [accentColor, setAccentColor] = useState('oklch(45% 0.15 260)');
@@ -142,10 +145,10 @@ function App() {
 
         try {
           const { getUserProfile, updateUserProfile } = await import('./services/userService');
-          
+
           // Fetch current profile in PostgreSQL
           const currentProfile = await getUserProfile(authUser.uid);
-          
+
           let isPA = false;
           try {
             const allMembers = await getAllMembers();
@@ -241,7 +244,7 @@ function App() {
   //     localStorage.setItem('liveDataLoaded', 'true');
   //     
   //     seedLiveData().then(() => {
-  //       console.log('✅ Live data loaded automatically');
+  //       console.log(' Live data loaded automatically');
   //     }).catch(err => {
   //       console.error('Error loading live data:', err);
   //     });
@@ -267,7 +270,7 @@ function App() {
       const newUser = credential.user;
 
       // Save custom signup fields to PostgreSQL immediately
-      
+
       // Determine chosen departments that need approval
       const chosenDepts = signupData.depts && signupData.depts.length > 0 ? signupData.depts : (signupData.dept ? [signupData.dept] : []);
       const deptsToRequest = chosenDepts.filter(d => d && d !== 'General');
@@ -358,7 +361,7 @@ function App() {
 
   const onAction = (kind) => {
     if (kind === 'comment') toast.show('Comments will be available soon');
-    else if (kind === 'pray') toast.show('❤️ Post liked');
+    else if (kind === 'pray') toast.show(' Post liked');
     else if (kind === 'share') toast.show('Link copied');
     else if (kind === 'compose') setUploadOpen(true);
   };
@@ -392,18 +395,18 @@ function App() {
 
   if (!profileLoaded) {
     return (
-      <LoadingScreen 
-        fadeState={fadeState} 
-        onTransitionEnd={handleTransitionEnd} 
+      <LoadingScreen
+        fadeState={fadeState}
+        onTransitionEnd={handleTransitionEnd}
       />
     );
   }
 
   const AccessDenied = ({ requiredLevel }) => (
     <div style={{ padding: '60px 20px', textAlign: 'center', color: '#666' }}>
-      <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔒</div>
+      <div style={{ fontSize: '3rem', marginBottom: '16px' }}></div>
       <h2 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Access Denied</h2>
-      <p>This feature requires Access Level {requiredLevel}.<br/>Your current level is {level}.</p>
+      <p>This feature requires Access Level {requiredLevel}.<br />Your current level is {level}.</p>
     </div>
   );
 
@@ -433,12 +436,12 @@ function App() {
     body = <WelcomeScreen name={signupData.first || 'friend'} onContinue={() => handleNavigate('home')} />;
   } else if (route === 'home') {
     body = (
-      <FeedScreen 
-        scope={scope} 
-        onScope={setScope} 
-        onAction={onAction} 
-        user={user} 
-        refreshKey={refreshKey} 
+      <FeedScreen
+        scope={scope}
+        onScope={setScope}
+        onAction={onAction}
+        user={user}
+        refreshKey={refreshKey}
         onSelectMember={(m) => {
           setSelectedMember(m);
           handleNavigate('member-profile');
@@ -450,9 +453,9 @@ function App() {
   } else if (route === 'messages') {
     body = <MessagesScreen user={user} />;
   } else if (route === 'mgmt') {
-    body = <ManagementScreen 
-      user={user} 
-      openDocUploadOnMount={openDocUploadOnMount} 
+    body = <ManagementScreen
+      user={user}
+      openDocUploadOnMount={openDocUploadOnMount}
       setOpenDocUploadOnMount={setOpenDocUploadOnMount}
       openAddScheduleOnMount={openAddScheduleOnMount}
       setOpenAddScheduleOnMount={setOpenAddScheduleOnMount}
@@ -485,28 +488,28 @@ function App() {
   return (
     <div className="App app-root" style={{ position: 'relative', height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {showLoadingScreen && (
-        <LoadingScreen 
-          fadeState={fadeState} 
-          onTransitionEnd={handleTransitionEnd} 
+        <LoadingScreen
+          fadeState={fadeState}
+          onTransitionEnd={handleTransitionEnd}
         />
       )}
       {!inAuth && (
         <TopHeader
           title={
             route === 'inbox' ? t('inbox') :
-            route === 'messages' ? t('messages') :
-            route === 'schedule' ? t('schedule') :
-            route === 'appointment' ? t('appointments') :
-            route === 'events' ? t('events') :
-            route === 'mgmt' ? t('management') :
-            route === 'baptism' ? t('baptism') :
-            route === 'profile' ? t('profile') :
-            route === 'settings' ? t('settings') :
-            route === 'feedback' ? t('feedback') :
-            route === 'nls' ? t('nls') :
-            route === 'documents' ? t('documents') :
-            route === 'members' ? t('church') :
-            route === 'menu' ? 'Menu' : 'Church Central'
+              route === 'messages' ? t('messages') :
+                route === 'schedule' ? t('schedule') :
+                  route === 'appointment' ? t('appointments') :
+                    route === 'events' ? t('events') :
+                      route === 'mgmt' ? t('management') :
+                        route === 'baptism' ? t('baptism') :
+                          route === 'profile' ? t('profile') :
+                            route === 'settings' ? t('settings') :
+                              route === 'feedback' ? t('feedback') :
+                                route === 'nls' ? t('nls') :
+                                  route === 'documents' ? t('documents') :
+                                    route === 'members' ? t('church') :
+                                      route === 'menu' ? 'Menu' : 'Church Central'
           }
           user={user}
           hasNewInbox={hasNewInbox}
@@ -523,9 +526,30 @@ function App() {
         {body}
       </div>
 
-      {isMessagesOpen && (
-        <div className="messages-overlay-panel">
-          <MessagesScreen user={user} onClose={() => setIsMessagesOpen(false)} isOverlay={true} />
+      {/* Global FAB for Desktop */}
+      {!inAuth && (
+        <div className="desktop-fab" style={{ position: 'fixed', bottom: '24px', right: '24px', display: 'flex', flexDirection: 'column', gap: '16px', zIndex: 1000 }}>
+          <button
+            onClick={() => setIsMessagesOpen(!isMessagesOpen)}
+            style={{
+              width: '56px', height: '56px', borderRadius: '28px',
+              backgroundColor: 'var(--accent)', color: 'white',
+              border: 'none', cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(91, 63, 187, 0.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              position: 'relative',
+              fontSize: '1.5rem'
+            }}
+          >
+            <Icon.Message />
+            {hasNewMessages && <div className="grace-red-dot" />}
+          </button>
+        </div>
+      )}
+
+      {(isMessagesOpen || isMessagesClosing) && (
+        <div className={`messages-overlay-panel ${isMessagesClosing ? 'closing' : ''}`}>
+          <MessagesScreen user={user} onClose={closeMessages} isOverlay={true} />
         </div>
       )}
 

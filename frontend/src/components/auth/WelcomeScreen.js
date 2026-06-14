@@ -20,7 +20,7 @@ const WelcomeScreen = ({ name, onContinue }) => {
         marginBottom: '20px',
         animation: 'popIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)' 
       }}>
-        🎉
+        
       </div>
       
       <h1 style={{ color: 'var(--accent)', fontSize: '2.5rem', marginBottom: '16px' }}>

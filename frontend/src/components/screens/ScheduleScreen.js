@@ -538,7 +538,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
               alignItems: 'center',
               gap: '8px'
             }}>
-              <span>ℹ️</span>
+              <span></span>
               <span>Church Service is currently offline (no program block matches the current local time).</span>
             </div>
           )}
@@ -585,7 +585,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                     gap: '6px'
                   }}
                 >
-                  {sortedBlocks.length > 0 ? <span>✏️ Edit Program</span> : <span>+ Create Program</span>}
+                  {sortedBlocks.length > 0 ? <span> Edit Program</span> : <span>+ Create Program</span>}
                 </button>
                 {sortedBlocks.length > 0 && (
                   <button
@@ -605,7 +605,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                       gap: '6px'
                     }}
                   >
-                    🗑️ Delete Program
+                     Delete Program
                   </button>
                 )}
               </div>
@@ -626,7 +626,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
               color: '#666',
               fontSize: '0.9rem'
             }}>
-              📅 No program scheduled for this date.
+               No program scheduled for this date.
               {canCreateProgram && (
                 <div style={{ marginTop: '12px' }}>
                   <button
@@ -844,7 +844,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: '600', color: '#111' }}>{item.title}</div>
                       <div style={{ fontSize: '0.85rem', color: '#666' }}>{item.description}</div>
-                      {item.location && <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '2px' }}>📍 {item.location}</div>}
+                      {item.location && <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '2px' }}> {item.location}</div>}
                       {item.endTime && <div style={{ fontSize: '0.8rem', color: '#888' }}>End: {item.endTime}</div>}
                     </div>
                   </div>
@@ -881,7 +881,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
 
           {!loading && validEvents.length === 0 && personalSortedBlocks.length === 0 && (!assignedBlocks || assignedBlocks.filter(b => b.date === selectedDate).length === 0) && (
             <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
-              {t('noEvents')} 📅
+              {t('noEvents')} 
             </div>
           )}
 
@@ -936,33 +936,33 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
           {/* Formatted Event Type Indicators */}
           {event.type === 'Work Shift' ? (
             <div style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: '700', margin: '6px 0', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span>⚠️</span>
+              <span></span>
               <span>Obligatory attendance on {dateInfo.date} {dateInfo.month} at {timeInfo}</span>
             </div>
           ) : (
             <div style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: '700', margin: '6px 0', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span>👥</span>
+              <span></span>
               <span>Group meeting at {timeInfo} on {dateInfo.date} {dateInfo.month}</span>
             </div>
           )}
 
           {shouldShow.time && (
             <div style={infoRowStyle}>
-              <span style={{ fontSize: '0.9rem' }}>🕒</span>
+              <span style={{ fontSize: '0.9rem' }}></span>
               <span style={infoTextStyle}>{timeInfo}</span>
             </div>
           )}
 
           {shouldShow.location && (
             <div style={infoRowStyle}>
-              <span style={{ fontSize: '0.9rem' }}>📍</span>
+              <span style={{ fontSize: '0.9rem' }}></span>
               <span style={infoTextStyle}>{event.location}</span>
             </div>
           )}
 
           {event.dressCode && (
             <div style={infoRowStyle}>
-              <span style={{ fontSize: '0.9rem' }}>👔</span>
+              <span style={{ fontSize: '0.9rem' }}></span>
               <span style={infoTextStyle}>{t('dressCode')}: <strong style={{ color: 'var(--accent)' }}>{event.dressCode}</strong></span>
             </div>
           )}
@@ -1015,7 +1015,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                     gap: '4px'
                   }}
                 >
-                  <span style={{ fontSize: '1rem' }}>📹</span> {t('joinMeeting')}
+                  <span style={{ fontSize: '1rem' }}></span> {t('joinMeeting')}
                 </a>
               )}
             </div>
@@ -1155,8 +1155,8 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                         return (
                         <details key={groupKey} style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '8px', backgroundColor: 'white' }}>
                           <summary style={{ fontWeight: '600', fontSize: '0.85rem', cursor: 'pointer', color: '#333' }}>
-                            {groupKey === myGroup ? '📌 ' : ''}
-                            {groupKey.startsWith(myCourtStr) && groupKey !== myGroup ? '📍 ' : ''}
+                            {groupKey === myGroup ? ' ' : ''}
+                            {groupKey.startsWith(myCourtStr) && groupKey !== myGroup ? ' ' : ''}
                             {groupKey} ({groupBlocks.length} users)
                           </summary>
                           <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '8px' }}>
@@ -1245,7 +1245,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                       gap: '4px'
                     }}
                   >
-                    {showManageTemplates ? '← Back to Blocks' : '⚙️ Manage Templates'}
+                    {showManageTemplates ? '← Back to Blocks' : ' Manage Templates'}
                   </button>
                 </div>
 
@@ -1262,7 +1262,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                       gap: '10px',
                       marginBottom: '4px'
                     }}>
-                      <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--accent)' }}>➕ Add New Template</div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--accent)' }}> Add New Template</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '8px', alignItems: 'center' }}>
                         <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#666' }}>Time:</span>
                         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
@@ -1310,7 +1310,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                                 zIndex: 1
                               }}
                             >
-                              🕒
+                              
                             </button>
                           </div>
                         </div>
@@ -1423,7 +1423,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                                           zIndex: 1
                                         }}
                                       >
-                                        🕒
+                                        
                                       </button>
                                     </div>
                                   </div>
@@ -1480,7 +1480,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                                     style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.95rem' }}
                                     title="Edit Template"
                                   >
-                                    ✏️
+                                    
                                   </button>
                                   <button
                                     type="button"
@@ -1488,7 +1488,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                                     style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.95rem' }}
                                     title="Delete Template"
                                   >
-                                    🗑️
+                                    
                                   </button>
                                 </div>
                               </div>
@@ -1622,7 +1622,7 @@ const ScheduleScreen = ({ user: userProp, refreshKey, onRefresh, openAddEventOnM
                                       zIndex: 1
                                     }}
                                   >
-                                    🕒
+                                    
                                   </button>
                                 </div>
                               </div>

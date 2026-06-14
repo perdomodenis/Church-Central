@@ -46,7 +46,7 @@ export const addEvent = async (eventData, userId) => {
         const d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
         formattedDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       }
-      const postContent = `📅 **New Event: ${variables.title}**\n\n📍 Location: ${variables.location}\n🕒 Time: ${formattedDate} at ${variables.time}\n\n${variables.description}`;
+      const postContent = ` **New Event: ${variables.title}**\n\n Location: ${variables.location}\n Time: ${formattedDate} at ${variables.time}\n\n${variables.description}`;
       
       await createAnnouncement({
         content: postContent,

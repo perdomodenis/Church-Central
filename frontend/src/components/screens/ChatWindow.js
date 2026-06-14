@@ -207,7 +207,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
         </button>
         <div style={{ textAlign: 'center', flex: 1 }}>
           <h3 style={{ margin: '0 0 4px 0', color: '#111', fontWeight: '700' }}>
-            {chatType === 'group' ? '👥' : '💬'} {getOtherUserName()}
+            {chatType === 'group' ? '' : ''} {getOtherUserName()}
           </h3>
           {chatType === 'group' && chat?.members && (
             <p style={{ margin: 0, fontSize: '0.8rem', color: '#999' }}>
@@ -344,7 +344,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {editingMessage ? (
               <>
-                <span style={{ fontWeight: '600', color: 'var(--accent)' }}>✏️ {t('edit')}:</span>
+                <span style={{ fontWeight: '600', color: 'var(--accent)' }}> {t('edit')}:</span>
                 <span style={{
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
@@ -357,7 +357,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
               </>
             ) : (
               <>
-                <span style={{ fontWeight: '600', color: 'var(--accent)' }}>↩️ {t('reply')} to {replyingToMessage.userName}:</span>
+                <span style={{ fontWeight: '600', color: 'var(--accent)' }}>↩ {t('reply')} to {replyingToMessage.userName}:</span>
                 <span style={{
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
@@ -388,7 +388,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
               padding: '2px 8px'
             }}
           >
-            ✕
+            
           </button>
         </div>
       )}
@@ -442,7 +442,7 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
             justifyContent: 'center'
           }}
         >
-          ➤
+          
         </button>
       </div>
 
@@ -463,25 +463,25 @@ const ChatWindow = ({ chatId, chatType, user, onBack, chat }) => {
           {contextMenu.message.userId === user?.uid ? (
             <>
               <ContextMenuOption onClick={() => handleCopy(contextMenu.message.text)}>
-                📄 {t('copy')}
+                 {t('copy')}
               </ContextMenuOption>
               <ContextMenuOption onClick={() => handleStartEdit(contextMenu.message)}>
-                ✏️ {t('edit')}
+                 {t('edit')}
               </ContextMenuOption>
               <ContextMenuOption
                 onClick={() => handleDeleteMessage(contextMenu.message.id)}
                 style={{ color: '#ff4d4f' }}
               >
-                🗑️ {t('delete')}
+                 {t('delete')}
               </ContextMenuOption>
             </>
           ) : (
             <>
               <ContextMenuOption onClick={() => handleStartReply(contextMenu.message)}>
-                ↩️ {t('reply')}
+                ↩ {t('reply')}
               </ContextMenuOption>
               <ContextMenuOption onClick={() => handleCopy(contextMenu.message.text)}>
-                📄 {t('copy')}
+                 {t('copy')}
               </ContextMenuOption>
             </>
           )}

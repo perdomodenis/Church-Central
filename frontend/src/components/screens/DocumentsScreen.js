@@ -284,7 +284,7 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: 0, color: 'var(--ink, #111)' }}>📁 {t('documents')}</h2>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: 0, color: 'var(--ink, #111)' }}> {t('documents')}</h2>
           <p style={{ color: 'var(--ink-3, #666)', fontSize: '0.95rem', margin: '4px 0 0 0' }}>{t('shareAccessFiles')}</p>
         </div>
         
@@ -327,7 +327,7 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
       }}>
         {/* Search Input */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <span style={{ position: 'absolute', left: '14px', fontSize: '1.1rem', color: '#888' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '14px', fontSize: '1.1rem', color: '#888' }}></span>
           <input 
             type="text"
             placeholder="Search by name, campus, department, uploader..."
@@ -358,7 +358,7 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
                 padding: '4px'
               }}
             >
-              ✕
+              
             </button>
           )}
         </div>
@@ -477,7 +477,7 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
               transition: 'all 0.2s'
             }}
           >
-            <span>{court === 'Global' ? '🌐' : '⛪'}</span>
+            <span>{court === 'Global' ? '' : ''}</span>
             <span>{t(toCamelCase(court)) || court}</span>
             <span style={{
               backgroundColor: activeCourt === court ? 'rgba(255,255,255,0.25)' : 'var(--accent-soft, #f4f2ff)',
@@ -497,7 +497,7 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
       {/* Main Body */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--ink-3, #999)' }}>
-          <div className="spinner" style={{ marginBottom: '16px' }}>⌛</div>
+          <div className="spinner" style={{ marginBottom: '16px' }}></div>
           {t('loading')}
         </div>
       ) : filteredDocs.length === 0 ? (
@@ -509,7 +509,7 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
           border: '1px solid var(--line-2, #eee)',
           color: 'var(--ink-3, #999)'
         }}>
-          <span style={{ fontSize: '3rem', display: 'block', marginBottom: '16px' }}>🔍</span>
+          <span style={{ fontSize: '3rem', display: 'block', marginBottom: '16px' }}></span>
           <p style={{ fontWeight: '600', fontSize: '1rem', margin: 0 }}>
             {isFilterActive ? 'No documents match your search or filters' : t('noDocsFound')}
           </p>
@@ -570,7 +570,7 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '1.4rem' }}>{isExpanded ? '📂' : '📁'}</span>
+                    <span style={{ fontSize: '1.4rem' }}>{isExpanded ? '' : ''}</span>
                     <span style={{ fontWeight: '700', fontSize: '1.05rem', color: 'var(--ink, #111)' }}>
                       {t(toCamelCase(dept)) || dept}
                     </span>
@@ -632,9 +632,9 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
                                   style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                                 />
                               ) : isPdf ? (
-                                '📄'
+                                ''
                               ) : (
-                                '💾'
+                                ''
                               )}
                             </div>
 
@@ -781,7 +781,7 @@ const DocumentsScreen = ({ user, openUploadOnMount, onCloseUploadOnMount }) => {
                 disabled={uploading}
                 style={{ background: 'none', border: 'none', fontSize: '1.3rem', cursor: 'pointer', color: 'var(--ink-3)' }}
               >
-                ✕
+                
               </button>
             </div>
 

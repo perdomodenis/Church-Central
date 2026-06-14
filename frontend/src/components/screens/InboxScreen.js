@@ -59,7 +59,7 @@ const InboxScreen = () => {
       if (message) {
         await rtdbSet(ref(rtdb, `inbox/${user.uid}/${selectedMessage}/appointmentStatus`), 'approved');
         await rtdbSet(ref(rtdb, `inbox/${user.uid}/${selectedMessage}/body`), 
-          message.body + `\n\n✅ Status: Approved for ${date} at ${time}.`
+          message.body + `\n\n Status: Approved for ${date} at ${time}.`
         );
         
         if (message.requesterEmail) {
@@ -89,7 +89,7 @@ const InboxScreen = () => {
       if (message) {
         await rtdbSet(ref(rtdb, `inbox/${user.uid}/${selectedMessage}/appointmentStatus`), 'rejected');
         await rtdbSet(ref(rtdb, `inbox/${user.uid}/${selectedMessage}/body`), 
-          message.body + `\n\n❌ Status: Declined.`
+          message.body + `\n\n Status: Declined.`
         );
 
         if (message.requesterEmail) {
@@ -181,7 +181,7 @@ const InboxScreen = () => {
                     onClick={() => handleRejectFromInbox(message.appointmentId)}
                     style={inboxDeclineButtonStyle}
                   >
-                    ❌ Decline Request
+                     Decline Request
                   </button>
                 </div>
               </div>

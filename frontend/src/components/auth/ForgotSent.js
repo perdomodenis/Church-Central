@@ -18,7 +18,7 @@ const ForgotSent = ({ email, onBack }) => {
       textAlign: 'center',
       minHeight: '80vh'
     }}>
-      <div style={{ fontSize: '4rem', marginBottom: '20px' }}>✉️</div>
+      <div style={{ fontSize: '4rem', marginBottom: '20px' }}></div>
       
       <h1 style={{ color: 'var(--accent)', fontSize: '2.5rem', marginBottom: '16px' }}>{t('checkEmail')}</h1>
       

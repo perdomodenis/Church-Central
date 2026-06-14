@@ -20,7 +20,7 @@ export const createDirectChat = async (userId1, userId2, user1Name, user2Name) =
   return chatId;
 };
 
-export const createGroupChat = async (creatorId, groupName, memberIds, isPublic = false, groupIcon = '👥') => {
+export const createGroupChat = async (creatorId, groupName, memberIds, isPublic = false, groupIcon = '') => {
   const groupRef = push(ref(rtdb, 'groups'));
   const groupId = groupRef.key;
 
@@ -290,7 +290,7 @@ export const syncUserChatGroups = async (userProfile) => {
           category: 'court',
           name: courtName,
           key: `system_court_${courtName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
-          icon: '⛪'
+          icon: ''
         });
       }
     });
@@ -299,7 +299,7 @@ export const syncUserChatGroups = async (userProfile) => {
       category: 'court',
       name: userProfile.court,
       key: `system_court_${userProfile.court.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
-      icon: '⛪'
+      icon: ''
     });
   }
   
@@ -311,7 +311,7 @@ export const syncUserChatGroups = async (userProfile) => {
           category: 'department',
           name: deptName,
           key: `system_dept_${deptName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
-          icon: '💼'
+          icon: ''
         });
       }
     });
@@ -320,7 +320,7 @@ export const syncUserChatGroups = async (userProfile) => {
       category: 'department',
       name: userProfile.dept,
       key: `system_dept_${userProfile.dept.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
-      icon: '💼'
+      icon: ''
     });
   }
   
@@ -330,7 +330,7 @@ export const syncUserChatGroups = async (userProfile) => {
     category: 'district',
     name: districtName,
     key: `system_district_${districtName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
-    icon: '🗺️'
+    icon: ''
   });
 
   await Promise.all(targets.map(async (target) => {
