@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import './LoginScreen.css';
 
 const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
   const { t } = useLanguage();
@@ -24,141 +25,62 @@ const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
   };
 
   return (
-    <div className="login-screen" style={{
-      padding: '0',
-      margin: '0',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      backgroundAttachment: 'fixed'
-    }}>
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 600%22%3E%3Crect fill=%22%23667eea%22 width=%221200%22 height=%22600%22/%3E%3Ccircle cx=%22200%22 cy=%22100%22 r=%2280%22 fill=%22rgba(255,255,255,0.1)%22/%3E%3Ccircle cx=%221000%22 cy=%22500%22 r=%22120%22 fill=%22rgba(255,255,255,0.05)%22/%3E%3Cpath d=%22M0 300 Q300 200 600 300 T1200 300%22 stroke=%22rgba(255,255,255,0.1)%22 stroke-width=%222%22 fill=%22none%22/%3E%3C/svg%3E")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        opacity: 0.3,
-        pointerEvents: 'none'
-      }} />
-
-      <div style={{
-        position: 'relative',
-        zIndex: 1,
-        padding: '40px 20px',
-        maxWidth: '400px',
-        margin: '0 auto',
-        width: '100%'
-      }}>
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⛪</div>
-        <h1 style={{ color: 'white', fontSize: '2.5rem', marginBottom: '8px', fontWeight: '800' }}>Church Central</h1>
-        <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem' }}>{t('welcome')}</p>
-      </div>
-
-      <form onSubmit={handleSubmit} style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        backgroundColor: 'white',
-        padding: '28px',
-        borderRadius: '16px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-      }}>
-        <div className="input-group">
-          <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
-            {t('email')}
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="email@example.com"
-            required
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', outlineColor: 'var(--accent)' }}
-          />
+    <div className="split-screen-container">
+        <div className="image-panel" style={{ backgroundImage: 'url("/auth-bg.png")' }}></div>
+        <div className="form-panel">
+            <div className="login-panel">
+                <h1>{t('welcome') || 'Welcome to Church Central'}</h1>
+                <p>"For where two or three are gathered in my name, there am I among them."</p>
+                <div className="login-card">
+                    <form onSubmit={handleSubmit}>
+                        <div className="field-wrap">
+                            <label htmlFor="email">{t('email') || 'Email Address'}</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                required 
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+                        <div className="field-wrap">
+                            <label htmlFor="password">{t('password') || 'Password'}</label>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                required 
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
+                        <button type="submit" className="btn-login btn-primary-login">
+                            {t('signIn') || 'Sign In'}
+                        </button>
+                        <div className="divider">
+                            <span>{t('or') || 'or'}</span>
+                        </div>
+                        <button type="button" className="btn-login btn-google" onClick={handleGoogleClick} disabled={loading}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
+                                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                                <path fill="none" d="M0 0h48v48H0z"></path>
+                            </svg>
+                            <span>{loading ? (t('signingIn') || 'Signing in...') : (t('signInWithGoogle') || 'Sign in with Google')}</span>
+                        </button>
+                    </form>
+                    <div className="login-footer">
+                        <button onClick={onForgot}>{t('forgotPassword') || 'Forgot Password?'}</button>
+                    </div>
+                </div>
+                <div className="login-footer" style={{ paddingBottom: '0px', marginTop: '24px' }}>
+                    {t('dontHaveAccount') || "Don't have an account?"} <button onClick={onSignup}>{t('signUpHere') || 'Sign Up'}</button>
+                </div>
+            </div>
         </div>
-
-        <div className="input-group">
-          <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
-            {t('password')}
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', outlineColor: 'var(--accent)' }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          style={{
-            backgroundColor: 'var(--accent)',
-            color: 'white',
-            padding: '14px',
-            borderRadius: '8px',
-            border: 'none',
-            fontWeight: '600',
-            cursor: 'pointer',
-            marginTop: '10px'
-          }}
-        >
-          {t('signIn')}
-        </button>
-      </form>
-
-      <div style={{ marginTop: '24px', position: 'relative', backgroundColor: 'white', padding: '28px', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
-          <span style={{ fontSize: '0.85rem', color: '#999' }}>{t('or')}</span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleGoogleClick}
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '14px',
-            borderRadius: '8px',
-            border: '1px solid #ddd',
-            backgroundColor: '#f9f9f9',
-            fontWeight: '600',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            fontSize: '1rem',
-            opacity: loading ? 0.6 : 1
-          }}
-        >
-          <span style={{ fontSize: '1.2rem' }}>🔵</span>
-          {loading ? t('signingIn') : t('signInWithGoogle')}
-        </button>
-
-        <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '0.9rem' }}>
-          <button onClick={onForgot} style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline', fontSize: '0.9rem' }}>
-            {t('forgotPassword')}
-          </button>
-          <p style={{ marginTop: '12px', color: '#666' }}>
-            {t('dontHaveAccount')} {' '}
-            <button onClick={onSignup} style={{ background: 'none', border: 'none', color: 'var(--accent)', fontWeight: 'bold', cursor: 'pointer' }}>
-              {t('signUpHere')}
-            </button>
-          </p>
-        </div>
-      </div>
-      </div>
     </div>
   );
 };

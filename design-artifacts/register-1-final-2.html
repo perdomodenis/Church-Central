@@ -1,0 +1,242 @@
+﻿<html lang="de" data-theme="light"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register - Church Central</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: oklch(98.5% 0.011 85);
+            --surface: oklch(100% 0 0);
+            --ink: oklch(25% 0.03 240);
+            --ink-2: oklch(60% 0.02 240);
+            --ink-3: oklch(70% 0.02 240);
+            --line: oklch(94% 0.01 240);
+            --line-2: oklch(90% 0.01 240);
+            --accent: oklch(49.56% 0.16 261.66);
+            --accent-ink: oklch(100% 0 0);
+            --accent-soft: oklch(95% 0.05 260);
+            --gold: oklch(75.75% 0.11 85.84);
+            --gold-darker: oklch(65% 0.1 86);
+            --font-display: 'Lora', georgia, serif;
+            --font-body: 'Inter', system-ui, sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body, #root { width: 100%; height: 100%; }
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg);
+            color: var(--ink);
+            background-image: url('mqdrzduy-image.png');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-color: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .main-container {
+            position: relative;
+            width: 100%;
+            display: grid;
+            place-items: center;
+        }
+        
+        @keyframes slideInFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-panel {
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            animation: slideInFromBottom 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        .auth-panel h1 {
+            font-family: var(--font-display);
+            font-weight: 500;
+            font-size: 2.25rem;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+        .auth-panel p {
+            color: var(--ink-2);
+            margin-bottom: 32px;
+        }
+        .auth-card {
+            background-color: var(--surface);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--line);
+            text-align: left;
+        }
+        .field-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .field-wrap {
+            margin-bottom: 16px;
+        }
+        .field-wrap label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+            display: block;
+        }
+        .field-wrap input, .field-wrap select {
+            font-family: var(--font-body);
+            font-size: 15px;
+            padding: 12px 14px;
+            border: 1px solid var(--line-2);
+            border-radius: 12px;
+            background-color: var(--bg);
+            color: var(--ink);
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .field-wrap select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+        .field-wrap input:focus, .field-wrap select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            border-radius: 12px;
+            padding: 12px 18px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-primary {
+            background-color: var(--ink);
+            color: var(--surface);
+            border: 1px solid var(--ink);
+        }
+        .btn-primary:hover {
+            background-color: var(--gold);
+            color: var(--ink);
+        }
+        
+        .auth-footer {
+            margin-top: 24px;
+            font-size: 13px;
+            text-align: center;
+        }
+        .auth-footer a {
+            color: var(--accent);
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .auth-card {
+                padding: 24px;
+            }
+             .field-group {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="auth-panel">
+            <h1>Create Account</h1>
+            <p>Welcome! Let's get you set up to join the community.</p>
+            <div class="auth-card">
+                <form>
+                    <div class="field-group">
+                         <div class="field-wrap">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required="">
+                        </div>
+                        <div class="field-wrap">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required="">
+                        </div>
+                    </div>
+                    <div class="field-wrap">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender" required="">
+                            <option value="" disabled="" selected="">Select your gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="prefer_not_to_say">Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-wrap">
+                            <label for="zip">Zip Code</label>
+                            <input type="text" id="zip" name="zip" required="">
+                        </div>
+                        <div class="field-wrap">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" required="">
+                        </div>
+                    </div>
+                    <div class="field-wrap">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required="">
+                    </div>
+                    <div class="field-wrap">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required="">
+                    </div>
+                     <div class="field-wrap">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required="">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Continue</button>
+                </form>
+            </div>
+            <div class="auth-footer" style="padding-bottom: 0px; margin-bottom: 6px;">
+                Already have an account? <a href="/login">Log In</a>
+            </div>
+        </div>
+    </div>
+
+</body></html>

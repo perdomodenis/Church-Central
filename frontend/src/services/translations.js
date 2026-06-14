@@ -48,6 +48,8 @@ const translations = {
     dontHaveAccount: "Don't have an account?",
     signUpHere: 'Sign up here',
     welcome: 'Welcome!',
+    alreadyHaveAccount: 'Already have an account?',
+    login: 'Log In',
 
     // Common
     loading: 'Loading...',

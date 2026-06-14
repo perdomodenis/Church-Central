@@ -48,10 +48,24 @@
   --radius-lg: 20px;
   --radius-full: 9999px;
 
-  /* ─── Elevation ────────────────────────────────────────── */
+  /* ─── Shadow & Elevation ───────────────────────────────── */
   --shadow-1: 0px 4px 16px rgba(42, 47, 77, 0.06);
   --shadow-2: 0px 8px 24px rgba(42, 47, 77, 0.10);
   --shadow-hover: 0px 8px 24px rgba(42, 47, 77, 0.12);
+
+  /* ─── Grace Design Compatibility Aliases ───────────────── */
+  --fg: var(--ink);
+  --fg-2: var(--ink-2);
+  --muted: var(--ink-3);
+  --border: var(--line);
+  --border-soft: var(--line-2);
+  --accent-on: var(--surface);
+
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 28px;
+  --text-2xl: 36px;
 
   /* ─── Breakpoints (reference only) ─────────────────────── */
   --mobile: 640px;

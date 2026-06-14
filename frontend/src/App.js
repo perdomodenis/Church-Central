@@ -423,14 +423,10 @@ function App() {
   } else if (route === 'signup') {
     body = (
       <SignupScreen
-        step={signupStep}
         data={signupData}
         onChange={(p) => setSignupData(d => ({ ...d, ...p }))}
-        onNext={() => {
-          if (signupStep < 3) setSignupStep(s => s + 1);
-          else handleSignup();
-        }}
-        onBack={() => { if (signupStep > 1) setSignupStep(s => s - 1); else setRoute('login'); }}
+        onNext={() => handleSignup()}
+        onBack={() => setRoute('login')}
       />
     );
   } else if (route === 'welcome') {
