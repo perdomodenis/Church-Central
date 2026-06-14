@@ -1,7 +1,12 @@
 const express = require('express');
-const admin = require('firebase-admin');
 const cors = require('cors');
+const admin = require('firebase-admin');
 const multer = require('multer');
+
+const app = express();
+app.use(cors({ origin: true }));
+app.use(express.json());
+
 const { getDataConnect } = require('firebase-admin/data-connect');
 const { connectorConfig, getUserProfile, createAnnouncement, upsertUserProfile } = require('./lib/dataconnect');
 
