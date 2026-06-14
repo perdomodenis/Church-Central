@@ -41,6 +41,27 @@ export const sendInboxNotification = async (targetUid, details) => {
       read: false,
       ...metadata
     });
+
+    // Trigger push notification via backend
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL;
+      if (apiUrl) {
+        // Run in background, no need to wait for it to finish before returning
+        fetch(`${apiUrl}/api/notifications/push`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            targetUid,
+            title: subject || 'New Notification',
+            body: preview || body || 'You have a new message in Church Central.',
+            data: { sender: sender || 'System', ...metadata }
+          })
+        }).catch(err => console.error('Error triggering push notification:', err));
+      }
+    } catch (pushError) {
+      console.error('Error in push notification logic:', pushError);
+    }
+
     return true;
   } catch (error) {
     console.error('Error sending inbox notification:', error);

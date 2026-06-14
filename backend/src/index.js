@@ -10,7 +10,8 @@ require('dotenv').config();
 
 // Initialize Firebase Admin with credentials if available
 const firebaseAdminConfig = {
-  storageBucket: 'church-central-992a7.firebasestorage.app'
+  storageBucket: 'church-central-992a7.firebasestorage.app',
+  databaseURL: 'https://church-central-992a7-default-rtdb.europe-west1.firebasedatabase.app'
 };
 
 if (process.env.FIREBASE_ADMIN_PROJECT_ID && process.env.FIREBASE_ADMIN_CLIENT_EMAIL && process.env.FIREBASE_ADMIN_PRIVATE_KEY) {
@@ -181,6 +182,68 @@ app.get('/api/download', async (req, res) => {
   }
 });
 
+/**
+ * Push Notification Endpoint
+ * Looks up user's FCM tokens and sends a multicast message.
+ */
+app.post('/api/notifications/push', async (req, res) => {
+  const { targetUid, title, body, data } = req.body;
+  if (!targetUid || (!title && !body)) {
+    return res.status(400).json({ error: 'Missing required parameters: targetUid, and either title or body' });
+  }
+
+  try {
+    // 1. Fetch tokens from Realtime Database
+    const tokensRef = admin.database().ref(`fcmTokens/${targetUid}`);
+    const snapshot = await tokensRef.once('value');
+    const tokensObj = snapshot.val();
+    
+    if (!tokensObj) {
+      return res.status(200).json({ message: 'User has no registered devices.', successCount: 0 });
+    }
+
+    // Extract actual tokens (values) and keys (for deletion)
+    const tokenKeys = Object.keys(tokensObj);
+    const tokens = tokenKeys.map(k => typeof tokensObj[k] === 'string' ? tokensObj[k] : k);
+
+    // 2. Prepare message
+    const message = {
+      notification: { title: title || '', body: body || '' },
+      data: data || {},
+      tokens: tokens,
+    };
+
+    // 3. Send multicast
+    const response = await admin.messaging().sendEachForMulticast(message);
+    
+    // 4. Cleanup invalid tokens
+    const tokensToRemove = [];
+    response.responses.forEach((resp, idx) => {
+      if (!resp.success) {
+        const errCode = resp.error?.code;
+        if (errCode === 'messaging/invalid-registration-token' ||
+            errCode === 'messaging/registration-token-not-registered') {
+          // Remove the bad token using its key
+          const badTokenKey = tokenKeys[idx];
+          tokensToRemove.push(tokensRef.child(badTokenKey).remove());
+        }
+      }
+    });
+
+    if (tokensToRemove.length > 0) {
+      await Promise.all(tokensToRemove);
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      successCount: response.successCount,
+      failureCount: response.failureCount 
+    });
+  } catch (error) {
+    console.error('Error sending push notification:', error);
+    res.status(500).json({ error: 'Failed to send push notification' });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

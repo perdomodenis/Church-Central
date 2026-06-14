@@ -374,7 +374,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
             >
               <Icon.User />
             </button>
-            {isOverlay && onClose && (
+            {onClose && (
               <button
                 onClick={onClose}
                 title="Close"
