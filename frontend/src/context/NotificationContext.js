@@ -217,6 +217,7 @@ export const NotificationProvider = ({ children }) => {
                             };
                             const swUrl = `/firebase-messaging-sw.js?config=${encodeURIComponent(JSON.stringify(configObj))}`;
                             const registration = await navigator.serviceWorker.register(swUrl);
+                            await navigator.serviceWorker.ready;
                             
                             const token = await getToken(messaging, {
                                 vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
