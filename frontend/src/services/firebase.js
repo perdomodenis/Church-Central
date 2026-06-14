@@ -9,6 +9,7 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged
 } from "firebase/auth";
+import { getMessaging } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_PUBLISHABLE_API_KEY,
@@ -42,5 +43,8 @@ export const storage = getStorage(app);
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig } from '../lib/dataconnect';
 export const dataConnect = getDataConnect(app, connectorConfig);
+
+// Initialize Cloud Messaging
+export const messaging = getMessaging(app);
 
 export { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged };
