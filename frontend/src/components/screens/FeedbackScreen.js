@@ -49,7 +49,7 @@ const FeedbackScreen = () => {
         justifyContent: 'center',
         minHeight: '60vh'
       }}>
-        <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🙏</div>
+        <div style={{ fontSize: '4rem', marginBottom: '20px' }}></div>
         <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '12px' }}>{t('thankYou')}</h2>
         <p style={{ opacity: 0.7, lineHeight: '1.5', maxWidth: '300px' }}>
           {t('feedbackSuccessMessage')}
@@ -100,7 +100,7 @@ const FeedbackScreen = () => {
                   transition: 'color 0.2s'
                 }}
               >
-                ★
+                
               </span>
             ))}
           </div>

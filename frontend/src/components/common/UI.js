@@ -33,7 +33,7 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
               className={`nav-button ${isActive ? 'active' : ''} ${isMobileOnly}`}
               title={tab.label}
             >
-              <span className="nav-icon" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <span className="nav-icon" style={{ position: 'relative', alignItems: 'center' }}>
                 {tab.icon}
                 {tab.id === 'inbox' && hasNewInbox && <div className="grace-red-dot" style={{ top: -4, right: -4 }} />}
               </span>
@@ -48,7 +48,7 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
       {/* Desktop Actions */}
       <div className="header-actions desktop-only-actions">
         <button onClick={() => onAction && onAction('upload')} className="new-post-btn" title="New Post">
-          +
+          <Icon.Plus /> <span style={{ fontSize: '0.9rem' }}>New Post</span>
         </button>
         <div onClick={onProfile} style={{ cursor: 'pointer' }}>
            <div className="profile-avatar" title="User Profile">

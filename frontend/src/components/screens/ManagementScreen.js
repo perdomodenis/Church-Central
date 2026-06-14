@@ -341,7 +341,7 @@ const ManagementScreen = ({
                 <div style={detailStyle}>{t('with')}: <strong>{app.staff}</strong></div>
                 {app.pa && (
                   <div style={{ ...detailStyle, color: 'var(--accent)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', margin: '4px 0' }}>
-                    <span>🛡️ Sent to PA:</span>
+                    <span> Sent to PA:</span>
                     <span>{app.pa.first} {app.pa.last}</span>
                   </div>
                 )}
@@ -368,7 +368,7 @@ const ManagementScreen = ({
                       }}
                     >
                       <span> Option 1: <strong>{app.date1}</strong> at <strong>{app.time1}</strong></span>
-                      <span style={{ fontSize: '1rem' }}>➡️</span>
+                      <span style={{ fontSize: '1rem' }}></span>
                     </button>
                     <button 
                       onClick={() => handleApprove(app.id, 2, app.date2, app.time2)}
@@ -383,7 +383,7 @@ const ManagementScreen = ({
                       }}
                     >
                       <span> Option 2: <strong>{app.date2}</strong> at <strong>{app.time2}</strong></span>
-                      <span style={{ fontSize: '1rem' }}>➡️</span>
+                      <span style={{ fontSize: '1rem' }}></span>
                     </button>
                     <button 
                       onClick={() => handleApprove(app.id, 3, app.date3, app.time3)}
@@ -398,13 +398,13 @@ const ManagementScreen = ({
                       }}
                     >
                       <span> Option 3: <strong>{app.date3}</strong> at <strong>{app.time3}</strong></span>
-                      <span style={{ fontSize: '1rem' }}>➡️</span>
+                      <span style={{ fontSize: '1rem' }}></span>
                     </button>
                   </div>
                 </div>
 
                 <div style={{ ...actionRowStyle, marginTop: '16px' }}>
-                  <button onClick={() => handleReject(app.id)} style={{ ...secondaryButtonStyle, width: '100%', flex: 'none' }}>❌ {t('reject')}</button>
+                  <button onClick={() => handleReject(app.id)} style={{ ...secondaryButtonStyle, width: '100%', flex: 'none' }}> {t('reject')}</button>
                 </div>
               </div>
             ))
@@ -418,14 +418,14 @@ const ManagementScreen = ({
             displayApproved.map(app => (
               <div key={app.id} style={{ ...cardStyle, borderLeft: '4px solid #4caf50' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>✅ {app.requester}</span>
+                  <span style={{ fontWeight: 'bold', fontSize: '1rem' }}> {app.requester}</span>
                   <span style={{ ...tagStyle, backgroundColor: '#e8f5e9', color: '#2e7d32' }}>{t(app.type.toLowerCase().includes('pastoral') ? 'pastoralCounseling' : app.type.toLowerCase().includes('worship') ? 'worshipDiscussion' : 'guidanceCounseling')}</span>
                 </div>
                 <div style={detailStyle}>{t('with')}: <strong>{app.staff}</strong></div>
-                <div style={detailStyle}>📅 <strong>{app.date}</strong> {t('at')} <strong>{app.time}</strong> {app.selectedSlot && `(Option ${app.selectedSlot})`}</div>
+                <div style={detailStyle}> <strong>{app.date}</strong> {t('at')} <strong>{app.time}</strong> {app.selectedSlot && `(Option ${app.selectedSlot})`}</div>
                 {app.pa && (
                   <div style={{ ...detailStyle, color: 'var(--accent)', marginTop: '4px' }}>
-                    🛡️ Managed by PA: {app.pa.first} {app.pa.last}
+                     Managed by PA: {app.pa.first} {app.pa.last}
                   </div>
                 )}
                 <div style={{ fontSize: '0.8rem', color: '#4caf50', marginTop: '8px' }}>{t('approvedBy')}: {app.approvedBy}</div>
@@ -442,14 +442,14 @@ const ManagementScreen = ({
             displayRejected.map(app => (
               <div key={app.id} style={{ ...cardStyle, borderLeft: '4px solid #f44336' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>❌ {app.requester}</span>
+                  <span style={{ fontWeight: 'bold', fontSize: '1rem' }}> {app.requester}</span>
                   <span style={{ ...tagStyle, backgroundColor: '#ffebee', color: '#c62828' }}>{t(app.type.toLowerCase().includes('pastoral') ? 'pastoralCounseling' : app.type.toLowerCase().includes('worship') ? 'worshipDiscussion' : 'guidanceCounseling')}</span>
                 </div>
                 <div style={detailStyle}>{t('with')}: <strong>{app.staff}</strong></div>
-                <div style={detailStyle}>📅 Suggested: Option 1 ({app.date1}), Option 2 ({app.date2}), Option 3 ({app.date3})</div>
+                <div style={detailStyle}> Suggested: Option 1 ({app.date1}), Option 2 ({app.date2}), Option 3 ({app.date3})</div>
                 {app.pa && (
                   <div style={{ ...detailStyle, color: 'var(--accent)', marginTop: '4px' }}>
-                    🛡️ Managed by PA: {app.pa.first} {app.pa.last}
+                     Managed by PA: {app.pa.first} {app.pa.last}
                   </div>
                 )}
                 <div style={{ fontSize: '0.8rem', color: '#f44336', marginTop: '8px' }}>{t('rejectedBy')}: {app.rejectedBy}</div>
@@ -472,8 +472,8 @@ const ManagementScreen = ({
                 <div style={detailStyle}>{t('requestsToJoin')} <strong>{t(toCamelCase(req.departmentName)) || req.departmentName}</strong></div>
                 <div style={detailStyle}>{t('requested')}: {new Date(req.requestedAt).toLocaleString()}</div>
                 <div style={actionRowStyle}>
-                  <button onClick={() => handleRejectDept(req.id)} style={secondaryButtonStyle}>❌ {t('reject')}</button>
-                  <button onClick={() => handleApproveDept(req)} style={primaryButtonStyle}>✅ {t('approve')}</button>
+                  <button onClick={() => handleRejectDept(req.id)} style={secondaryButtonStyle}> {t('reject')}</button>
+                  <button onClick={() => handleApproveDept(req)} style={primaryButtonStyle}> {t('approve')}</button>
                 </div>
               </div>
             ))
@@ -488,7 +488,7 @@ const ManagementScreen = ({
               <div key={req.id} style={{ ...cardStyle, borderLeft: req.status === 'approved' ? '4px solid #4caf50' : '4px solid #f44336' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>
-                    {req.status === 'approved' ? '✅' : '❌'} {req.userName}
+                    {req.status === 'approved' ? '' : ''} {req.userName}
                   </span>
                   <span style={{ ...tagStyle, backgroundColor: req.status === 'approved' ? '#e8f5e9' : '#ffebee', color: req.status === 'approved' ? '#2e7d32' : '#c62828' }}>{req.status === 'approved' ? t('approved') : t('rejected')}</span>
                 </div>

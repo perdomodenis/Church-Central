@@ -84,7 +84,7 @@ const BaptismScreen = ({ user }) => {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: '#111' }}>💧 {t('waterBaptism')}</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: '#111' }}> {t('waterBaptism')}</h2>
           <p style={{ color: '#666', fontSize: '0.9rem', margin: '4px 0 0 0' }}>{t('registerForBaptismEvent')}</p>
         </div>
         <button
@@ -136,13 +136,13 @@ const BaptismScreen = ({ user }) => {
                 fontSize: '0.85rem',
                 fontWeight: '600'
               }}>
-                👥 {event.attendees || 0} {t('attending')}
+                 {event.attendees || 0} {t('attending')}
               </div>
             </div>
 
             <div style={eventInfoStyle}>
-              <span>📅 {event.date} at {event.time}</span>
-              <span style={{ marginLeft: '16px' }}>📍 {event.location}</span>
+              <span> {event.date} at {event.time}</span>
+              <span style={{ marginLeft: '16px' }}> {event.location}</span>
             </div>
 
             {event.description && (
@@ -167,7 +167,7 @@ const BaptismScreen = ({ user }) => {
                     fontSize: '0.95rem'
                   }}
                 >
-                  ✓ {t('registeredBaptism')} - {t('cancelRegistration')}
+                   {t('registeredBaptism')} - {t('cancelRegistration')}
                 </button>
               ) : (
                 <button

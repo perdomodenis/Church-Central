@@ -657,13 +657,13 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
         {/* Channel Headers / Filters */}
         {scope === 'District' && user?.district && (
           <div style={{ marginBottom: '24px', padding: '12px 16px', backgroundColor: 'var(--surface)', borderRadius: '12px', border: '1px solid var(--border-soft)', fontWeight: '600', color: 'var(--fg)' }}>
-            📍 Showing feeds for {user.district}
+             Showing feeds for {user.district}
           </div>
         )}
 
         {scope === 'Department' && availableDepts.length > 0 && (
           <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontWeight: '600', color: 'var(--fg)' }}>📁 Department:</span>
+            <span style={{ fontWeight: '600', color: 'var(--fg)' }}> Department:</span>
             <select
               value={selectedDept}
               onChange={(e) => setSelectedDept(e.target.value)}
@@ -685,7 +685,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
 
         {scope === 'Court' && availableCourts.length > 0 && (
           <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontWeight: '600', color: 'var(--fg)' }}>⛪ Court:</span>
+            <span style={{ fontWeight: '600', color: 'var(--fg)' }}> Court:</span>
             <select
               value={selectedCourt}
               onChange={(e) => setSelectedCourt(e.target.value)}
@@ -718,7 +718,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
             className="prayer-emoji-rising"
             style={{ left: emoji.x, top: emoji.y }}
           >
-            ❤️
+            
           </div>
         ))}
 
@@ -745,7 +745,6 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                       <div className="post-time">{post.time}</div>
                     </div>
                   </div>
-                  <span className="post-tag">{t(post.scope.toLowerCase())}</span>
                 </div>
 
                 <div className="post-content">
@@ -755,28 +754,37 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                 {post.image && (
                   isPdf ? (
                     <div style={{ marginBottom: '16px' }}>
-                      <div className="pdf-attachment-card" style={{ border: '1px solid var(--border)' }}>
+                      <div 
+                        className="pdf-attachment-card" 
+                        style={{ border: '1px solid var(--border)', cursor: 'pointer', transition: 'background-color 0.2s' }}
+                        onClick={() => setSelectedPost(post)}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--border-soft)'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--surface)'}
+                      >
                         <div className="pdf-info-left">
-                          <div className="pdf-icon-frame">📄</div>
+                          <div className="pdf-icon-frame" style={{ 
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            border: '1px solid var(--border-soft)',
+                            backgroundColor: '#f8f9fa',
+                            color: 'var(--accent)',
+                            width: '48px', height: '48px', borderRadius: '8px'
+                          }}>
+                            <Icon.Document />
+                          </div>
                           <div>
                             <div className="pdf-meta-name">{t('weeklyAnnouncement')}</div>
                             <div className="pdf-meta-size">{t('pdfAttachment')}</div>
                           </div>
                         </div>
                         <div style={{ display: 'flex', gap: '8px' }}>
-                          <button
-                            onClick={() => setSelectedPost(post)}
-                            className="btn btn-outline" style={{ padding: '6px 12px' }}
-                          >
-                            👁️ {t('view')}
-                          </button>
                           <a
                             href={`${backendUrl}/api/download?url=${encodeURIComponent(post.image)}`}
                             download
-                            className="btn btn-primary" style={{ padding: '6px 12px' }}
+                            className="btn btn-primary" style={{ padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             onClick={(e) => e.stopPropagation()}
+                            title={t('download')}
                           >
-                            📥 {t('download')}
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                           </a>
                         </div>
                       </div>
@@ -799,7 +807,9 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                     className={`action-button ${hasLiked ? 'liked' : ''} ${heartbeatActive[post.id] ? 'heartbeat-active' : ''}`}
                     style={hasLiked ? { color: 'var(--accent)' } : {}}
                   >
-                    <span>{hasLiked ? '❤️' : '🤍'}</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill={hasLiked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
                     <span>{totalLikes} {totalLikes === 1 ? t('like') : t('likes')}</span>
                   </button>
                   
@@ -807,12 +817,12 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                     onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
                     className="action-button"
                   >
-                    <span>💬</span>
+                    <span></span>
                     <span>{commentCount(post.id)} {commentCount(post.id) === 1 ? t('comment') : t('comments')}</span>
                   </button>
                   
                   <button onClick={(e) => handleShareClick(post, e)} className="action-button">
-                    <span>🔗</span>
+                    <span></span>
                     <span>{t('share')}</span>
                   </button>
                 </div>
@@ -900,7 +910,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
           })
         ) : (
           <div className="empty-state">
-            <div className="icon">🔔</div>
+            <div className="icon"></div>
             <p>{t('noUpdates')}</p>
           </div>
         )}
@@ -908,7 +918,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
 
       {/* Sidebar: Grace Community Church Info & Events (Desktop Only) */}
       <aside className="widget right-sidebar-widget">
-        <h2>⛪ {t('graceCommunityChurch')}</h2>
+        <h2> {t('graceCommunityChurch')}</h2>
         <p>{t('churchSubtitle')}</p>
         <div>
           <div className="info-box">
@@ -923,7 +933,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
 
         {/* Upcoming Events in Sidebar Footer */}
         <div className="widget-footer">
-          <h3>📅 {t('upcomingEventsTitle')}</h3>
+          <h3> {t('upcomingEventsTitle')}</h3>
           <p className="subtitle">{t('connectFellowship')}</p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -931,7 +941,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
               <p style={{ color: 'var(--muted)', fontSize: '0.8rem' }}>{t('loadingEvents')}</p>
             ) : events.length === 0 ? (
               <div className="empty-state" style={{ padding: '24px 16px' }}>
-                <div className="icon" style={{ fontSize: '1.5rem' }}>📅</div>
+                <div className="icon" style={{ fontSize: '1.5rem' }}></div>
                 <p>No upcoming events yet.</p>
               </div>
             ) : (
@@ -967,7 +977,7 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                             padding: '4px 8px', fontSize: '12px', border: isAttending ? 'none' : '1px solid var(--border)', background: isAttending ? '' : 'transparent'
                           }}
                         >
-                          {isAttending ? `✓ ${t('going')}` : t('going')}
+                          {isAttending ? ` ${t('going')}` : t('going')}
                         </button>
                         <button
                           onClick={() => handleRSVP(event, 'declined')}

@@ -148,7 +148,7 @@ const EventsScreen = ({ user }) => {
         borderBottom: '1px solid #eee'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>📅</div>
+          <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}></div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '0 0 4px 0', color: '#111' }}>
             {t('communityEvents')}
           </h2>
@@ -178,7 +178,7 @@ const EventsScreen = ({ user }) => {
                 fontSize: '1.2rem'
               }}
             >
-              {showForm ? '✕' : '+'}
+              {showForm ? '' : '+'}
             </button>
           </div>
 
@@ -273,7 +273,7 @@ const EventsScreen = ({ user }) => {
               padding: '40px 20px',
               color: '#999'
             }}>
-              <p style={{ fontSize: '2rem', marginBottom: '8px' }}>📭</p>
+              <p style={{ fontSize: '2rem', marginBottom: '8px' }}></p>
               <p>{t('noEventsYet')}</p>
             </div>
           ) : (
@@ -312,7 +312,7 @@ const EventsScreen = ({ user }) => {
                         fontSize: '1.2rem'
                       }}
                     >
-                      ✕
+                      
                     </button>
                   )}
                 </div>
@@ -332,7 +332,7 @@ const EventsScreen = ({ user }) => {
                 {/* Event Details */}
                 <div style={{ backgroundColor: '#f9f9f9', borderRadius: '8px', padding: '12px', marginBottom: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '1rem' }}>📅</span>
+                    <span style={{ fontSize: '1rem' }}></span>
                     <span style={{ color: '#333', fontSize: '0.9rem' }}>
                       {new Date(event.date).toLocaleDateString(language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : language, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
@@ -345,14 +345,14 @@ const EventsScreen = ({ user }) => {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '1rem' }}>📍</span>
+                    <span style={{ fontSize: '1rem' }}></span>
                     <span style={{ color: '#333', fontSize: '0.9rem' }}>{event.location}</span>
                   </div>
                 </div>
 
                 {/* Attendee Count */}
                 <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600' }}>
-                  <span>👥</span>
+                  <span></span>
                   <span>{event.registered} {event.registered === 1 ? 'person attending' : 'people attending'}</span>
                 </div>
 
@@ -406,7 +406,7 @@ const EventsScreen = ({ user }) => {
                           transition: 'all 0.2s ease'
                         }}
                       >
-                        {isAttending ? `✓ ${t('going')}` : t('going')}
+                        {isAttending ? ` ${t('going')}` : t('going')}
                       </button>
                       <button
                         onClick={() => handleRSVP(event, 'declined')}

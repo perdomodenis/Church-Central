@@ -11,6 +11,7 @@ import {
   createGroupChat
 } from '../../services/chatService';
 import { COURTS, DEPARTMENTS, DISTRICTS } from '../../services/churchConstants';
+import * as Icon from '../common/Icons';
 import ChatWindow from './ChatWindow';
 
 const formatTime = (isoString) => {
@@ -66,7 +67,7 @@ const Avatar = ({ name, photoUrl }) => {
 };
 
 const GroupAvatar = ({ name, icon }) => {
-  const groupIcon = icon || '👥';
+  const groupIcon = icon || '';
   return (
     <div
       style={{
@@ -102,7 +103,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
   const [allUsers, setAllUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [groupName, setGroupName] = useState('');
-  const [selectedGroupIcon, setSelectedGroupIcon] = useState('👥');
+  const [selectedGroupIcon, setSelectedGroupIcon] = useState('');
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -185,7 +186,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
       setChatType('group');
       setGroupName('');
       setSelectedUsers([]);
-      setSelectedGroupIcon('👥');
+      setSelectedGroupIcon('');
       setShowNewGroup(false);
       await loadChats();
     } catch (error) {
@@ -222,7 +223,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
 
 
   const renderGroupCard = (group) => {
-    const groupIcon = group.groupIcon || '👥';
+    const groupIcon = group.groupIcon || '';
     const lastMsgTime = group.lastMessage ? new Date(group.lastMessage.timestamp).getTime() : 0;
     const isUnread = group.lastMessage && group.lastMessage.userId !== user?.uid && lastMsgTime > (cachedReadStatuses[group.id] || 0);
 
@@ -334,7 +335,11 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
-              onClick={() => setShowNewChat(!showNewChat)}
+              onClick={() => {
+                setShowNewChat(!showNewChat);
+                setShowNewGroup(false);
+              }}
+              title={t('startConversation')}
               style={{
                 backgroundColor: showNewChat ? 'var(--accent)' : '#f0f0f0',
                 color: showNewChat ? 'white' : '#666',
@@ -342,14 +347,19 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
                 borderRadius: '8px',
                 padding: '8px 12px',
                 cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '0.9rem'
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
-              💬
+              <Icon.Message />
             </button>
             <button
-              onClick={() => setShowNewGroup(!showNewGroup)}
+              onClick={() => {
+                setShowNewGroup(!showNewGroup);
+                setShowNewChat(false);
+              }}
+              title={t('createGroup')}
               style={{
                 backgroundColor: showNewGroup ? 'var(--accent)' : '#f0f0f0',
                 color: showNewGroup ? 'white' : '#666',
@@ -357,15 +367,17 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
                 borderRadius: '8px',
                 padding: '8px 12px',
                 cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '0.9rem'
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
-              👥
+              <Icon.User />
             </button>
             {isOverlay && onClose && (
               <button
                 onClick={onClose}
+                title="Close"
                 style={{
                   backgroundColor: 'transparent',
                   color: '#999',
@@ -373,12 +385,13 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
                   borderRadius: '8px',
                   padding: '8px',
                   cursor: 'pointer',
-                  fontWeight: 'bold',
-                  fontSize: '1.2rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   marginLeft: '8px'
                 }}
               >
-                ✕
+                <Icon.Close />
               </button>
             )}
           </div>
@@ -597,7 +610,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
               {courtGroups.length > 0 && (
                 <div>
                   <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
-                    ⛪ {t('courts') || 'Courts'} ({courtGroups.length})
+                     {t('courts') || 'Courts'} ({courtGroups.length})
                   </h3>
                   {courtGroups.map(renderGroupCard)}
                 </div>
@@ -606,7 +619,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
               {deptGroups.length > 0 && (
                 <div>
                   <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
-                    📁 {t('departments') || 'Departments'} ({deptGroups.length})
+                     {t('departments') || 'Departments'} ({deptGroups.length})
                   </h3>
                   {deptGroups.map(renderGroupCard)}
                 </div>
@@ -615,7 +628,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
               {districtGroups.length > 0 && (
                 <div>
                   <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
-                    📍 {t('districts') || 'Districts'} ({districtGroups.length})
+                     {t('districts') || 'Districts'} ({districtGroups.length})
                   </h3>
                   {districtGroups.map(renderGroupCard)}
                 </div>
@@ -624,7 +637,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
               {customGroups.length > 0 && (
                 <div>
                   <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#111', margin: '0 0 12px 0' }}>
-                    👥 {t('customGroups') || 'Custom Groups'} ({customGroups.length})
+                     {t('customGroups') || 'Custom Groups'} ({customGroups.length})
                   </h3>
                   {customGroups.map(renderGroupCard)}
                 </div>
@@ -643,13 +656,16 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
             border: '1px solid #e0f0ff',
             marginBottom: '24px'
           }}>
-            <p style={{ fontSize: '1.5rem', marginBottom: '12px', color: '#667eea', fontWeight: 'bold' }}>👋 {t('welcomeMessages')}</p>
+            <p style={{ fontSize: '1.5rem', marginBottom: '12px', color: '#667eea', fontWeight: 'bold' }}> {t('welcomeMessages')}</p>
             <p style={{ color: '#555', fontSize: '0.95rem', marginBottom: '12px', lineHeight: '1.5' }}>
               {t('messagesSubtitle')}
             </p>
             <div style={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
               <button
-                onClick={() => setShowNewChat(!showNewChat)}
+                onClick={() => {
+                  setShowNewChat(!showNewChat);
+                  setShowNewGroup(false);
+                }}
                 style={{
                   backgroundColor: 'var(--accent)',
                   color: 'white',
@@ -665,10 +681,13 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
                   fontSize: '0.95rem'
                 }}
               >
-                💬 {t('startConversation')}
+                 {t('startConversation')}
               </button>
               <button
-                onClick={() => setShowNewGroup(!showNewGroup)}
+                onClick={() => {
+                  setShowNewGroup(!showNewGroup);
+                  setShowNewChat(false);
+                }}
                 style={{
                   backgroundColor: '#667eea',
                   color: 'white',
@@ -685,7 +704,7 @@ const MessagesScreen = ({ user, onClose, isOverlay }) => {
                   opacity: 0.8
                 }}
               >
-                👥 {t('createGroup')}
+                 {t('createGroup')}
               </button>
             </div>
           </div>

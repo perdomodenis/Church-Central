@@ -74,7 +74,7 @@ export const approveDepartmentRequest = async (requestId, userId, departmentName
       
       // News Feed Post
       await createAnnouncement({
-        content: `🎉 ${userName} has joined the ${departmentName} department! Welcome!`,
+        content: ` ${userName} has joined the ${departmentName} department! Welcome!`,
         scope: 'News',
         category: 'Announcement',
         imageUrl: '',
@@ -83,7 +83,7 @@ export const approveDepartmentRequest = async (requestId, userId, departmentName
 
       // Department Feed Post
       await createAnnouncement({
-        content: `🎉 ${userName} has joined our department! Please give them a warm welcome!`,
+        content: ` ${userName} has joined our department! Please give them a warm welcome!`,
         scope: 'Department',
         category: 'Announcement',
         imageUrl: '',

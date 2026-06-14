@@ -211,12 +211,12 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
           <div style={{ padding: '24px', paddingBottom: '100px', maxWidth: '800px', margin: '0 auto' }}>
             {/* Header */}
             <div style={{ marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: 0, color: 'var(--ink, #111)' }}>⛪ {t('church')}</h2>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: 0, color: 'var(--ink, #111)' }}> {t('church')}</h2>
               <p style={{ color: 'var(--ink-3, #666)', fontSize: '0.95rem', margin: '4px 0 0 0' }}>Connect with your church family</p>
             </div>
       {/* Search Bar */}
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-        <span style={{ position: 'absolute', left: '14px', fontSize: '1.1rem', color: '#888' }}>🔍</span>
+        <span style={{ position: 'absolute', left: '14px', fontSize: '1.1rem', color: '#888' }}></span>
         <input
           type="text"
           placeholder="Search by name, position, department, or court..."
@@ -248,7 +248,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
               padding: '4px'
             }}
           >
-            ✕
+            
           </button>
         )}
       </div>
@@ -283,7 +283,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
               transition: 'all 0.2s'
             }}
           >
-            <span>{court === 'Global' ? '🌐' : '⛪'}</span>
+            <span>{court === 'Global' ? '' : ''}</span>
             <span>{t(toCamelCase(court)) || court}</span>
             <span style={{
               backgroundColor: activeCourt === court ? 'rgba(255,255,255,0.25)' : 'var(--accent-soft, #f4f2ff)',
@@ -303,7 +303,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
       {/* Main List Body */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--ink-3, #999)' }}>
-          <div className="spinner" style={{ marginBottom: '16px' }}>⌛</div>
+          <div className="spinner" style={{ marginBottom: '16px' }}></div>
           {t('loading')}
         </div>
       ) : activeCourtMembers.length === 0 ? (
@@ -315,7 +315,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
           border: '1px solid var(--line-2, #eee)',
           color: 'var(--ink-3, #999)'
         }}>
-          <span style={{ fontSize: '3rem', display: 'block', marginBottom: '16px' }}>👥</span>
+          <span style={{ fontSize: '3rem', display: 'block', marginBottom: '16px' }}></span>
           <p style={{ fontWeight: '600', fontSize: '1rem', margin: 0 }}>
             {searchQuery ? 'No matching members found' : t('noMembersFound')}
           </p>
@@ -370,7 +370,7 @@ const MemberSearchScreen = ({ user, onSelectMember, onNavigate }) => {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '1.4rem' }}>{isExpanded ? '📂' : '📁'}</span>
+                    <span style={{ fontSize: '1.4rem' }}>{isExpanded ? '' : ''}</span>
                     <span style={{ fontWeight: '700', fontSize: '1.05rem', color: 'var(--ink, #111)' }}>
                       {t(toCamelCase(dept)) || dept}
                     </span>

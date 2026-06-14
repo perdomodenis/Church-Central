@@ -275,7 +275,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
               gap: '16px'
             }}>
               <h3 style={{ margin: 0, color: 'var(--ink)', fontSize: '1.05rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                🔑 {t('authorizationControls')}
+                 {t('authorizationControls')}
               </h3>
               <p style={{ color: 'var(--ink-2)', fontSize: '0.82rem', margin: 0 }}>
                 {t('authControlDesc')}
@@ -289,7 +289,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
                     onChange={(e) => handleToggleCheckbox('authorizedPostAsChurch', e.target.checked)}
                     style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
                   />
-                  📢 {t('postAsChurch')}
+                   {t('postAsChurch')}
                 </label>
 
                 <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600', color: 'var(--ink)' }}>
@@ -299,7 +299,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
                     onChange={(e) => handleToggleCheckbox('authorizedPostAsDept', e.target.checked)}
                     style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
                   />
-                  💼 {t('postAsDept')} ({memberState.dept || 'General'})
+                   {t('postAsDept')} ({memberState.dept || 'General'})
                 </label>
 
                 <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600', color: 'var(--ink)' }}>
@@ -319,7 +319,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
                     onChange={(e) => handleToggleCheckbox('authorizedCreateProgram', e.target.checked)}
                     style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
                   />
-                  📝 {t('authCreateProgram')}
+                   {t('authCreateProgram')}
                 </label>
               </div>
 
@@ -378,7 +378,7 @@ const MemberProfileScreen = ({ member, user, onBack, onMessage, onNavigate, onUp
               marginBottom: '12px'
             }}
           >
-            💬 {t('sendMessage')}
+             {t('sendMessage')}
           </button>
         </div>
       </div>

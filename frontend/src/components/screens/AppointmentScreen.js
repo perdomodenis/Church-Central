@@ -268,19 +268,19 @@ const AppointmentScreen = ({ user }) => {
                 {app.status === 'pending' ? (
                   <div style={{ fontSize: '0.8rem', color: '#444', marginTop: '8px', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '8px', border: '1px solid #f0f0f0' }}>
                     <div style={{ fontWeight: '600', marginBottom: '6px', fontSize: '0.75rem', color: 'var(--accent)' }}>Suggested Options:</div>
-                    <div style={{ marginBottom: '2px' }}>1️⃣ {app.date1} at {app.time1}</div>
-                    <div style={{ marginBottom: '2px' }}>2️⃣ {app.date2} at {app.time2}</div>
-                    <div>3️⃣ {app.date3} at {app.time3}</div>
+                    <div style={{ marginBottom: '2px' }}>1⃣ {app.date1} at {app.time1}</div>
+                    <div style={{ marginBottom: '2px' }}>2⃣ {app.date2} at {app.time2}</div>
+                    <div>3⃣ {app.date3} at {app.time3}</div>
                   </div>
                 ) : (
                   <div style={{ fontSize: '0.85rem', marginTop: '6px', color: app.status === 'approved' ? '#2e7d32' : '#c62828', fontWeight: '600' }}>
-                    📅 {app.date} at {app.time}
+                     {app.date} at {app.time}
                     {app.selectedSlot && <span style={{ fontSize: '0.75rem', opacity: 0.8, marginLeft: '8px', backgroundColor: 'rgba(46, 125, 50, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>(Option {app.selectedSlot})</span>}
                   </div>
                 )}
                 {app.pa && (
                   <div style={{ fontSize: '0.75rem', color: '#777', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span>🛡️</span>
+                    <span></span>
                     <span>{t('managedByPA') || 'Managed by PA'}: <strong>{app.pa.first} {app.pa.last}</strong></span>
                   </div>
                 )}

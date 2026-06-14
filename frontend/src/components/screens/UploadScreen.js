@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import * as Icon from '../common/Icons';
 
 // SCOPE_OPTIONS has been replaced by dynamic allowedScopes based on user.accessLevel
 
@@ -166,7 +167,7 @@ const UploadScreen = ({ onCancel, onDone, user }) => {
               color: 'var(--ink-2)'
             }}
           >
-            ✕
+            <Icon.Close />
           </button>
         </div>
 
@@ -302,7 +303,7 @@ const UploadScreen = ({ onCancel, onDone, user }) => {
                         justifyContent: 'center',
                         fontSize: '2rem'
                       }}>
-                        {att.type === 'video' ? '🎥' : '📄'}
+                        {att.type === 'video' ? '' : ''}
                       </div>
                     )}
                     <button
@@ -323,7 +324,7 @@ const UploadScreen = ({ onCancel, onDone, user }) => {
                         fontWeight: 'bold'
                       }}
                     >
-                      ✕
+                      <Icon.Close />
                     </button>
                     <p style={{ fontSize: '0.75rem', margin: '4px 0 0 0', color: 'var(--ink-3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {att.name}
