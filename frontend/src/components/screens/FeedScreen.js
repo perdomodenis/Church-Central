@@ -617,35 +617,18 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
   }).slice(0, 5);
 
   return (
-    <div className="feed-screen-container">
+    <div className="main-content nice-scroll">
+      <div className="feed-grid">
       
-      {/* 1. Left Sidebar: Grace Community Church Info (Desktop Only) */}
-      <aside className="left-sidebar grace-left-widget desktop-only">
-        <h2>⛪ {t('graceCommunityChurch')}</h2>
-        <p>{t('churchSubtitle')}</p>
-        <div>
-          <div className="grace-info-box">
-            <div className="label">{t('mainService')}</div>
-            <div className="value">{t('sunday10am')}</div>
-          </div>
-          <div className="grace-info-box">
-            <div className="label">{t('activeMembers')}</div>
-            <div className="value">{activeMembersCount > 0 ? activeMembersCount : '...'}</div>
-          </div>
-        </div>
-      </aside>
-
-      {/* 2. Main Feed Section */}
-      <main className="main-feed-content">
-        
-        {/* Sliding Scope Selector (Desktop Only) */}
+      <div className="feed-header">
+        {/* Sliding Scope Selector */}
         {onScope && (
-          <div className="scope-tabs-container desktop-only">
+          <div className="scope-tabs" style={{ marginBottom: 'var(--space-6)' }}>
             {scopeOptions.map(opt => (
               <button
                 key={opt}
                 onClick={() => onScope(opt)}
-                className={`scope-tab-button ${scope === opt ? 'active' : ''}`}
+                className={`scope-tab ${scope === opt ? 'active' : ''}`}
               >
                 {t(opt.toLowerCase())}
               </button>
@@ -655,23 +638,23 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
 
         {/* Channel Headers / Filters */}
         {scope === 'District' && user?.district && (
-          <div style={{ marginBottom: '16px', padding: '12px 16px', backgroundColor: 'var(--surface)', borderRadius: '12px', border: '1px solid var(--line-2)', fontWeight: '600', color: 'var(--ink)' }}>
+          <div style={{ marginBottom: '24px', padding: '12px 16px', backgroundColor: 'var(--surface)', borderRadius: '12px', border: '1px solid var(--border-soft)', fontWeight: '600', color: 'var(--fg)' }}>
             📍 Showing feeds for {user.district}
           </div>
         )}
 
         {scope === 'Department' && availableDepts.length > 0 && (
-          <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontWeight: '600', color: 'var(--ink)' }}>📁 Department:</span>
+          <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontWeight: '600', color: 'var(--fg)' }}>📁 Department:</span>
             <select
               value={selectedDept}
               onChange={(e) => setSelectedDept(e.target.value)}
               style={{
                 padding: '8px 12px',
                 borderRadius: '8px',
-                border: '1px solid var(--line)',
+                border: '1px solid var(--border)',
                 backgroundColor: 'var(--surface)',
-                color: 'var(--ink)',
+                color: 'var(--fg)',
                 fontFamily: 'inherit',
                 fontSize: '0.9rem',
                 outlineColor: 'var(--accent)'
@@ -683,17 +666,17 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
         )}
 
         {scope === 'Court' && availableCourts.length > 0 && (
-          <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontWeight: '600', color: 'var(--ink)' }}>⛪ Court:</span>
+          <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontWeight: '600', color: 'var(--fg)' }}>⛪ Court:</span>
             <select
               value={selectedCourt}
               onChange={(e) => setSelectedCourt(e.target.value)}
               style={{
                 padding: '8px 12px',
                 borderRadius: '8px',
-                border: '1px solid var(--line)',
+                border: '1px solid var(--border)',
                 backgroundColor: 'var(--surface)',
-                color: 'var(--ink)',
+                color: 'var(--fg)',
                 fontFamily: 'inherit',
                 fontSize: '0.9rem',
                 outlineColor: 'var(--accent)'
@@ -703,6 +686,10 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
             </select>
           </div>
         )}
+      </div>
+      
+      {/* Main Feed Section */}
+      <main className="main-feed">
 
 
 
@@ -728,29 +715,29 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
             return (
               <div
                 key={post.id}
-                className="feed-post-card"
+                className="widget post-card"
               >
-                <div className="post-author-row">
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className="widget-avatar av-grad" style={{ width: '40px', height: '40px', fontSize: '1rem', marginRight: '12px' }}>
+                <div className="post-author">
+                  <div className="author-info">
+                    <div className="author-avatar author-avatar--accent">
                       {post.author[0]}
                     </div>
                     <div>
-                      <div style={{ fontWeight: '700', fontSize: '0.95rem' }}>{post.author}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--ink-3)', marginTop: '2px' }}>{post.time}</div>
+                      <div className="author-name">{post.author}</div>
+                      <div className="post-time">{post.time}</div>
                     </div>
                   </div>
-                  <span className="post-scope-tag">{t(post.scope.toLowerCase())}</span>
+                  <span className="post-tag">{t(post.scope.toLowerCase())}</span>
                 </div>
 
-                <p style={{ lineHeight: '1.6', marginBottom: '16px', fontSize: '0.95rem', color: 'var(--ink)' }}>
+                <div className="post-content">
                   {post.content}
-                </p>
+                </div>
 
                 {post.image && (
                   isPdf ? (
                     <div style={{ marginBottom: '16px' }}>
-                      <div className="pdf-attachment-card">
+                      <div className="pdf-attachment-card" style={{ border: '1px solid var(--border)' }}>
                         <div className="pdf-info-left">
                           <div className="pdf-icon-frame">📄</div>
                           <div>
@@ -761,14 +748,14 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button
                             onClick={() => setSelectedPost(post)}
-                            className="pdf-download-btn"
+                            className="btn btn-outline" style={{ padding: '6px 12px' }}
                           >
                             👁️ {t('view')}
                           </button>
                           <a
                             href={`${backendUrl}/api/download?url=${encodeURIComponent(post.image)}`}
                             download
-                            className="pdf-download-btn"
+                            className="btn btn-primary" style={{ padding: '6px 12px' }}
                             onClick={(e) => e.stopPropagation()}
                           >
                             📥 {t('download')}
@@ -777,21 +764,22 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                       </div>
                     </div>
                   ) : (
-                    <div style={{ borderRadius: '16px', overflow: 'hidden', marginBottom: '16px', border: '1px solid var(--line-2)' }}>
+                    <div className="post-image">
                       <img
                         src={post.image}
                         alt="Post content"
-                        style={{ width: '100%', objectFit: 'cover', maxHeight: '320px', display: 'block', cursor: 'zoom-in' }}
+                        style={{ width: '100%', objectFit: 'cover', maxHeight: '400px', display: 'block', cursor: 'zoom-in' }}
                         onClick={() => setSelectedPost(post)}
                       />
                     </div>
                   )
                 )}
 
-                <div className="post-actions-row">
+                <div className="post-actions">
                   <button
                     onClick={(e) => handleLikeClick(post.id, e)}
-                    className={`post-action-button ${hasLiked ? 'liked' : ''} ${heartbeatActive[post.id] ? 'heartbeat-active' : ''}`}
+                    className={`action-button ${hasLiked ? 'liked' : ''} ${heartbeatActive[post.id] ? 'heartbeat-active' : ''}`}
+                    style={hasLiked ? { color: 'var(--accent)' } : {}}
                   >
                     <span>{hasLiked ? '❤️' : '🤍'}</span>
                     <span>{totalLikes} {totalLikes === 1 ? t('like') : t('likes')}</span>
@@ -799,13 +787,13 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                   
                   <button
                     onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
-                    className="post-action-button"
+                    className="action-button"
                   >
                     <span>💬</span>
                     <span>{commentCount(post.id)} {commentCount(post.id) === 1 ? t('comment') : t('comments')}</span>
                   </button>
                   
-                  <button onClick={(e) => handleShareClick(post, e)} className="post-action-button">
+                  <button onClick={(e) => handleShareClick(post, e)} className="action-button">
                     <span>🔗</span>
                     <span>{t('share')}</span>
                   </button>
@@ -872,11 +860,11 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                           flex: 1,
                           padding: '10px 14px',
                           borderRadius: '12px',
-                          border: '1px solid var(--line)',
+                          border: '1px solid var(--border)',
                           fontSize: '0.85rem',
                           fontFamily: 'inherit',
                           backgroundColor: 'var(--surface)',
-                          color: 'var(--ink)'
+                          color: 'var(--fg)'
                         }}
                       />
                       <button
@@ -893,25 +881,39 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
             );
           })
         ) : (
-          <div className="grace-empty-state">
+          <div className="empty-state">
             <div className="icon">🔔</div>
             <p>{t('noUpdates')}</p>
           </div>
         )}
       </main>
 
-      {/* 3. Right Sidebar: Events & RSVP Widget */}
-      <aside className="right-sidebar">
-        <div className="grace-right-widget">
+      {/* Sidebar: Grace Community Church Info & Events (Desktop Only) */}
+      <aside className="widget right-sidebar-widget">
+        <h2>⛪ {t('graceCommunityChurch')}</h2>
+        <p>{t('churchSubtitle')}</p>
+        <div>
+          <div className="info-box">
+            <div className="label">{t('mainService')}</div>
+            <div className="value">{t('sunday10am')}</div>
+          </div>
+          <div className="info-box">
+            <div className="label">{t('activeMembers')}</div>
+            <div className="value">{activeMembersCount > 0 ? activeMembersCount : '...'}</div>
+          </div>
+        </div>
+
+        {/* Upcoming Events in Sidebar Footer */}
+        <div className="widget-footer">
           <h3>📅 {t('upcomingEventsTitle')}</h3>
           <p className="subtitle">{t('connectFellowship')}</p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {loadingEvents ? (
-              <p style={{ color: 'var(--ink-3)', fontSize: '0.8rem' }}>{t('loadingEvents')}</p>
+              <p style={{ color: 'var(--muted)', fontSize: '0.8rem' }}>{t('loadingEvents')}</p>
             ) : events.length === 0 ? (
-              <div className="grace-empty-state">
-                <div className="icon">📅</div>
+              <div className="empty-state" style={{ padding: '24px 16px' }}>
+                <div className="icon" style={{ fontSize: '1.5rem' }}>📅</div>
                 <p>No upcoming events yet.</p>
               </div>
             ) : (
@@ -932,18 +934,19 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                       <span>{month}</span>
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--ink)' }}>{event.title}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--ink-3)', marginTop: '2px' }}>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--fg)' }}>{event.title}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '2px' }}>
                         {formattedTime} • {event.location}
                       </div>
-                      <div className="rsvp-button-group">
+                      <div className="rsvp-button-group" style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                         <button
                           onClick={() => handleRSVP(event, 'going')}
                           disabled={!user || submittingRSVP[event.id]}
-                          className={`rsvp-btn ${isAttending ? 'selected' : ''}`}
+                          className={`btn ${isAttending ? 'btn-primary' : ''}`}
                           style={{
                             opacity: submittingRSVP[event.id] ? 0.7 : 1,
-                            cursor: (user && !submittingRSVP[event.id]) ? 'pointer' : 'not-allowed'
+                            cursor: (user && !submittingRSVP[event.id]) ? 'pointer' : 'not-allowed',
+                            padding: '4px 8px', fontSize: '12px', border: isAttending ? 'none' : '1px solid var(--border)', background: isAttending ? '' : 'transparent'
                           }}
                         >
                           {isAttending ? `✓ ${t('going')}` : t('going')}
@@ -951,11 +954,11 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
                         <button
                           onClick={() => handleRSVP(event, 'declined')}
                           disabled={!user || submittingRSVP[event.id]}
-                          className={`rsvp-btn ${isDeclined ? 'selected' : ''}`}
+                          className={`btn ${isDeclined ? 'btn-primary' : ''}`}
                           style={{
                             opacity: submittingRSVP[event.id] ? 0.7 : 1,
                             cursor: (user && !submittingRSVP[event.id]) ? 'pointer' : 'not-allowed',
-                            ...(isDeclined ? { backgroundColor: '#c62828', borderColor: '#c62828' } : {})
+                            padding: '4px 8px', fontSize: '12px', border: isDeclined ? 'none' : '1px solid var(--border)', background: isDeclined ? '#c62828' : 'transparent', color: isDeclined ? '#fff' : 'inherit'
                           }}
                         >
                           {t('notGoing')}
@@ -967,18 +970,9 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
               })
             )}
           </div>
-
-          <div style={{ borderTop: '1px solid var(--line)', paddingTop: 'var(--space-4)', marginTop: 'var(--space-4)' }}>
-            <button
-              onClick={() => onAction && onAction('compose')}
-              className="btn btn-primary"
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              {t('composeAnnouncement')}
-            </button>
-          </div>
         </div>
       </aside>
+      </div>
 
       {/* Post Detail Modal */}
       {selectedPost && (

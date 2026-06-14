@@ -15,50 +15,49 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
   ];
 
   return (
-    <div className="grace-header">
-      <div className="grace-header-logo">
+    <header className="main-header">
+      <div className="header-logo">
         {title || 'Church Central'}
       </div>
       
       {/* Navigation Tabs - Center */}
-      <div className="grace-header-nav">
+      <nav className="header-nav nice-scroll">
         {tabs.map(tab => {
           const isActive = route === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => onNavigate(tab.id)}
-              className={`grace-nav-btn ${isActive ? 'active' : ''}`}
+              className={`nav-button ${isActive ? 'active' : ''}`}
             >
-              <span className="nav-icon" style={{ position: 'relative' }}>
-                {tab.icon}
+              <span style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 {tab.id === 'inbox' && hasNewInbox && <div className="grace-red-dot" style={{ top: -4, right: -4 }} />}
               </span>
-              <span className="nav-label desktop-only">
+              <span>
                 {tab.label}
               </span>
             </button>
           );
         })}
-      </div>
+      </nav>
 
-      <div className="grace-header-actions">
-        <button onClick={() => onAction && onAction('upload')} className="grace-new-post-btn" title="New Post">
-          <Icon.Plus />
+      <div className="header-actions">
+        <button onClick={() => onAction && onAction('upload')} className="new-post-btn" title="New Post">
+          +
         </button>
         <div onClick={onProfile} style={{ cursor: 'pointer' }}>
-           <div className="grace-profile-avatar">
+           <div className="profile-avatar" title="User Profile">
              {user?.profilePhoto ? (
                <img src={user.profilePhoto} alt="Profile" />
              ) : (
-               <span className="avatar-initial">
-                 {user?.first ? user.first[0].toUpperCase() : <Icon.User />}
+               <span className="profile-avatar-initial">
+                 {user?.first ? user.first[0].toUpperCase() : 'U'}
                </span>
              )}
            </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 
