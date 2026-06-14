@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { rtdb } from '../services/firebase';
+import { rtdb, messaging } from '../services/firebase';
 import { ref, onValue } from 'firebase/database';
+import { getToken, onMessage, isSupported } from 'firebase/messaging';
+import { saveFcmToken, removeFcmToken } from '../services/notificationService';
 
 const NotificationContext = createContext();
 
@@ -144,6 +146,8 @@ export const NotificationProvider = ({ children }) => {
         };
     }, [user?.uid]);
 
+
+
     const addNotification = useCallback((message, type = 'info', duration = 5000) => {
         const id = Date.now();
         const notificationData = { id, message, type }; 
@@ -163,6 +167,35 @@ export const NotificationProvider = ({ children }) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
     }, []);
 
+    // Handle incoming FCM foreground messages
+    useEffect(() => {
+        const setupForegroundMessaging = async () => {
+            try {
+                const supported = await isSupported();
+                if (supported && messaging) {
+                    const unsubscribe = onMessage(messaging, (payload) => {
+                        console.log('Received foreground message:', payload);
+                        if (payload.notification) {
+                            addNotification(
+                                `${payload.notification.title}: ${payload.notification.body}`,
+                                'info',
+                                8000
+                            );
+                        }
+                    });
+                    return unsubscribe;
+                }
+            } catch (err) {
+                console.error('Error setting up foreground messaging:', err);
+            }
+        };
+        let unsub = null;
+        setupForegroundMessaging().then(u => { unsub = u; });
+        return () => {
+            if (typeof unsub === 'function') unsub();
+        };
+    }, [addNotification]);
+
     const togglePushNotifications = async (enabled) => {
         if (enabled) {
             if ('Notification' in window) {
@@ -170,6 +203,34 @@ export const NotificationProvider = ({ children }) => {
                 if (permission === 'granted') {
                     setPushEnabled(true);
                     localStorage.setItem('pushNotificationsEnabled', 'true');
+                    
+                    try {
+                        const supported = await isSupported();
+                        if (supported && messaging) {
+                            const configObj = {
+                                apiKey: process.env.REACT_APP_FIREBASE_PUBLISHABLE_API_KEY,
+                                authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+                                projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+                                storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+                                messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+                                appId: process.env.REACT_APP_FIREBASE_APP_ID,
+                            };
+                            const swUrl = `/firebase-messaging-sw.js?config=${encodeURIComponent(JSON.stringify(configObj))}`;
+                            const registration = await navigator.serviceWorker.register(swUrl);
+                            
+                            const token = await getToken(messaging, {
+                                vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
+                                serviceWorkerRegistration: registration
+                            });
+                            
+                            if (token && user?.uid) {
+                                await saveFcmToken(user.uid, token);
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Failed to get FCM token:', err);
+                    }
+
                     return true;
                 } else {
                     setPushEnabled(false);

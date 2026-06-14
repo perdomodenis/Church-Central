@@ -1,5 +1,5 @@
 import { rtdb } from './firebase';
-import { ref, push, set as rtdbSet } from 'firebase/database';
+import { ref, push, set as rtdbSet, remove } from 'firebase/database';
 import { getAllMembers } from './memberService';
 
 /**
@@ -73,5 +73,34 @@ export const sendInboxNotificationByEmail = async (email, details) => {
   } catch (error) {
     console.error('Error sending inbox notification by email:', error);
     return false;
+  }
+};
+
+/**
+ * Saves an FCM device token for the user.
+ */
+export const saveFcmToken = async (userId, token) => {
+  if (!userId || !token) return;
+  try {
+    // Replace dots and invalid characters in the token just in case
+    const safeToken = token.replace(/[\.\#\$\/\[\]]/g, '_');
+    const tokenRef = ref(rtdb, `fcmTokens/${userId}/${safeToken}`);
+    await rtdbSet(tokenRef, token);
+  } catch (error) {
+    console.error('Error saving FCM token:', error);
+  }
+};
+
+/**
+ * Removes an FCM device token.
+ */
+export const removeFcmToken = async (userId, token) => {
+  if (!userId || !token) return;
+  try {
+    const safeToken = token.replace(/[\.\#\$\/\[\]]/g, '_');
+    const tokenRef = ref(rtdb, `fcmTokens/${userId}/${safeToken}`);
+    await remove(tokenRef);
+  } catch (error) {
+    console.error('Error removing FCM token:', error);
   }
 };
