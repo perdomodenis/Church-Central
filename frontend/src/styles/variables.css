@@ -120,7 +120,7 @@ body {
 /* ─── Cards ──────────────────────────────────────────────── */
 .card {
   background-color: var(--surface);
-  border: 1px solid var(--line);
+  border: none;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-1);
 }
