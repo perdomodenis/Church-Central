@@ -134,9 +134,19 @@ const SignupScreen = ({ data, onChange, onNext, onBack }) => {
                             onChange={(e) => onChange({ pw2: e.target.value })} 
                           />
                       </div>
-                      <button type="submit" className="btn btn-primary">
-                        {t('continue') || 'Continue'}
-                      </button>
+                      <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                          <button 
+                            type="button" 
+                            className="btn" 
+                            style={{ flex: 1, marginTop: 0, backgroundColor: 'var(--bg)', border: '1px solid var(--line-2)', color: 'var(--ink-2)' }} 
+                            onClick={onBack}
+                          >
+                            {t('cancel') || 'Cancel'}
+                          </button>
+                          <button type="submit" className="btn btn-primary" style={{ flex: 1, marginTop: 0 }}>
+                            {t('continue') || 'Continue'}
+                          </button>
+                      </div>
                   </form>
               </div>
               <div className="auth-footer" style={{ paddingBottom: '0px', marginBottom: '6px' }}>

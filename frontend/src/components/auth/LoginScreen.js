@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import './LoginScreen.css';
+import './SignupScreen.css';
 
 const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
   const { t } = useLanguage();
@@ -25,13 +26,33 @@ const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
   };
 
   return (
-    <div className="split-screen-container">
-        <div className="image-panel" style={{ backgroundImage: 'url("/auth-bg.png")' }}></div>
-        <div className="form-panel">
-            <div className="login-panel">
+    <div style={{
+      position: 'relative',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundImage: 'url("/auth-bg.png")',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed',
+      display: 'grid',
+      placeItems: 'center',
+      padding: '24px',
+      boxSizing: 'border-box'
+    }}>
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.6)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        zIndex: 0
+      }}></div>
+
+      <div className="main-container" style={{ zIndex: 1 }}>
+          <div className="auth-panel">
                 <h1>{t('welcome') || 'Welcome to Church Central'}</h1>
                 <p>"For where two or three are gathered in my name, there am I among them."</p>
-                <div className="login-card">
+                <div className="auth-card">
                     <form onSubmit={handleSubmit}>
                         <div className="field-wrap">
                             <label htmlFor="email">{t('email') || 'Email Address'}</label>
@@ -72,11 +93,11 @@ const LoginScreen = ({ onLogin, onSignup, onForgot, onGoogleLogin }) => {
                             <span>{loading ? (t('signingIn') || 'Signing in...') : (t('signInWithGoogle') || 'Sign in with Google')}</span>
                         </button>
                     </form>
-                    <div className="login-footer">
+                    <div className="auth-footer">
                         <button onClick={onForgot}>{t('forgotPassword') || 'Forgot Password?'}</button>
                     </div>
                 </div>
-                <div className="login-footer" style={{ paddingBottom: '0px', marginTop: '24px' }}>
+                <div className="auth-footer" style={{ paddingBottom: '0px', marginTop: '24px' }}>
                     {t('dontHaveAccount') || "Don't have an account?"} <button onClick={onSignup}>{t('signUpHere') || 'Sign Up'}</button>
                 </div>
             </div>

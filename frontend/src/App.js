@@ -513,6 +513,7 @@ function App() {
           hasNewMessages={hasNewMessages}
           onProfile={() => handleNavigate('profile')}
           onAction={handleFab}
+          onMessagesClick={() => setIsMessagesOpen(!isMessagesOpen)}
           route={route}
           onNavigate={handleNavigate}
         />
@@ -521,44 +522,6 @@ function App() {
       <div className="nice-scroll" style={{ flex: 1, overflow: 'auto', paddingTop: inAuth ? 0 : 6, paddingBottom: inAuth ? 0 : 24, position: 'relative' }}>
         {body}
       </div>
-
-      {!inAuth && (
-        <button 
-          onClick={() => setIsMessagesOpen(!isMessagesOpen)}
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            width: '60px',
-            height: '60px',
-            borderRadius: '30px',
-            backgroundColor: 'var(--accent)',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: 'var(--shadow-hover)',
-            zIndex: 2000,
-            cursor: 'pointer',
-            border: 'none',
-            transition: 'transform 0.2s'
-          }}
-        >
-          <span style={{ fontSize: '1.8rem' }}><Icon.Message /></span>
-          {hasNewMessages && (
-            <div style={{
-              position: 'absolute',
-              top: '12px',
-              right: '12px',
-              width: '12px',
-              height: '12px',
-              backgroundColor: '#ff3b30',
-              borderRadius: '50%',
-              border: '2px solid var(--accent)'
-            }} />
-          )}
-        </button>
-      )}
 
       {isMessagesOpen && (
         <div className="messages-overlay-panel">
