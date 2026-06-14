@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import * as Icon from './Icons';
 import { useLanguage } from '../../context/LanguageContext';
 
-export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewMessages = false, onAction, route, onNavigate }) => {
+export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewMessages = false, onAction, route, onNavigate, onMessagesClick }) => {
   const { t } = useLanguage();
   const level = user?.accessLevel || 1;
 
@@ -12,6 +12,7 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
     ...(level >= 2 ? [{ id: 'mgmt', icon: <Icon.Management />, label: t('management') || 'Management' }] : []),
     { id: 'members', icon: <Icon.Church />, label: t('church') || 'Church' },
     { id: 'inbox', icon: <Icon.Inbox />, label: t('inbox') || 'Inbox' },
+    { id: 'profile', icon: <Icon.Profile />, label: t('profile') || 'Profile', mobileOnly: true },
   ];
 
   return (
@@ -20,20 +21,23 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
         {title || 'Church Central'}
       </div>
       
-      {/* Navigation Tabs - Center */}
+      {/* Navigation Tabs - Center / Bottom on Mobile */}
       <nav className="header-nav nice-scroll">
         {tabs.map(tab => {
-          const isActive = route === tab.id;
+          const isActive = route === tab.id || (tab.id === 'profile' && route === 'profile');
+          const isMobileOnly = tab.mobileOnly ? 'mobile-only-tab' : '';
           return (
             <button
               key={tab.id}
-              onClick={() => onNavigate(tab.id)}
-              className={`nav-button ${isActive ? 'active' : ''}`}
+              onClick={() => tab.id === 'profile' ? onProfile() : onNavigate(tab.id)}
+              className={`nav-button ${isActive ? 'active' : ''} ${isMobileOnly}`}
+              title={tab.label}
             >
-              <span style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <span className="nav-icon" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                {tab.icon}
                 {tab.id === 'inbox' && hasNewInbox && <div className="grace-red-dot" style={{ top: -4, right: -4 }} />}
               </span>
-              <span>
+              <span className="nav-label">
                 {tab.label}
               </span>
             </button>
@@ -41,7 +45,8 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
         })}
       </nav>
 
-      <div className="header-actions">
+      {/* Desktop Actions */}
+      <div className="header-actions desktop-only-actions">
         <button onClick={() => onAction && onAction('upload')} className="new-post-btn" title="New Post">
           +
         </button>
@@ -56,6 +61,17 @@ export const TopHeader = ({ title, onProfile, user, hasNewInbox = false, hasNewM
              )}
            </div>
         </div>
+      </div>
+
+      {/* Mobile Actions */}
+      <div className="header-actions mobile-only-actions" style={{ gap: '16px' }}>
+        <button onClick={() => onAction && onAction('upload')} className="mobile-action-btn" title="New Post">
+          <Icon.Plus />
+        </button>
+        <button onClick={onMessagesClick} className="mobile-action-btn" title="Messages" style={{ position: 'relative' }}>
+          <Icon.Message />
+          {hasNewMessages && <div className="grace-red-dot" style={{ top: -2, right: -2 }} />}
+        </button>
       </div>
     </header>
   );

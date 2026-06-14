@@ -623,17 +623,35 @@ const FeedScreen = ({ scope, onScope, onAction, user, refreshKey, onSelectMember
       <div className="feed-header">
         {/* Sliding Scope Selector */}
         {onScope && (
-          <div className="scope-tabs" style={{ marginBottom: 'var(--space-6)' }}>
+          <>
+          {/* Desktop Tabs */}
+          <div className="scope-tabs desktop-only-scopes" style={{ marginBottom: 'var(--space-6)' }}>
             {scopeOptions.map(opt => (
-              <button
+              <button 
                 key={opt}
                 onClick={() => onScope(opt)}
                 className={`scope-tab ${scope === opt ? 'active' : ''}`}
               >
-                {t(opt.toLowerCase())}
+                {t(opt.toLowerCase()) || opt.charAt(0).toUpperCase() + opt.slice(1)}
               </button>
             ))}
           </div>
+
+          {/* Mobile Dropdown */}
+          <div className="scope-dropdown-container mobile-only-scopes" style={{ marginBottom: 'var(--space-6)' }}>
+            <select 
+              value={scope} 
+              onChange={(e) => onScope(e.target.value)}
+              className="scope-dropdown"
+            >
+              {scopeOptions.map(opt => (
+                <option key={opt} value={opt}>
+                  {t(opt.toLowerCase()) || opt.charAt(0).toUpperCase() + opt.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+          </>
         )}
 
         {/* Channel Headers / Filters */}
